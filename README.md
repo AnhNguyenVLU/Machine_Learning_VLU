@@ -8,15 +8,15 @@ Mỗi bài lab gồm ba phần: **lý thuyết** giải thích "vì sao" trướ
 
 ```
 Machine Learning/
-├── 1. Linear_Regression/             # Hồi quy tuyến tính, Normal Eq + GD
-├── 2. Logistic_Regression/           # Hồi quy logistic — bắc cầu sang phân loại
-├── 3. Naive_Bayes/                   # Phân loại xác suất, Bernoulli/Multinomial/Gaussian
-├── 4. KNN/                           # K-Nearest Neighbors, scale & metric
-├── 5. DecisionTree_RandomForest/     # Cây quyết định + ensemble
-├── 6. SVM/                           # Support Vector Machine + kernel trick
-├── 7. Accuracy_Metrics/              # Confusion matrix, Precision/Recall/F1, ROC-AUC
-├── 8. K-Means/                       # Clustering không giám sát
-├── 9. MLP/                           # Multi-Layer Perceptron với PyTorch
+├── 01. Linear_Regression/            # Hồi quy tuyến tính, Normal Eq + GD
+├── 02. Logistic_Regression/          # Hồi quy logistic — bắc cầu sang phân loại
+├── 03. Naive_Bayes/                  # Phân loại xác suất, Bernoulli/Multinomial/Gaussian
+├── 04. KNN/                          # K-Nearest Neighbors, scale & metric
+├── 05. DecisionTree_RandomForest/    # Cây quyết định + ensemble
+├── 06. SVM/                          # Support Vector Machine + kernel trick
+├── 07. Accuracy_Metrics/             # Confusion matrix, Precision/Recall/F1, ROC-AUC
+├── 08. K-Means/                      # Clustering không giám sát
+├── 09. MLP/                          # Multi-Layer Perceptron với PyTorch
 ├── 10. Thi_Thu/                      # Đề thi thử
 ├── 11. Final_Examination/            # Đề thi cuối kỳ
 └── README.md
