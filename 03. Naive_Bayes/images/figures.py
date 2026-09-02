@@ -113,23 +113,28 @@ def fig_naive_assumption():
     ax.set_xlim(-3.6, 3.6); ax.set_ylim(-3.6, 3.6)
 
     ax = axes[2]; ax.axis("off")
-    ax.text(0, .98, "Giả định naive đánh đổi cái gì?", fontsize=11.5, fontweight="bold", va="top")
-    ax.text(0, .84, "$P(x_1,\\dots,x_n\\,|\\,y)=\\prod_{i=1}^{n} P(x_i\\,|\\,y)$",
-            fontsize=13.5, va="top")
-    ax.text(0, .66,
-            "MẤT: toàn bộ thông tin về tương quan\ngiữa các feature (hình giữa méo hẳn\nso với hình trái).\n\n"
-            "ĐƯỢC: số tham số phải ước lượng giảm\ntừ hàm MŨ xuống hàm TUYẾN TÍNH.",
-            fontsize=9.5, va="top", color="#374151")
-    ax.text(0, .30, "Với $n$ feature nhị phân, mỗi lớp cần:", fontsize=9.5, va="top",
-            fontweight="bold")
-    ax.text(0, .22, "• Phân phối liên kết đầy đủ: $2^n - 1$ tham số\n"
-                    "   → $n=30$ cần hơn 1 TỶ tham số\n"
-                    "• Naive Bayes: chỉ $n$ tham số\n"
-                    "   → $n=30$ cần đúng 30",
-            fontsize=9.5, va="top", color="#374151")
-    ax.text(0, .02, "Sai giả định nhưng vẫn dùng được, vì phân loại\nchỉ cần argmax đúng — "
-                    "chứ không cần xác suất đúng.",
-            fontsize=9.3, va="bottom", color=C2, style="italic")
+    ax.text(0, 1.02, "Giả định naive đánh đổi cái gì?", fontsize=11.5,
+            fontweight="bold", va="top")
+    ax.text(0, .90, "$P(x_1,\\dots,x_n\\mid y)=\\prod_{i=1}^{n} P(x_i\\mid y)$",
+            fontsize=12.5, va="top")
+    ax.text(0, .74,
+            "MẤT: toàn bộ thông tin về tương quan giữa\ncác feature (hình giữa méo hẳn so với trái).",
+            fontsize=9.2, va="top", color="#374151")
+    ax.text(0, .60,
+            "ĐƯỢC: số tham số phải ước lượng giảm từ\nhàm MŨ xuống hàm TUYẾN TÍNH.",
+            fontsize=9.2, va="top", color="#374151")
+    ax.text(0, .44, "Với $n$ feature nhị phân, mỗi lớp cần:", fontsize=9.4,
+            va="top", fontweight="bold")
+    ax.text(0, .35,
+            "• Phân phối liên kết đầy đủ: $2^n-1$ tham số\n"
+            "    $n=30$ → hơn 1 TỶ tham số\n"
+            "• Naive Bayes: chỉ $n$ tham số\n"
+            "    $n=30$ → đúng 30",
+            fontsize=9.2, va="top", color="#374151")
+    ax.text(0, .10,
+            "Sai giả định nhưng vẫn dùng được, vì phân loại\n"
+            "chỉ cần argmax đúng — không cần xác suất đúng.",
+            fontsize=9.0, va="top", color=C2, style="italic")
     fig.suptitle("Vì sao gọi là \"NAIVE\": đánh đổi độ chính xác của xác suất lấy sự đơn giản",
                  fontweight="bold")
     fig.tight_layout()
@@ -302,56 +307,76 @@ def fig_log_probabilities():
 
 # ---------------------------------------------------------------- 7
 def fig_generative_vs_discriminative():
+    """Đường học của NB và Logistic trong HAI thế giới: giả định độc lập đúng và sai."""
     from sklearn.naive_bayes import GaussianNB
     from sklearn.linear_model import LogisticRegression
-    from sklearn.datasets import make_classification
     from sklearn.model_selection import train_test_split
 
-    X, y = make_classification(n_samples=4000, n_features=20, n_informative=8,
-                               n_redundant=2, random_state=0)
-    Xtr, Xte, ytr, yte = train_test_split(X, y, test_size=.4, random_state=0, stratify=y)
-    sizes = [10, 20, 40, 80, 160, 320, 640, 1280, 2400]
-    rng = np.random.default_rng(0)
-    nb_m, lr_m = [], []
-    for s in sizes:
-        nb_s, lr_s = [], []
-        for rep in range(25):
-            idx = rng.choice(len(Xtr), s, replace=False)
-            if len(np.unique(ytr[idx])) < 2:
-                continue
-            nb_s.append(GaussianNB().fit(Xtr[idx], ytr[idx]).score(Xte, yte))
-            lr_s.append(LogisticRegression(max_iter=3000).fit(Xtr[idx], ytr[idx]).score(Xte, yte))
-        nb_m.append(np.mean(nb_s)); lr_m.append(np.mean(lr_s))
+    def curve(rho, d=50, n=9000, sep=.30, seed=0):
+        """rho = 0: feature độc lập có điều kiện (đúng giả định NB).
+           rho > 0: có yếu tố chung -> feature tương quan (sai giả định NB)."""
+        rng = np.random.default_rng(seed)
+        y = rng.integers(0, 2, n)
+        mu = rng.normal(0, sep, (2, d))
+        shared = rng.normal(0, 1, (n, 1))
+        X = mu[y] + np.sqrt(rho) * shared + np.sqrt(1 - rho) * rng.normal(0, 1, (n, d))
+        Xtr, Xte, ytr, yte = train_test_split(X, y, test_size=.45, random_state=1, stratify=y)
+        sizes = [16, 32, 64, 128, 256, 512, 1024, 2048, 4000]
+        nb, lr = [], []
+        r = np.random.default_rng(seed + 1)
+        for sz in sizes:
+            a, b = [], []
+            for _ in range(20):
+                idx = r.choice(len(Xtr), sz, replace=False)
+                if len(np.unique(ytr[idx])) < 2:
+                    continue
+                a.append(GaussianNB().fit(Xtr[idx], ytr[idx]).score(Xte, yte))
+                b.append(LogisticRegression(max_iter=4000).fit(Xtr[idx], ytr[idx]).score(Xte, yte))
+            nb.append(np.mean(a)); lr.append(np.mean(b))
+        return sizes, np.array(nb), np.array(lr)
 
-    fig, axes = plt.subplots(1, 2, figsize=(12.5, 4.2))
-    ax = axes[0]
-    ax.plot(sizes, nb_m, "o-", color=C3, lw=2.2, label="Gaussian NB (sinh mẫu / generative)")
-    ax.plot(sizes, lr_m, "s-", color=C1, lw=2.2, label="Logistic Regression (phân biệt / discriminative)")
-    ax.set_xscale("log"); ax.set_xlabel("số mẫu huấn luyện (log)")
-    ax.set_ylabel("accuracy trên tập test"); ax.legend(fontsize=8.5)
-    ax.set_title("Naive Bayes thắng khi ÍT dữ liệu,\nLogistic thắng khi NHIỀU dữ liệu", fontsize=10)
-    ax.annotate("điểm giao nhau", (sizes[3], (nb_m[3] + lr_m[3]) / 2),
-                xytext=(30, min(nb_m) + .02), fontsize=8.5,
-                arrowprops=dict(arrowstyle="->", color="dimgray"))
-
-    ax = axes[1]; ax.axis("off")
-    rows = [
-        ["", "Sinh mẫu (Generative)", "Phân biệt (Discriminative)"],
-        ["Học cái gì", "$P(x, y)$ — toàn bộ thế giới", "$P(y \\mid x)$ — chỉ ranh giới"],
-        ["Ví dụ", "Naive Bayes, LDA, GMM, HMM", "Logistic Regression, SVM, cây, MLP"],
-        ["Tốc độ train", "Một lượt đếm — cực nhanh", "Phải tối ưu lặp"],
-        ["Ít dữ liệu", "Tốt hơn (bias giúp đỡ)", "Dễ overfit"],
-        ["Nhiều dữ liệu", "Bị chặn bởi giả định sai", "Tốt hơn — bias thấp"],
-        ["Sinh dữ liệu mới", "Có thể", "Không thể"],
-        ["Dữ liệu thiếu", "Xử lý tự nhiên", "Phải điền khuyết trước"],
+    fig = plt.figure(figsize=(15, 4.5))
+    panels = [
+        (0.0, "THẾ GIỚI A — giả định độc lập ĐÚNG\n(feature độc lập có điều kiện)",
+         "NB đúng mô hình → hội tụ sớm (từ ~100 mẫu)\nvà về đích CAO HƠN Logistic"),
+        (0.55, "THẾ GIỚI B — giả định độc lập SAI\n(các feature chia sẻ một yếu tố chung)",
+         "NB bị CHẶN bởi giả định sai;\nLogistic vượt lên và giữ khoảng cách"),
     ]
-    t = ax.table(cellText=rows[1:], colLabels=rows[0], loc="center", cellLoc="left")
-    t.auto_set_font_size(False); t.set_fontsize(8.4); t.scale(1, 1.55)
+    for k, (rho, ttl, note) in enumerate(panels):
+        sizes, nb, lr = curve(rho)
+        ax = fig.add_subplot(1, 3, k + 1)
+        ax.plot(sizes, nb, "o-", color=C3, lw=2.3, label="Gaussian NB (sinh mẫu)")
+        ax.plot(sizes, lr, "s-", color=C1, lw=2.3, label="Logistic Regression (phân biệt)")
+        ax.set_xscale("log")
+        ax.set_xlabel("số mẫu huấn luyện (thang log)")
+        ax.set_ylabel("accuracy trên tập test")
+        ax.legend(fontsize=8.2, loc="lower right")
+        ax.set_title(ttl, fontsize=9.8)
+        hi = max(nb.max(), lr.max()); lo = min(nb.min(), lr.min())
+        ax.set_ylim(lo - (hi - lo) * .08, hi + (hi - lo) * .28)
+        ax.text(sizes[0] * 1.05, hi + (hi - lo) * .22, note, fontsize=8.6,
+                color="#374151", va="top")
+
+    ax = fig.add_subplot(1, 3, 3); ax.axis("off")
+    rows = [
+        ["", "Sinh mẫu\n(Generative)", "Phân biệt\n(Discriminative)"],
+        ["Học cái gì", "$P(x,y)$\ntoàn bộ thế giới", "$P(y\\mid x)$\nchỉ ranh giới"],
+        ["Ví dụ", "Naive Bayes, LDA,\nGMM, HMM", "Logistic, SVM,\ncây, MLP"],
+        ["Tốc độ train", "Một lượt đếm", "Tối ưu lặp"],
+        ["Cần bao nhiêu mẫu\nđể hội tụ", "Rất ít", "Nhiều hơn"],
+        ["Trần hiệu năng", "Bị chặn nếu\ngiả định sai", "Cao hơn khi\nđủ dữ liệu"],
+        ["Sinh dữ liệu mới", "Có thể", "Không thể"],
+        ["Dữ liệu thiếu", "Xử lý tự nhiên", "Phải điền khuyết"],
+    ]
+    t = ax.table(cellText=rows[1:], colLabels=rows[0], loc="center", cellLoc="left",
+                 colWidths=[.30, .35, .35])
+    t.auto_set_font_size(False); t.set_fontsize(8.0); t.scale(1, 2.35)
     for j in range(3):
         t[0, j].set_facecolor("#e5e7eb"); t[0, j].set_text_props(fontweight="bold")
-    ax.set_title("Hai trường phái mô hình hoá", fontsize=10.5, fontweight="bold")
-    fig.suptitle("Naive Bayes là mô hình SINH MẪU — hệ quả thực tế của điều đó",
-                 fontweight="bold")
+    ax.set_title("Hai trường phái mô hình hoá", fontsize=10.5, fontweight="bold", pad=16)
+
+    fig.suptitle("Naive Bayes là mô hình SINH MẪU: bias cao, variance thấp — "
+                 "lợi hay hại tuỳ giả định có đúng không", fontweight="bold")
     fig.tight_layout()
     save(fig, "07_sinh_mau_vs_phan_biet.png")
 
@@ -384,26 +409,27 @@ def fig_correlation_hurts():
     ax.set_title("Nhân bản feature → NB tụt, Logistic gần như đứng yên", fontsize=10)
 
     ax = axes[1]; ax.axis("off")
-    ax.text(0, .97, "Vì sao nhân bản feature lại giết Naive Bayes?", fontsize=11,
+    ax.text(0, 1.00, "Vì sao nhân bản feature lại giết Naive Bayes?", fontsize=11,
             fontweight="bold", va="top")
-    ax.text(0, .80,
+    ax.text(0, .88,
             "Giả sử $x_1$ được sao thành $x_1, x_1', x_1''$ (giống hệt nhau).\n"
             "Naive Bayes nhân likelihood ba lần:",
-            fontsize=9.5, va="top", color="#374151")
-    ax.text(0, .60, r"$P(x_1|y)\cdot P(x_1'|y)\cdot P(x_1''|y) = P(x_1|y)^3$",
-            fontsize=13, va="top")
-    ax.text(0, .44,
-            "→ MỘT bằng chứng bị TÍNH BA LẦN.\n"
-            "Model trở nên tự tin thái quá và lệch hẳn\n"
-            "về phía mà $x_1$ ủng hộ.\n\n"
-            "Logistic Regression thì chia đôi/chia ba trọng số\n"
-            "giữa các bản sao → tổng đóng góp không đổi.",
-            fontsize=9.5, va="top", color="#374151")
-    ax.text(0, .06,
-            "THỰC HÀNH: trước khi dùng NB, hãy bỏ bớt feature trùng lặp\n"
-            "(kiểm tra ma trận tương quan). Với text, dùng TF-IDF thay\n"
-            "raw count cũng giảm bớt hiện tượng đếm trùng.",
-            fontsize=9.2, va="bottom", color=C2, style="italic")
+            fontsize=9.3, va="top", color="#374151")
+    ax.text(0, .70, r"$P(x_1|y)\cdot P(x_1'|y)\cdot P(x_1''|y) = P(x_1|y)^3$",
+            fontsize=12.5, va="top")
+    ax.text(0, .56,
+            "→ MỘT bằng chứng bị TÍNH BA LẦN. Model trở nên\n"
+            "tự tin thái quá và lệch hẳn về phía $x_1$ ủng hộ.",
+            fontsize=9.3, va="top", color="#374151")
+    ax.text(0, .40,
+            "Logistic Regression thì chia trọng số giữa các bản\n"
+            "sao → tổng đóng góp không đổi.",
+            fontsize=9.3, va="top", color="#374151")
+    ax.text(0, .22,
+            "THỰC HÀNH: trước khi dùng NB, hãy bỏ bớt feature\n"
+            "trùng lặp (kiểm tra ma trận tương quan). Với text,\n"
+            "dùng TF-IDF thay raw count cũng giảm đếm trùng.",
+            fontsize=9.0, va="top", color=C2, style="italic")
     fig.suptitle("Điểm yếu chí mạng: feature TRÙNG LẶP bị đếm nhiều lần", fontweight="bold")
     fig.tight_layout()
     save(fig, "08_tuong_quan_pha_naive_bayes.png")
