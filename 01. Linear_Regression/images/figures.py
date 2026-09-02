@@ -40,17 +40,23 @@ def fig_regression_vs_classification():
     ax[0].plot(x, 50 + .3 * x, color=C2, lw=2)
     ax[0].set_title("HỒI QUY: output là số thực liên tục")
     ax[0].set_xlabel("Diện tích (m²)"); ax[0].set_ylabel("Giá (triệu)")
-    ax[0].annotate("dự đoán = một con số\n(101.4 triệu)", xy=(160, 98), xytext=(60, 115),
-                   arrowprops=dict(arrowstyle="->", color="gray"), fontsize=9, color="dimgray")
+    ax[0].set_ylim(y.min() - 6, y.max() + 14)
+    ax[0].annotate("mỗi diện tích cho ra\nMỘT con số (98.0 triệu)", xy=(160, 50 + .3 * 160),
+                   xytext=(24, y.max() + 3), fontsize=8.8, color="#374151",
+                   arrowprops=dict(arrowstyle="->", color="gray", lw=1.3),
+                   bbox=dict(boxstyle="round,pad=0.3", facecolor="white",
+                             alpha=.9, edgecolor="0.8"))
 
     xa = rng.normal(2.2, .55, 40); ya = rng.normal(2.2, .55, 40)
     xb = rng.normal(4.2, .55, 40); yb = rng.normal(4.0, .55, 40)
     ax[1].scatter(xa, ya, s=22, color=C1, alpha=.8, label="lớp 0")
     ax[1].scatter(xb, yb, s=22, color=C2, alpha=.8, marker="s", label="lớp 1")
+    ax[1].set_ylim(.3, 7.0)
     xx = np.linspace(.6, 5.8, 10)
     ax[1].plot(xx, 6.6 - xx, "k--", lw=1.8)
     ax[1].set_title("PHÂN LOẠI: output là nhãn rời rạc")
-    ax[1].set_xlabel("feature 1"); ax[1].set_ylabel("feature 2"); ax[1].legend(fontsize=8)
+    ax[1].set_xlabel("feature 1"); ax[1].set_ylabel("feature 2")
+    ax[1].legend(fontsize=8, loc="lower left", framealpha=.92)
     fig.suptitle("Hai họ bài toán học có giám sát", fontweight="bold")
     save(fig, "01_hoiquy_vs_phanloai.png")
 
@@ -92,89 +98,141 @@ def fig_residuals_geometry():
 
 # ---------------------------------------------------------------- 3
 def fig_loss_surface_gd():
+    """Feature KHÔNG chuẩn hoá -> Hessian có số điều kiện ~137 -> contour dẹt như khe hẹp.
+    GD lao rất nhanh vào khe rồi BÒ rất chậm dọc theo khe. Đây chính là lý do
+    mục 4.2c nói phải scale feature trước khi chạy Gradient Descent."""
     rng = np.random.default_rng(42)
     N = 60
     x = np.linspace(0, 10, N)
     y = 3 * x + 5 + rng.normal(0, 1.5, N)
 
-    def mse(w, b):
-        return np.mean((w * x[:, None, None] + b - y[:, None, None]) ** 2, axis=0)
+    X = np.column_stack([np.ones(N), x])
+    ev = np.linalg.eigvalsh(2 * (X.T @ X) / N)
+    kappa = ev.max() / ev.min()
 
-    W, B = np.meshgrid(np.linspace(-1, 7, 160), np.linspace(-6, 16, 160))
-    Z = mse(W, B)
+    W, B = np.meshgrid(np.linspace(-1, 7, 240), np.linspace(-6, 16, 240))
+    Z = np.mean((W[None] * x[:, None, None] + B[None] - y[:, None, None]) ** 2, axis=0)
 
-    # chạy GD lưu đường đi
-    w, b, lr = -0.5, 14.0, 0.012
+    lr, n_step = 0.0155, 1500
+    w, b = -0.5, 14.0
     path = [(w, b)]
-    for _ in range(60):
+    for _ in range(n_step):
         e = w * x + b - y
         w -= lr * 2 * (e * x).mean()
         b -= lr * 2 * e.mean()
         path.append((w, b))
     path = np.array(path)
 
-    fig = plt.figure(figsize=(11.5, 4.4))
+    fig = plt.figure(figsize=(12.8, 4.9))
+
     ax1 = fig.add_subplot(1, 2, 1, projection="3d")
-    ax1.plot_surface(W, B, Z, cmap="viridis", alpha=.85, linewidth=0, antialiased=True)
-    ax1.set_xlabel("w"); ax1.set_ylabel("b"); ax1.set_zlabel("MSE")
-    ax1.set_title("Mặt mất mát MSE(w, b) — một cái bát lồi")
+    ax1.plot_surface(W, B, Z, cmap="viridis", alpha=.92, linewidth=0,
+                     antialiased=True, rstride=4, cstride=4)
+    ax1.set_xlabel("w", labelpad=-1); ax1.set_ylabel("b", labelpad=-1)
+    ax1.set_zlabel("MSE", labelpad=6)
+    ax1.tick_params(labelsize=7.5, pad=1)
+    ax1.set_title("Mặt mất mát MSE(w, b): một cái bát LỒI\n"
+                  "thả bi từ đâu cũng lăn về đúng một đáy", fontsize=10, pad=-4)
     ax1.view_init(elev=34, azim=-128)
 
     ax2 = fig.add_subplot(1, 2, 2)
-    cs = ax2.contour(W, B, Z, levels=np.geomspace(Z.min() + .5, Z.max(), 18), cmap="viridis")
-    ax2.clabel(cs, inline=True, fontsize=6, fmt="%.0f")
-    ax2.plot(path[:, 0], path[:, 1], "o-", color=C2, ms=3.4, lw=1.5, label="đường đi của Gradient Descent")
-    ax2.scatter([3], [5], marker="*", s=280, color=C4, zorder=5, edgecolor="k",
-                linewidth=.6, label="nghiệm tối ưu (3, 5)")
-    ax2.scatter([path[0, 0]], [path[0, 1]], s=60, color="k", zorder=5, label="điểm khởi tạo")
-    ax2.set_xlabel("w"); ax2.set_ylabel("b"); ax2.legend(fontsize=8)
-    ax2.set_title("Nhìn từ trên xuống: GD đi vuông góc với đường đồng mức")
-    fig.suptitle("MSE của hồi quy tuyến tính là hàm LỒI → chỉ có 1 cực tiểu toàn cục",
+    ax2.contour(W, B, Z, levels=np.geomspace(Z.min() + 1, Z.max(), 16),
+                colors="0.6", linewidths=.8)
+    ax2.plot(path[:50, 0], path[:50, 1], "-", color=C2, lw=2.4, zorder=4,
+             label="50 bước đầu: LAO vào khe")
+    ax2.plot(path[50:, 0], path[50:, 1], "-", color=C1, lw=2.4, zorder=4,
+             label=f"{n_step - 50} bước sau: BÒ dọc khe")
+    ax2.scatter([path[0, 0]], [path[0, 1]], s=95, color="k", zorder=6,
+                label="điểm khởi tạo")
+    ax2.scatter([3], [5], marker="*", s=340, color=C4, zorder=6, edgecolor="k",
+                linewidth=.7, label="nghiệm tối ưu (3, 5)")
+    ax2.annotate("cái KHE hẹp: contour dẹt\n"
+                 f"số điều kiện $\\kappa \\approx {kappa:.0f}$\n"
+                 f"→ cần tới {n_step} bước mới tới đáy",
+                 xy=(2.3, 9.4), xytext=(3.35, 13.2), fontsize=8.6,
+                 arrowprops=dict(arrowstyle="->", color="k", lw=1.4),
+                 bbox=dict(boxstyle="round,pad=0.35", facecolor="white",
+                           alpha=.94, edgecolor="0.8"))
+    ax2.set_xlim(-1, 7); ax2.set_ylim(-6, 16)
+    ax2.set_xlabel("w"); ax2.set_ylabel("b")
+    ax2.legend(fontsize=7.8, loc="lower left", framealpha=.94)
+    ax2.set_title("Nhìn từ trên xuống: GD luôn đi vuông góc với đường đồng mức",
+                  fontsize=10)
+    fig.suptitle("MSE của hồi quy tuyến tính là hàm LỒI: chỉ có MỘT cực tiểu toàn cục",
                  fontweight="bold")
+    fig.tight_layout(rect=[0, 0, 1, .94])
     save(fig, "03_mat_mat_mat_va_duong_di_gd.png")
 
 
 # ---------------------------------------------------------------- 4
 def fig_learning_rate():
+    """Ba chế độ của learning rate. Dùng feature ĐÃ CHUẨN HOÁ nên Hessian = 2I,
+    ngưỡng phân kỳ lý thuyết đúng bằng lr = 2/lambda_max = 1.0 (kiểm chứng được)."""
     rng = np.random.default_rng(42)
     N = 60
-    x = np.linspace(0, 10, N)
-    y = 3 * x + 5 + rng.normal(0, 1.5, N)
+    xr = np.linspace(0, 10, N)
+    x = (xr - xr.mean()) / xr.std()
+    y = 3 * xr + 5 + rng.normal(0, 1.5, N)
+    w_opt = (x * y).mean() / (x * x).mean()
+    b_opt = y.mean()
 
     def run(lr, steps=40):
-        w, b = -0.5, 14.0
+        w, b = -3.0, 40.0
         P, L = [(w, b)], []
         for _ in range(steps):
             e = w * x + b - y
             L.append((e ** 2).mean())
             gw, gb = 2 * (e * x).mean(), 2 * e.mean()
             w -= lr * gw; b -= lr * gb
-            if not np.isfinite(w) or abs(w) > 1e4:
+            if not np.isfinite(w) or abs(w) > 1e8:
                 break
             P.append((w, b))
         return np.array(P), np.array(L)
 
-    W, B = np.meshgrid(np.linspace(-2, 8, 140), np.linspace(-8, 18, 140))
+    W, B = np.meshgrid(np.linspace(-14, 30, 300), np.linspace(-6, 46, 300))
     Z = np.mean((W[None] * x[:, None, None] + B[None] - y[:, None, None]) ** 2, axis=0)
 
-    cfg = [(0.0008, "lr QUÁ NHỎ (0.0008)\n→ bò chậm, 40 bước chưa tới nơi", C1),
-           (0.012, "lr VỪA (0.012)\n→ hội tụ gọn gàng", C3),
-           (0.0255, "lr QUÁ LỚN (0.0255)\n→ nảy qua nảy lại / phân kỳ", C2)]
-    fig, axes = plt.subplots(2, 3, figsize=(12.5, 6.6),
-                             gridspec_kw={"height_ratios": [1.35, 1]})
-    for j, (lr, title, col) in enumerate(cfg):
+    cfg = [(0.02, "lr QUÁ NHỎ  (0.02)", "40 bước vẫn chưa tới đích\nĐúng hướng, nhưng phí thời gian", C1),
+           (0.35, "lr VỪA  (0.35)", "Hội tụ đúng tâm sau ~15 bước", C3),
+           (1.02, "lr QUÁ LỚN  (1.02)", "Vượt ngưỡng 1.0 → văng ra xa dần\nLoss tăng vọt rồi thành inf", C2)]
+
+    fig, axes = plt.subplots(2, 3, figsize=(13.5, 7.4),
+                             gridspec_kw={"height_ratios": [1.45, 1]})
+    for j, (lr, title, note, col) in enumerate(cfg):
         P, L = run(lr)
-        a = axes[0, j]
-        a.contour(W, B, Z, levels=np.geomspace(Z.min() + .5, Z.max(), 16),
-                  cmap="Greys", linewidths=.7)
-        a.plot(P[:, 0], P[:, 1], "o-", color=col, ms=3, lw=1.4)
-        a.scatter([3], [5], marker="*", s=200, color=C4, edgecolor="k", zorder=5)
-        a.set_title(title, fontsize=9.5); a.set_xlabel("w"); a.set_ylabel("b")
+        a_ = axes[0, j]
+        a_.contour(W, B, Z, levels=np.geomspace(Z.min() + 1, Z.max(), 14),
+                   cmap="Greys", linewidths=.8, alpha=.75)
+        inside = np.isfinite(P[:, 0]) & (np.abs(P[:, 0]) < 1e6)
+        a_.plot(P[inside, 0], P[inside, 1], "o-", color=col, ms=4, lw=1.6, zorder=4)
+        a_.scatter([P[0, 0]], [P[0, 1]], s=70, color="k", zorder=6)
+        a_.text(P[0, 0] + .8, P[0, 1] + .6, "khởi tạo", fontsize=8.4, zorder=6)
+        a_.scatter([w_opt], [b_opt], marker="*", s=300, color=C4, edgecolor="k",
+                   linewidth=.7, zorder=6)
+        a_.annotate("nghiệm tối ưu", xy=(w_opt, b_opt), xycoords="data",
+                    xytext=(.70, .90), textcoords="axes fraction", fontsize=8.6,
+                    color=C4, fontweight="bold", zorder=7,
+                    arrowprops=dict(arrowstyle="->", color=C4, lw=1.4),
+                    bbox=dict(boxstyle="round,pad=0.3", facecolor="white",
+                              alpha=.92, edgecolor="0.8"))
+        a_.set_xlim(-14, 30); a_.set_ylim(-6, 46)
+        a_.set_xlabel("w"); a_.set_ylabel("b")
+        a_.set_title(title, fontsize=10.5, fontweight="bold", color=col)
+        a_.text(.03, .04, note, transform=a_.transAxes, fontsize=8.5, va="bottom",
+                bbox=dict(boxstyle="round,pad=0.35", facecolor="white", alpha=.92,
+                          edgecolor="0.8"))
         b_ = axes[1, j]
-        b_.plot(L, color=col, lw=1.8)
-        b_.set_yscale("log"); b_.set_xlabel("bước"); b_.set_ylabel("MSE (log)")
-    fig.suptitle("Learning rate quyết định số phận của Gradient Descent", fontweight="bold")
-    fig.tight_layout()
+        b_.plot(range(1, len(L) + 1), L, color=col, lw=2.2)
+        b_.set_yscale("log"); b_.set_xlabel("bước"); b_.set_ylabel("MSE (thang log)")
+        b_.set_ylim(.5, 3e6)
+        b_.text(.97, .93, f"MSE cuối = {L[-1]:.4g}", transform=b_.transAxes,
+                fontsize=8.8, ha="right", va="top", color=col, fontweight="bold",
+                bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=.92,
+                          edgecolor="0.8"))
+    fig.suptitle("Learning rate quyết định số phận của Gradient Descent  "
+                 r"(ở đây feature đã chuẩn hoá nên ngưỡng phân kỳ đúng bằng $2/\lambda_{max}=1.0$)",
+                 fontweight="bold", fontsize=11.5)
+    fig.tight_layout(rect=[0, 0, 1, .96])
     save(fig, "04_anh_huong_learning_rate.png")
 
 
@@ -236,7 +294,7 @@ def fig_residual_diagnostics():
     x = np.linspace(0, 10, n)
     cases = [
         ("ĐẠT: phần dư ngẫu nhiên quanh 0", 2 * x + 3 + rng.normal(0, 1.2, n), C3),
-        ("LỖI: quan hệ phi tuyến còn sót\n→ thêm $x^2$ hoặc đổi model", 0.55 * (x - 5) ** 2 + rng.normal(0, 1.0, n), C4),
+        ("LỖI: quan hệ phi tuyến còn sót\n→ thêm $x^2$ hoặc đổi model", 0.32 * x ** 2 + rng.normal(0, 1.2, n), C4),
         ("LỖI: phương sai tăng dần (heteroscedasticity)\n→ log-transform y hoặc dùng WLS", 2 * x + 3 + rng.normal(0, .25 + .45 * x, n), C2),
     ]
     fig, axes = plt.subplots(1, 3, figsize=(13, 3.7))
@@ -247,6 +305,8 @@ def fig_residual_diagnostics():
         ax.scatter(w * x + b, r, s=18, color=col, alpha=.75)
         ax.set_title(title, fontsize=9.5)
         ax.set_xlabel("giá trị dự đoán $\\hat{y}$"); ax.set_ylabel("phần dư $y-\\hat{y}$")
+        lo, hi = r.min(), r.max()
+        ax.set_ylim(lo - (hi - lo) * .10, hi + (hi - lo) * .18)
     fig.suptitle("Residual plot — công cụ chẩn đoán số 1 của hồi quy tuyến tính",
                  fontweight="bold")
     fig.tight_layout()
@@ -255,42 +315,60 @@ def fig_residual_diagnostics():
 
 # ---------------------------------------------------------------- 7
 def fig_bias_variance():
+    """Chú ý: PHẢI có StandardScaler trong pipeline. Không có nó, ma trận Vandermonde
+    của PolynomialFeatures bậc cao bị suy biến số học và train RMSE lại TĂNG -
+    một hiện tượng số học, không phải hiện tượng thống kê."""
     from sklearn.linear_model import LinearRegression
     from sklearn.pipeline import make_pipeline
-    from sklearn.preprocessing import PolynomialFeatures
+    from sklearn.preprocessing import PolynomialFeatures, StandardScaler
     from sklearn.metrics import mean_squared_error
 
+    def poly(d):
+        return make_pipeline(PolynomialFeatures(d), StandardScaler(), LinearRegression())
+
     rng = np.random.default_rng(1)
-    xt = np.sort(rng.uniform(0, 2 * np.pi, 30)); yt = np.sin(xt) + rng.normal(0, .22, 30)
-    xv = np.sort(rng.uniform(0, 2 * np.pi, 200)); yv = np.sin(xv) + rng.normal(0, .22, 200)
-    xx = np.linspace(0, 2 * np.pi, 400).reshape(-1, 1)
+    nt = 18
+    xt = np.sort(rng.uniform(0, 2 * np.pi, nt)); yt = np.sin(xt) + rng.normal(0, .22, nt)
+    xv = np.sort(rng.uniform(0, 2 * np.pi, 300)); yv = np.sin(xv) + rng.normal(0, .22, 300)
+    xx = np.linspace(0, 2 * np.pi, 500).reshape(-1, 1)
 
-    fig, axes = plt.subplots(1, 4, figsize=(15.5, 3.6))
-    for ax, (d, lab, col) in zip(axes[:3], [(1, "degree 1 — UNDERFIT\n(bias cao)", C1),
-                                            (4, "degree 4 — VỪA ĐẸP", C3),
-                                            (15, "degree 15 — OVERFIT\n(variance cao)", C2)]):
-        m = make_pipeline(PolynomialFeatures(d), LinearRegression()).fit(xt.reshape(-1, 1), yt)
-        ax.scatter(xt, yt, s=26, color="k", alpha=.65, label="train (30 điểm)")
+    fig, axes = plt.subplots(1, 4, figsize=(16.5, 3.9))
+    for ax, (d, lab, col) in zip(axes[:3], [(1, "degree 1 — UNDERFIT (bias cao)", C1),
+                                            (6, "degree 6 — VỪA ĐẸP", C3),
+                                            (17, "degree 17 — OVERFIT (variance cao)", C2)]):
+        m = poly(d).fit(xt.reshape(-1, 1), yt)
         ax.plot(xx, np.sin(xx), "--", color="gray", lw=1.6, label="hàm thật sin(x)")
-        ax.plot(xx, m.predict(xx), color=col, lw=2.2, label="model")
-        ax.set_ylim(-2.1, 2.1); ax.set_title(lab, fontsize=9.5); ax.legend(fontsize=7)
+        ax.plot(xx, m.predict(xx), color=col, lw=2.3, label=f"model bậc {d}")
+        ax.scatter(xt, yt, s=34, color="k", alpha=.75, zorder=5,
+                   label=f"train ({nt} điểm)")
+        ax.set_ylim(-2.4, 2.4); ax.set_xlabel("x"); ax.set_ylabel("y")
+        ax.set_title(lab, fontsize=10)
+        ax.legend(fontsize=7.4, loc="lower left", framealpha=.92)
 
-    degs = range(1, 16)
-    tr, te = [], []
-    for d in degs:
-        m = make_pipeline(PolynomialFeatures(d), LinearRegression()).fit(xt.reshape(-1, 1), yt)
-        tr.append(np.sqrt(mean_squared_error(yt, m.predict(xt.reshape(-1, 1)))))
-        te.append(np.sqrt(mean_squared_error(yv, m.predict(xv.reshape(-1, 1)))))
+    degs = list(range(1, 18))
+    tr = [np.sqrt(mean_squared_error(yt, poly(d).fit(xt.reshape(-1, 1), yt)
+                                     .predict(xt.reshape(-1, 1)))) for d in degs]
+    te = [np.sqrt(mean_squared_error(yv, poly(d).fit(xt.reshape(-1, 1), yt)
+                                     .predict(xv.reshape(-1, 1)))) for d in degs]
     ax = axes[3]
-    ax.plot(list(degs), tr, "o-", color=C1, label="train RMSE")
-    ax.plot(list(degs), te, "s-", color=C2, label="test RMSE")
-    ax.axvline(int(np.argmin(te)) + 1, color=C3, ls="--", lw=1.6)
-    ax.text(int(np.argmin(te)) + 1.25, max(te) * .55, "điểm ngọt", color=C3, fontsize=9)
-    ax.set_yscale("log"); ax.set_xlabel("bậc đa thức (độ phức tạp)"); ax.set_ylabel("RMSE (log)")
-    ax.set_title("Đường cong bias–variance", fontsize=9.5); ax.legend(fontsize=8)
-    fig.suptitle("Train RMSE giảm mãi, Test RMSE giảm rồi TĂNG — đó là overfitting",
+    ax.plot(degs, tr, "o-", color=C1, ms=4, label="train RMSE")
+    ax.plot(degs, te, "s-", color=C2, ms=4, label="test RMSE")
+    best = degs[int(np.argmin(te))]
+    ax.axvline(best, color=C3, ls="--", lw=1.6)
+    ax.set_yscale("log")
+    ax.set_ylim(min(tr) * .72, max(te) * 2.4)
+    ax.annotate(f"điểm ngọt\nbậc {best}", xy=(best, min(te)),
+                xytext=(.56, .40), textcoords="axes fraction", fontsize=8.8,
+                color=C3, fontweight="bold",
+                arrowprops=dict(arrowstyle="->", color=C3, lw=1.4),
+                bbox=dict(boxstyle="round,pad=0.3", facecolor="white",
+                          alpha=.93, edgecolor="0.8"))
+    ax.set_xlabel("bậc đa thức (độ phức tạp)"); ax.set_ylabel("RMSE (thang log)")
+    ax.set_title("Đường cong bias–variance", fontsize=10)
+    ax.legend(fontsize=8, loc="upper left", framealpha=.92)
+    fig.suptitle("Train RMSE giảm rồi nằm phẳng, Test RMSE giảm rồi TĂNG — đó là overfitting",
                  fontweight="bold")
-    fig.tight_layout()
+    fig.tight_layout(rect=[0, 0, 1, .95])
     save(fig, "07_bias_variance_tradeoff.png")
 
 

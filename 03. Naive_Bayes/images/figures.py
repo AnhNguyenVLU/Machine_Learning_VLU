@@ -150,11 +150,15 @@ def fig_three_variants():
     ax.bar([1 - w/2, 2 - w/2], [.25, .75], width=w, color=C1, label="lớp spam")
     ax.bar([1 + w/2, 2 + w/2], [.80, .20], width=w, color=C3, label="lớp ham")
     ax.set_xticks([1, 2]); ax.set_xticklabels(["$x_i=0$\n(không có từ)", "$x_i=1$\n(có từ)"])
-    ax.set_ylabel("$P(x_i\\,|\\,y)$"); ax.legend(fontsize=8.5)
+    ax.set_ylabel("$P(x_i\\,|\\,y)$")
+    ax.legend(fontsize=8.5, loc="center", bbox_to_anchor=(.5, .42), framealpha=.94)
     ax.set_title("BernoulliNB — feature NHỊ PHÂN\n"
                  "$P(x_i|y)=p^{x_i}(1-p)^{1-x_i}$", fontsize=10)
-    ax.text(.55, .93, "Chú ý: việc từ KHÔNG xuất hiện\ncũng là bằng chứng",
-            fontsize=8.2, color="dimgray")
+    ax.set_ylim(0, 1.18)
+    ax.text(.02, .97, "Chú ý: với Bernoulli, việc từ KHÔNG xuất hiện\ncũng được tính là bằng chứng",
+            transform=ax.transAxes, fontsize=8.4, color="#374151", va="top",
+            bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=.93,
+                      edgecolor="0.8"))
 
     ax = axes[1]
     from math import factorial
@@ -163,11 +167,14 @@ def fig_three_variants():
         pk = np.exp(-lam) * lam ** k / np.array([factorial(int(i)) for i in k])
         ax.bar(k + (.18 if col == C3 else -.18), pk, width=.36, color=col, label=lbl)
     ax.set_xlabel("$x_i$ = số lần từ xuất hiện"); ax.set_ylabel("$P(x_i\\,|\\,y)$")
-    ax.legend(fontsize=8.5)
+    ax.legend(fontsize=8.5, loc="center right", framealpha=.94)
     ax.set_title("MultinomialNB — feature ĐẾM\n"
                  "$P(x|y)\\propto\\prod_i p_{i,y}^{x_i}$", fontsize=10)
-    ax.text(3.2, .27, "Chỉ đếm từ CÓ mặt;\ntừ vắng mặt không đóng góp",
-            fontsize=8.2, color="dimgray")
+    ax.set_ylim(0, ax.get_ylim()[1] * 1.30)
+    ax.text(.98, .97, "Chỉ đếm những từ CÓ mặt;\ntừ vắng mặt không đóng góp gì",
+            transform=ax.transAxes, fontsize=8.4, color="#374151", va="top", ha="right",
+            bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=.93,
+                      edgecolor="0.8"))
 
     ax = axes[2]
     xs = np.linspace(-4, 9, 500)
@@ -176,7 +183,8 @@ def fig_three_variants():
         pdf = np.exp(-(xs - mu) ** 2 / (2 * sd ** 2)) / (sd * np.sqrt(2 * np.pi))
         ax.plot(xs, pdf, color=col, lw=2.3, label=lbl); ax.fill_between(xs, pdf, alpha=.2, color=col)
     ax.set_xlabel("$x_i$ (giá trị liên tục)"); ax.set_ylabel("mật độ $P(x_i\\,|\\,y)$")
-    ax.legend(fontsize=8.2)
+    ax.set_ylim(0, .49)
+    ax.legend(fontsize=8.2, loc="upper right", framealpha=.94)
     ax.set_title("GaussianNB — feature LIÊN TỤC\n"
                  "mỗi (feature, lớp) học riêng $\\mu$ và $\\sigma$", fontsize=10)
     fig.suptitle("Ba biến thể Naive Bayes chỉ khác nhau ở cách mô hình hoá $P(x_i\\,|\\,y)$",
@@ -187,6 +195,7 @@ def fig_three_variants():
 
 # ---------------------------------------------------------------- 4
 def fig_gaussian_nb_boundary():
+    from matplotlib.patches import Ellipse
     from sklearn.naive_bayes import GaussianNB
     from sklearn.discriminant_analysis import (LinearDiscriminantAnalysis,
                                                QuadraticDiscriminantAnalysis)
@@ -198,22 +207,53 @@ def fig_gaussian_nb_boundary():
     xx, yy = np.meshgrid(np.linspace(-5, 6, 320), np.linspace(-4.5, 5.5, 320))
     grid = np.c_[xx.ravel(), yy.ravel()]
 
-    fig, axes = plt.subplots(1, 3, figsize=(14.5, 4.3))
-    for ax, (mdl, ttl) in zip(axes, [
-            (GaussianNB(), "GaussianNB\n(giả định 2 feature độc lập → ellipse SONG SONG TRỤC)"),
-            (QuadraticDiscriminantAnalysis(), "QDA\n(cho phép hiệp phương sai đầy đủ, mỗi lớp riêng)"),
-            (LinearDiscriminantAnalysis(), "LDA\n(hiệp phương sai chung → ranh giới THẲNG)")]):
+    def draw_ellipse(ax, mean, cov, color):
+        """Vẽ ellipse 2-sigma của một phân phối Gaussian 2 chiều."""
+        vals, vecs = np.linalg.eigh(cov)
+        order = vals.argsort()[::-1]
+        vals, vecs = vals[order], vecs[:, order]
+        ang = np.degrees(np.arctan2(vecs[1, 0], vecs[0, 0]))
+        for k in (1, 2):
+            ax.add_patch(Ellipse(mean, 2 * k * np.sqrt(vals[0]), 2 * k * np.sqrt(vals[1]),
+                                 angle=ang, fill=False, edgecolor=color, lw=1.8,
+                                 ls="--", zorder=6))
+
+    fig, axes = plt.subplots(1, 3, figsize=(15, 4.6))
+    specs = [
+        (GaussianNB(), "GaussianNB",
+         "giả định 2 feature ĐỘC LẬP → hiệp phương sai\nbị ép về dạng đường chéo → ellipse SONG SONG TRỤC"),
+        (QuadraticDiscriminantAnalysis(store_covariance=True), "QDA",
+         "hiệp phương sai ĐẦY ĐỦ, mỗi lớp một ma trận\n→ ellipse NGHIÊNG theo đúng dáng dữ liệu"),
+        (LinearDiscriminantAnalysis(store_covariance=True), "LDA",
+         "hiệp phương sai đầy đủ nhưng CHUNG cho mọi lớp\n→ hai ellipse giống hệt nhau, ranh giới THẲNG"),
+    ]
+    for ax, (mdl, name, sub) in zip(axes, specs):
         m = mdl.fit(X, y)
         Z = m.predict_proba(grid)[:, 1].reshape(xx.shape)
-        ax.contourf(xx, yy, Z, levels=np.linspace(0, 1, 21), cmap="RdBu_r", alpha=.65)
-        ax.contour(xx, yy, Z, levels=[.5], colors="k", linewidths=2.2)
-        ax.scatter(A[:, 0], A[:, 1], s=11, color="#1e3a8a", alpha=.7)
-        ax.scatter(B[:, 0], B[:, 1], s=11, color="#7f1d1d", alpha=.7, marker="s")
-        ax.set_title(f"{ttl}\nacc = {m.score(X, y)*100:.1f}%", fontsize=9.3)
+        ax.contourf(xx, yy, Z, levels=np.linspace(0, 1, 21), cmap="RdBu_r", alpha=.55)
+        ax.contour(xx, yy, Z, levels=[.5], colors="k", linewidths=2.4)
+        ax.scatter(A[:, 0], A[:, 1], s=10, color="#1e3a8a", alpha=.55, zorder=4)
+        ax.scatter(B[:, 0], B[:, 1], s=10, color="#7f1d1d", alpha=.55, marker="s", zorder=4)
+
+        if name == "GaussianNB":
+            covs = [np.diag(v) for v in m.var_]; means = m.theta_
+        elif name == "QDA":
+            covs = list(m.covariance_); means = m.means_
+        else:
+            covs = [m.covariance_, m.covariance_]; means = m.means_
+        for mu, cv, col in zip(means, covs, ["#1e3a8a", "#7f1d1d"]):
+            draw_ellipse(ax, mu, cv, col)
+
+        ax.set_xlim(-5, 6); ax.set_ylim(-4.5, 5.5)
+        ax.set_title(f"{name}   —   acc = {m.score(X, y) * 100:.1f}%",
+                     fontsize=10.5, fontweight="bold")
         ax.set_xlabel("$x_1$"); ax.set_ylabel("$x_2$")
-    fig.suptitle("Ranh giới của Gaussian NB là đường CONG bậc hai — nhưng bị ép \"vuông góc\" "
-                 "vì giả định độc lập", fontweight="bold")
-    fig.tight_layout()
+        ax.text(.02, .03, sub, transform=ax.transAxes, fontsize=8.3, va="bottom",
+                bbox=dict(boxstyle="round,pad=0.32", facecolor="white",
+                          alpha=.94, edgecolor="0.8"))
+    fig.suptitle("Đường nét đứt = ellipse Gaussian mà mỗi model THỰC SỰ khớp vào dữ liệu "
+                 "(mức 1σ và 2σ)", fontweight="bold")
+    fig.tight_layout(rect=[0, 0, 1, .94])
     save(fig, "04_gaussian_nb_bien_quyet_dinh.png")
 
 
@@ -285,12 +325,17 @@ def fig_log_probabilities():
     ax = axes[0]
     ax.plot(prod, color=C2, lw=2.2)
     ax.axhline(np.finfo(float).tiny, color="k", ls="--", lw=1.4)
-    ax.text(120, np.finfo(float).tiny * 3, "giới hạn dưới của float64 ($\\approx 2.2\\times10^{-308}$)",
-            fontsize=8.4)
+    ax.text(210, np.finfo(float).tiny * 60,
+            "giới hạn dưới của float64\n($\\approx 2.2\\times10^{-308}$)",
+            fontsize=8.4, va="bottom",
+            bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=.93,
+                      edgecolor="0.8"))
     z = np.argmax(prod == 0) if (prod == 0).any() else len(prod)
     ax.axvline(z, color=C2, ls=":", lw=1.8)
-    ax.text(z + 6, 1e-150, f"về ĐÚNG 0 sau {z} từ\n→ mọi lớp đều bằng 0\n→ không so sánh được",
-            color=C2, fontsize=8.6)
+    ax.text(z + 12, 1e-120, f"về ĐÚNG 0 sau {z} từ\n→ mọi lớp đều bằng 0\n→ không so sánh được",
+            color=C2, fontsize=8.6, va="top",
+            bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=.93,
+                      edgecolor="0.8"))
     ax.set_yscale("log"); ax.set_ylim(1e-320, 1)
     ax.set_xlabel("số từ đã nhân"); ax.set_ylabel(r"$\prod P(x_i|y)$")
     ax.set_title("Nhân trực tiếp: TRÀN SỐ DƯỚI (underflow)", fontsize=10)
@@ -299,10 +344,13 @@ def fig_log_probabilities():
     ax.plot(logsum, color=C3, lw=2.2)
     ax.set_xlabel("số từ đã cộng"); ax.set_ylabel(r"$\sum \log P(x_i|y)$")
     ax.set_title("Cộng log: tuyến tính, an toàn tuyệt đối", fontsize=10)
-    ax.text(20, logsum[-1] * .35,
+    ax.set_ylim(logsum[-1] * 1.06, abs(logsum[-1]) * .30)
+    ax.text(.97, .96,
             "$\\arg\\max$ không đổi vì $\\log$ đơn điệu tăng:\n"
             "$\\arg\\max_y \\prod_i P = \\arg\\max_y \\sum_i \\log P$",
-            fontsize=9, color="#374151")
+            transform=ax.transAxes, fontsize=9, color="#374151", va="top", ha="right",
+            bbox=dict(boxstyle="round,pad=0.32", facecolor="white", alpha=.93,
+                      edgecolor="0.8"))
     fig.suptitle("Vì sao mọi thư viện Naive Bayes làm việc trên thang LOG", fontweight="bold")
     fig.tight_layout()
     save(fig, "06_lam_viec_tren_thang_log.png")
