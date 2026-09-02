@@ -80,7 +80,7 @@ def fig_impurity_criteria():
                 xytext=(.60, 1.20), fontsize=9, color="#334155", va="center",
                 bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="none", alpha=.85),
                 arrowprops=dict(arrowstyle="->", color="gray"))
-    ax.annotate("= 0 tại p = 0 và p = 1  (nút THUẦN → dừng chia)", xy=(0, 0),
+    ax.annotate("= 0 tại p = 0 và p = 1  (nút thuần, dừng chia)", xy=(0, 0),
                 xytext=(.19, .045), fontsize=8.8, color="#334155", va="center",
                 bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="none", alpha=.85),
                 arrowprops=dict(arrowstyle="->", color="gray"))
@@ -101,11 +101,11 @@ def fig_impurity_criteria():
     ax.legend(fontsize=8.4, loc="lower center", framealpha=.95)
     ax.set_title("Entropy và Gini gần như trùng nhau", fontsize=10.5)
     ax.text(.045, 1.13,
-            "Entropy & Gini LÕM CHẶT (strictly concave)\n"
-            "→ mọi phép chia không tầm thường đều cho gain > 0.\n"
-            "Misclassification chỉ tuyến tính từng khúc\n"
-            "→ gain có thể = 0 dù phép chia rất hữu ích\n"
-            "→ KHÔNG dùng để mọc cây, chỉ dùng để cắt tỉa.",
+            "Entropy và Gini lõm chặt (strictly concave),\n"
+            "nên mọi phép chia không tầm thường đều cho gain > 0.\n"
+            "Misclassification chỉ tuyến tính từng khúc,\n"
+            "gain có thể bằng 0 dù phép chia hữu ích,\n"
+            "vì vậy không dùng để mọc cây, chỉ dùng khi cắt tỉa.",
             fontsize=8.2, color="#334155", va="top",
             bbox=dict(boxstyle="round", fc="#f8fafc", ec="#94a3b8", alpha=.95))
     fig.suptitle("Entropy, Gini và Misclassification", fontweight="bold")
@@ -180,7 +180,7 @@ def fig_one_split():
 
     n0, n1 = int((y == 0).sum()), int((y == 1).sum())
     box(5, 8.4, 5.2, 2.0,
-        f"NÚT CHA:  N = {N}\n[{n0} lớp 0, {n1} lớp 1]\n"
+        f"nút cha:  N = {N}\n[{n0} lớp 0, {n1} lớp 1]\n"
         f"entropy = {H_par:.3f}   gini = {G_par:.3f}", "#f1f5f9", "#475569")
     ax.text(5, 6.60, f"x < {best:.2f} ?", ha="center", va="center", fontsize=10,
             color=C3, fontweight="bold")
@@ -191,10 +191,10 @@ def fig_one_split():
     ax.text(7.55, 5.98, "Sai", fontsize=9, color="#475569", ha="left",
             bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="none", alpha=.9))
     box(2.3, 4.0, 4.3, 2.2,
-        f"CON TRÁI: N = {len(L)}\n[{int((L == 0).sum())} lớp 0, {int((L == 1).sum())} lớp 1]\n"
+        f"con trái: N = {len(L)}\n[{int((L == 0).sum())} lớp 0, {int((L == 1).sum())} lớp 1]\n"
         f"entropy = {_entropy(L.mean()):.3f}", "#dbeafe", C1)
     box(7.7, 4.0, 4.3, 2.2,
-        f"CON PHẢI: N = {len(R)}\n[{int((R == 0).sum())} lớp 0, {int((R == 1).sum())} lớp 1]\n"
+        f"con phải: N = {len(R)}\n[{int((R == 0).sum())} lớp 0, {int((R == 1).sum())} lớp 1]\n"
         f"entropy = {_entropy(R.mean()):.3f}", "#fee2e2", C2)
     ax.text(5, 1.35,
             f"IG = {H_par:.3f} − ({len(L)}/{N})·{_entropy(L.mean()):.3f} "
@@ -216,9 +216,9 @@ def fig_axis_aligned():
     n = 260
     X = rng.uniform(-3, 3, (n, 2))
 
-    # dữ liệu KHÔNG nhiễu, để số lá phản ánh đúng hình học của ranh giới
+    # dữ liệu không nhiễu, để số lá phản ánh đúng hình học của ranh giới
     y_axis = (X[:, 0] > 0).astype(int)               # ranh giới song song trục
-    y_diag = (X[:, 1] > X[:, 0]).astype(int)         # ranh giới CHÉO
+    y_diag = (X[:, 1] > X[:, 0]).astype(int)         # ranh giới chéo
 
     fig, axes = plt.subplots(1, 3, figsize=(14.2, 4.5))
     dt1 = DecisionTreeClassifier(random_state=0).fit(X, y_axis)
@@ -322,7 +322,7 @@ def fig_ccp_pruning():
                 fontsize=9, color="#334155", va="top", ha="left",
                 bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="none", alpha=.9),
                 arrowprops=dict(arrowstyle="->", color="gray"))
-    ax.set_xlabel(r"$\alpha$ (ccp_alpha): phạt càng nặng, cây càng nhỏ  →")
+    ax.set_xlabel(r"$\alpha$ (ccp_alpha): phạt càng nặng, cây càng nhỏ")
     ax.set_ylabel("Accuracy (%)")
     ax.legend(fontsize=9, loc="upper right", framealpha=.95)
     ax.set_title("Accuracy theo ccp_alpha", fontsize=10.5)
@@ -391,10 +391,10 @@ def fig_bagging_oob():
     ax.plot(Ns[::8], np.array(emp) * 100, "o", color=C4, ms=4.5, alpha=.85,
             label="mô phỏng thực tế")
     ax.axhline(100 / np.e, color=C2, ls="--", lw=1.8)
-    ax.text(78, 100 / np.e + 1.2, r"$1/e \approx 36.8\%$", color=C2, fontsize=11,
+    ax.text(78, 100 / np.e + 1.7, r"$1/e \approx 36.8\%$", color=C2, fontsize=11,
             bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="none", alpha=.85))
     ax.set_xlabel("N (số mẫu trong tập train)")
-    ax.set_ylabel("tỷ lệ mẫu KHÔNG được cây này nhìn thấy (%)")
+    ax.set_ylabel("tỷ lệ mẫu cây này không nhìn thấy (%)")
     ax.set_ylim(22, 44); ax.legend(fontsize=9, loc="lower right")
     ax.set_title("Tỷ lệ mẫu OOB hội tụ về 1/e", fontsize=10.5)
 
@@ -415,7 +415,7 @@ def fig_rf_smooths():
         _boundary(ax, m, X, y, proba=True)
         ax.set_title(f"{n} cây" + ("  (= 1 Decision Tree)" if n == 1 else ""),
                      fontsize=10.5)
-    axes[0].set_xlabel("ranh giới sắc lẹm, đầy góc cạnh", fontsize=8.6, color="dimgray")
+    axes[0].set_xlabel("ranh giới sắc nét, nhiều góc cạnh", fontsize=8.6, color="dimgray")
     axes[3].set_xlabel("ranh giới mượt, có vùng 'lưỡng lự' (màu nhạt)",
                        fontsize=8.6, color="dimgray")
     fig.suptitle("Biên quyết định của rừng theo số cây", fontweight="bold")
@@ -447,15 +447,16 @@ def fig_n_estimators():
     ax.semilogx(ns, np.array(tr) * 100, "o-", color=C1, ms=4, label="Train accuracy (RF)")
     ax.semilogx(ns, np.array(te) * 100, "s-", color=C2, ms=4, label="Test accuracy (RF)")
     ax.semilogx(ns, np.array(oob) * 100, "^--", color=C3, ms=4,
-                label="OOB score (validation miễn phí)")
+                label="OOB score (không cần tập validation riêng)")
     ax.axhline(dt.score(Xte, yte) * 100, color="#7c3aed", ls=":", lw=2,
                label=f"1 Decision Tree không giới hạn: {dt.score(Xte, yte)*100:.1f}%")
     ax.annotate("tăng rất nhanh\nở 20 cây đầu", xy=(8, te[4] * 100), xytext=(1.35, 89),
                 fontsize=9, color="#334155", va="center",
                 bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="none", alpha=.85),
                 arrowprops=dict(arrowstyle="->", color="gray"))
-    ax.annotate("bão hoà: thêm cây KHÔNG làm test tệ đi\n"
-                "(RF không overfit theo số cây)", xy=(320, te[-2] * 100),
+    ax.annotate("bão hoà: thêm cây không làm test giảm\n"
+                "(RF không overfit theo số cây)",
+                xy=(230, max(te[-3], oob[-3]) * 100 + 0.7),
                 xytext=(18, 95.4), fontsize=9, color="#334155",
                 bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="none", alpha=.85),
                 arrowprops=dict(arrowstyle="->", color="gray"))
@@ -475,16 +476,16 @@ def fig_importance_bias():
 
     rng = np.random.default_rng(0)
     n = 1500
-    x_bin = rng.integers(0, 2, n)                       # THẬT SỰ hữu ích, chỉ 2 giá trị
+    x_bin = rng.integers(0, 2, n)                       # thật sự hữu ích, chỉ 2 giá trị
     x_ord = rng.integers(0, 4, n)                       # hữu ích vừa, 4 giá trị
-    x_noise_cont = rng.normal(size=n)                   # NHIỄU, ~1500 giá trị khác nhau
-    x_noise_id = rng.permutation(n).astype(float)       # NHIỄU, ID duy nhất từng dòng
-    x_noise_bin = rng.integers(0, 2, n).astype(float)   # NHIỄU, chỉ 2 giá trị
+    x_noise_cont = rng.normal(size=n)                   # nhiễu, ~1500 giá trị khác nhau
+    x_noise_id = rng.permutation(n).astype(float)       # nhiễu, ID duy nhất từng dòng
+    x_noise_bin = rng.integers(0, 2, n).astype(float)   # nhiễu, chỉ 2 giá trị
 
     logit = 2.6 * (x_bin - .5) + 0.55 * (x_ord - 1.5)
     y = (rng.random(n) < 1 / (1 + np.exp(-logit))).astype(int)
     X = np.c_[x_bin, x_ord, x_noise_cont, x_noise_id, x_noise_bin]
-    names = ["x_bin\n(HỮU ÍCH, 2 giá trị)", "x_ord\n(hữu ích, 4 giá trị)",
+    names = ["x_bin\n(hữu ích, 2 giá trị)", "x_ord\n(hữu ích, 4 giá trị)",
              "nhiễu_liên_tục\n(1500 giá trị)", "nhiễu_ID\n(1500 giá trị)",
              "nhiễu_nhị_phân\n(2 giá trị)"]
     good = [True, True, False, False, False]
@@ -510,9 +511,9 @@ def fig_importance_bias():
     axes[1].set_yticks(ypos); axes[1].set_yticklabels(names, fontsize=8.4)
     axes[1].invert_yaxis()
     axes[1].axvline(0, color="k", lw=1)
-    axes[1].set_xlabel("permutation_importance (đo trên tập TEST)")
+    axes[1].set_xlabel("permutation_importance (đo trên tập test)")
     axes[1].set_title("Permutation importance trên tập test", fontsize=10.5)
-    # đẩy nhãn số ra SAU đầu mút thanh sai số để không đè lên nó
+    # đẩy nhãn số ra sau đầu mút thanh sai số để không đè lên nó
     pm, ps = perm.importances_mean, perm.importances_std
     right = float((pm + ps).max())
     axes[1].set_xlim(-right * .04, right * 1.22)

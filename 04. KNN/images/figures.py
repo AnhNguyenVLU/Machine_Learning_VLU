@@ -57,14 +57,14 @@ def _boundary(ax, model, X, y, h=0.02, cmap=CMAP_BG, show_pts=True):
 
 # ---------------------------------------------------------------- 1
 def fig_how_knn_works():
-    """Đổi k → đổi kết quả biểu quyết, dù điểm truy vấn không hề nhúc nhích."""
+    """Đổi k là đổi kết quả biểu quyết, dù điểm truy vấn không đổi."""
     rng = np.random.default_rng(11)
     q = np.array([2.40, 2.20])
     blue = rng.normal([2.0, 2.0], 0.85, size=(34, 2))
     # dọn một khoảng trống nhỏ quanh q để hình vẽ dễ đọc
     blue = blue[np.linalg.norm(blue - q, axis=1) > 0.60]
     red = rng.normal([4.9, 4.6], 0.70, size=(22, 2))
-    red = np.vstack([red, q + [0.30, 0.31]])      # một điểm ĐỎ lạc vào vùng XANH
+    red = np.vstack([red, q + [0.30, 0.31]])      # một điểm đỏ lạc vào vùng xanh
 
     X = np.vstack([blue, red])
     y = np.r_[np.zeros(len(blue)), np.ones(len(red))]
@@ -77,9 +77,9 @@ def fig_how_knn_works():
         r = d[nn].max() * 1.06
         ax.add_patch(Circle(q, r, fill=True, color=C4, alpha=.10, zorder=0))
         ax.add_patch(Circle(q, r, fill=False, color=C4, lw=1.8, ls="--", zorder=2))
-        ax.scatter(blue[:, 0], blue[:, 1], s=42, color=C1, alpha=.85, label="lớp XANH")
+        ax.scatter(blue[:, 0], blue[:, 1], s=42, color=C1, alpha=.85, label="lớp xanh")
         ax.scatter(red[:, 0], red[:, 1], s=42, color=C2, marker="s", alpha=.85,
-                   label="lớp ĐỎ")
+                   label="lớp đỏ")
         for i in nn:
             ax.plot([q[0], X[i, 0]], [q[1], X[i, 1]], color="gray", lw=1.1,
                     ls=":", zorder=1)
@@ -91,16 +91,17 @@ def fig_how_knn_works():
         n_red = int(y[nn].sum()); n_blue = k - n_red
         win = "đỏ" if n_red > n_blue else "xanh"
         col = C2 if n_red > n_blue else C1
-        ax.set_title(f"k = {k}: {n_blue} phiếu xanh, {n_red} phiếu đỏ → {win}",
+        ax.set_title(f"k = {k}: {n_blue} phiếu xanh, {n_red} phiếu đỏ, kết quả {win}",
                      fontsize=10.5, color=col)
-        ax.set_xlim(-0.2, 7.0); ax.set_ylim(-0.85, 6.9)
+        ax.set_xlim(-0.2, 7.0); ax.set_ylim(-0.85, 7.6)
         ax.set_xlabel("feature 1"); ax.set_ylabel("feature 2")
         ax.set_aspect("equal")
     axes[0].legend(fontsize=8, loc="upper left", framealpha=.95, markerscale=.6,
                    labelspacing=.6)
-    axes[1].text(3.05, -0.78, "Cùng một điểm, chỉ đổi k\n→ ĐỔI LUÔN KẾT QUẢ.\n"
-                              "k không phải tham số 'chọn đại'.",
-                 fontsize=9, color="#334155", va="bottom",
+    # hộp chú thích đặt ở góc trên-trái (vùng trống), cách xa cụm đỏ và cụm xanh
+    axes[1].text(-0.05, 7.45, "Cùng một điểm, chỉ đổi k\nlà kết quả đã khác.\n"
+                              "k không phải tham số chọn tuỳ ý.",
+                 fontsize=9, color="#334155", va="top", ha="left",
                  bbox=dict(boxstyle="round,pad=0.35", fc="#fff7ed", ec=C4, alpha=.95))
     fig.suptitle("Cách KNN dự đoán: k hàng xóm gần nhất biểu quyết",
                  fontweight="bold")
@@ -147,14 +148,15 @@ def fig_bias_variance_k():
     ax.plot(ks, tr, color=C1, lw=2.2, label="Train accuracy")
     ax.plot(ks, te, color=C2, lw=2.2, label="Test accuracy")
     ax.fill_between(ks, te, tr, color="#94a3b8", alpha=.20,
-                    label="vùng xám = khoảng cách train − test\n(mức OVERFIT)")
-    ax.axvline(best, color=C3, ls="--", lw=1.7)
-    ax.axvline(sqrtN, color=C4, ls=":", lw=2.0)
+                    label="vùng xám: chênh lệch train và test\n(mức overfit)")
+    # hai đường tham chiếu dừng ở y = 96 để không chạy vào dải chữ phía trên
+    ax.vlines(best, 72.5, 96.0, color=C3, ls="--", lw=1.7)
+    ax.vlines(sqrtN, 72.5, 96.0, color=C4, ls=":", lw=2.0)
     ax.set_xlim(-4, 156)
-    ax.set_ylim(75.5, 109.5)
+    ax.set_ylim(72.5, 109.5)
     # dải trống phía trên (y > 96) dành riêng cho chữ, không đường nào chạy qua
-    ax.annotate("k = 1: train 100% nhưng test thấp nhất\n"
-                "→ VARIANCE cao (học thuộc lòng cả nhiễu)",
+    ax.annotate("k = 1: train 100% nhưng test thấp nhất,\n"
+                "variance cao (học thuộc cả nhiễu)",
                 xy=(1, 100.3), xytext=(21, 105.6), fontsize=9, color="#334155",
                 va="center", ha="left",
                 bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="none",
@@ -163,18 +165,19 @@ def fig_bias_variance_k():
     ax.text(21, 101.9,
             f"k tốt nhất (đường xanh lá) = {best}\n"
             + r"$\sqrt{N}$" + f" = √200 ≈ {sqrtN:.0f} (đường cam)\n"
-            "→ quy tắc √N rơi đúng vùng tốt ở đây,\n"
-            "   nhưng vẫn PHẢI kiểm chứng bằng cross-validation",
+            "quy tắc √N rơi vào vùng tốt ở đây,\n"
+            "nhưng vẫn cần kiểm chứng bằng cross-validation",
             fontsize=8.8, color="#334155", va="top",
             bbox=dict(boxstyle="round", fc="#f8fafc", ec="#94a3b8", alpha=.95))
-    ax.annotate("k quá lớn: train và test cùng tụt\n"
-                "→ BIAS cao (mọi điểm gần như bầu chung một kết quả)",
-                xy=(146, te[145]), xytext=(52, 76.6), fontsize=9, color="#334155",
-                ha="left",
+    # chú thích nằm dưới hai đường cong, đường dẫn đi trong vùng trống phía dưới
+    ax.annotate("k quá lớn: train và test cùng giảm,\n"
+                "bias cao (mọi điểm gần như bầu chung một kết quả)",
+                xy=(140, tr[139]), xytext=(60, 73.2), fontsize=9, color="#334155",
+                ha="left", va="bottom",
                 bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="none",
                           alpha=.85),
                 arrowprops=dict(arrowstyle="->", color="gray"))
-    ax.set_xlabel("k   (độ phức tạp mô hình GIẢM dần khi k tăng  →)")
+    ax.set_xlabel("k   (k càng lớn, mô hình càng đơn giản)")
     ax.set_ylabel("Accuracy (%)")
     ax.legend(fontsize=8.6, loc="lower left", framealpha=.95)
     ax.set_title("Đường cong bias-variance của KNN theo k",
@@ -189,10 +192,10 @@ def fig_why_scale():
     n = 60
     age = rng.uniform(20, 70, n)
     income = rng.uniform(20_000, 200_000, n)
-    # nhãn thật phụ thuộc CHỦ YẾU vào tuổi
+    # nhãn thật phụ thuộc chủ yếu vào tuổi
     y = (age > 45).astype(int)
     X = np.c_[age, income]
-    q = np.array([35.0, 110_000.0])   # tuổi 35 → nhãn ĐÚNG phải là lớp 0
+    q = np.array([35.0, 110_000.0])   # tuổi 35 nên nhãn đúng phải là lớp 0
 
     k = 5
     d_raw = np.linalg.norm(X - q, axis=1)
@@ -220,10 +223,10 @@ def fig_why_scale():
                    zorder=5, label="điểm cần dự đoán")
         n1 = int(y[nn].sum())
         verdict = "sai" if n1 > k - n1 else "đúng"
-        ax.set_title(f"{ttl}\n{k - n1} phiếu lớp 0, {n1} phiếu lớp 1 → dự đoán {verdict}",
+        ax.set_title(f"{ttl}\n{k - n1} phiếu lớp 0, {n1} phiếu lớp 1, dự đoán {verdict}",
                      fontsize=9.8)
         ax.set_xlabel(xl); ax.set_ylabel(yl)
-    # legend dùng chung, đặt HẲN ra ngoài để không che điểm dữ liệu nào
+    # legend dùng chung, đặt hẳn ra ngoài để không che điểm dữ liệu nào
     h, lg = axes[0].get_legend_handles_labels()
     fig.legend(h, lg, loc="lower center", ncol=4, fontsize=9, markerscale=.55,
                framealpha=.95, bbox_to_anchor=(0.5, -0.07))
@@ -231,9 +234,9 @@ def fig_why_scale():
     axes[0].yaxis.set_major_formatter(
         plt.FuncFormatter(lambda v, _: f"{v:,.0f}".replace(",", ".")))
     axes[0].text(20.5, -22_000,
-                 "Khoảng cách gần như CHỈ đo chênh lệch Income:\n"
-                 "chênh 1 tuổi = 1 đơn vị, nhưng chênh 1.000 đồng = 1.000 đơn vị\n"
-                 "→ hàng xóm được chọn theo Income, còn Age bị bỏ qua.",
+                 "Khoảng cách gần như chỉ đo chênh lệch Income:\n"
+                 "chênh 1 tuổi = 1 đơn vị, chênh 1.000 đồng = 1.000 đơn vị,\n"
+                 "nên hàng xóm được chọn theo Income, còn Age bị bỏ qua.",
                  fontsize=8.2, color="#334155", va="bottom",
                  bbox=dict(boxstyle="round,pad=0.35", fc="#fef2f2", ec=C2, alpha=.95))
     fig.suptitle("Vì sao phải chuẩn hoá trước khi dùng KNN", fontweight="bold")
@@ -271,7 +274,7 @@ def fig_minkowski_balls():
     for p, col in zip([0.5, 1, 1.5, 2, 4, 8], plt.cm.viridis(np.linspace(0, .9, 6))):
         X, Y = ball(p)
         ax.plot(X, Y, color=col, lw=1.9, label=f"p = {p}")
-    ax.plot([-1, 1, 1, -1, -1], [-1, -1, 1, 1, -1], "k--", lw=1.4, label=r"p → $\infty$")
+    ax.plot([-1, 1, 1, -1, -1], [-1, -1, 1, 1, -1], "k--", lw=1.4, label=r"$p \to \infty$")
     ax.set_title("Minkowski tổng quát\n"
                  r"$d_p(u,v)=\left(\sum_i |u_i-v_i|^p\right)^{1/p}$", fontsize=10)
     ax.legend(fontsize=7.2, ncol=2, loc="upper center", columnspacing=.8,
@@ -279,7 +282,7 @@ def fig_minkowski_balls():
     ax.set_aspect("equal"); ax.set_xlim(-1.75, 1.75); ax.set_ylim(-1.45, 2.45)
     ax.axhline(0, color="k", lw=.7); ax.axvline(0, color="k", lw=.7)
 
-    # (c) đổi metric → đổi hàng xóm gần nhất
+    # (c) đổi metric thì đổi hàng xóm gần nhất
     ax = axes[2]
     q = np.array([0., 0.])
     A = np.array([0.85, 0.0]); B = np.array([0.50, 0.50])
@@ -292,12 +295,13 @@ def fig_minkowski_balls():
     ax.scatter(*A, s=95, color="k", zorder=5)
     ax.text(A[0] + .05, A[1] + .06, "A", fontsize=12, fontweight="bold")
     ax.scatter(*B, s=95, color="k", marker="s", zorder=5)
-    ax.text(B[0] + .05, B[1] + .06, "B", fontsize=12, fontweight="bold")
-    # chú thích đặt HẲN dưới trục (dạng caption) để không đè lên hình thoi/hình tròn
-    ax.set_xlabel("d(q, A) = 0.85 với CẢ L1 lẫn L2\n"
-                  "d(q, B) = 1.00 theo L1  → B NGOÀI hình thoi ⇒ xa hơn A\n"
-                  "d(q, B) = 0.71 theo L2  → B TRONG hình tròn ⇒ gần hơn A\n"
-                  "→ đổi metric là đổi luôn hàng xóm gần nhất!",
+    ax.text(B[0] + .16, B[1] + .20, "B", fontsize=12, fontweight="bold",
+            ha="left", va="bottom")
+    # chú thích đặt hẳn dưới trục (dạng caption) để không đè lên hình thoi/hình tròn
+    ax.set_xlabel("d(q, A) = 0.85 với cả L1 lẫn L2\n"
+                  "d(q, B) = 1.00 theo L1: B nằm ngoài hình thoi, xa hơn A\n"
+                  "d(q, B) = 0.71 theo L2: B nằm trong hình tròn, gần hơn A\n"
+                  "Đổi metric là đổi luôn hàng xóm gần nhất.",
                   fontsize=7.6, color="#334155", labelpad=9,
                   bbox=dict(boxstyle="round,pad=0.35", fc="#f0fdf4", ec=C3,
                             alpha=.95))
@@ -352,7 +356,8 @@ def fig_curse_of_dimensionality():
     ax = axes[0]
     ax.semilogx(dims, ratio, "o-", color=C1, lw=2)
     ax.axhline(1, color=C2, ls="--", lw=1.5)
-    ax.text(1.2, .96, "giới hạn = 1: 'gần nhất' ≈ 'xa nhất'", color=C2, fontsize=8.6)
+    ax.text(1.2, .975, "giới hạn = 1: 'gần nhất' ≈ 'xa nhất'", color=C2, fontsize=8.6,
+            va="top")
     ax.set_xlabel("số chiều d"); ax.set_ylabel(r"$d_{min}\,/\,d_{max}$")
     ax.set_ylim(0, 1.08)
     ax.set_title("Tỷ số khoảng cách gần nhất trên xa nhất", fontsize=10)
@@ -366,7 +371,7 @@ def fig_curse_of_dimensionality():
     ax = axes[2]
     ax.semilogx(dims2, np.array(accs) * 100, "o-", color=C2, lw=2)
     ax.axhline(50, color="gray", ls=":", lw=1.5)
-    ax.text(2.2, 51.5, "đoán bừa (50%)", color="gray", fontsize=8.6)
+    ax.text(2.2, 51.5, "mức ngẫu nhiên (50%)", color="gray", fontsize=8.6)
     ax.set_xlabel("số chiều d (chỉ 2 chiều đầu là hữu ích)")
     ax.set_ylabel("Test accuracy KNN k=5 (%)")
     ax.set_ylim(45, 100)
@@ -381,10 +386,10 @@ def fig_curse_of_dimensionality():
 # ---------------------------------------------------------------- 7
 def fig_weights_uniform_vs_distance():
     from sklearn.neighbors import KNeighborsClassifier
-    # (a) kịch bản: 2 hàng xóm ĐỎ rất gần, 3 hàng xóm XANH ở xa
+    # (a) kịch bản: 2 hàng xóm đỏ rất gần, 3 hàng xóm xanh ở xa
     q = np.array([0., 0.])
-    near = np.array([[0.34, 0.22], [-0.30, 0.20]])                # lớp ĐỎ
-    far = np.array([[1.90, 0.90], [-1.70, 1.30], [0.35, -2.05]])  # lớp XANH
+    near = np.array([[0.34, 0.22], [-0.30, 0.20]])                # lớp đỏ
+    far = np.array([[1.90, 0.90], [-1.70, 1.30], [0.35, -2.05]])  # lớp xanh
     lab_pos = [(1.28, 1.08), (-1.58, 0.60), (1.98, 1.58),
                (-1.78, 1.92), (0.35, -2.58)]
     P = np.vstack([near, far])
@@ -422,8 +427,8 @@ def fig_weights_uniform_vs_distance():
     b2 = ax.bar(xpos + .19, vd, .36, color=C4, label="distance: phiếu = 1/d")
     for bars in (b1, b2):
         ax.bar_label(bars, fmt="%.2f", fontsize=8.5, padding=2)
-    ax.set_xticks(xpos); ax.set_xticklabels(["lớp XANH\n(3 hàng xóm xa)",
-                                             "lớp ĐỎ\n(2 hàng xóm gần)"])
+    ax.set_xticks(xpos); ax.set_xticklabels(["lớp xanh\n(3 hàng xóm xa)",
+                                             "lớp đỏ\n(2 hàng xóm gần)"])
     ax.set_ylabel("tổng số phiếu"); ax.set_ylim(0, max(vd) * 1.3)
     ax.legend(fontsize=8, loc="upper left")
     ax.set_title(f"uniform: xanh thắng (3 > 2)\n"
@@ -439,8 +444,8 @@ def fig_weights_uniform_vs_distance():
         for c in ax.collections[-2:]:
             c.set_sizes([34])
         ax.set_title(ttl, fontsize=10)
-    axes[3].set_xlabel("→ ranh giới bám sát điểm train hơn, gồ ghề hơn\n"
-                       "(và train accuracy luôn = 100%)", fontsize=8.4, color="dimgray")
+    axes[3].set_xlabel("ranh giới bám sát điểm train hơn, gồ ghề hơn\n"
+                       "(train accuracy luôn bằng 100%)", fontsize=8.4, color="dimgray")
 
     fig.suptitle("Trọng số uniform so với distance", fontweight="bold")
     fig.tight_layout()

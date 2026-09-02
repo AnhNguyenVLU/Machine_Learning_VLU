@@ -81,17 +81,19 @@ def fig_margin_geometry():
                edgecolors=C3, linewidths=2.4, zorder=4,
                label=f"{len(sv)} support vector (chạm lề)")
 
-    # vector w vuông góc với siêu phẳng (vẽ ở phần trên-trái, vùng trống)
+    # vector w vuông góc với siêu phẳng, vẽ ở góc trên-trái (vùng trống).
+    # Độ dài 0.5 < 1/||w|| nên mũi tên nằm gọn trong dải lề, không cắt đường lề;
+    # nhãn đặt ngay cạnh đầu mũi tên để không cần đường dẫn.
     u = w / nw
-    pw = np.array([1.15, (-w[0] * 1.15 - b) / w[1]])
-    ax.annotate("", xy=pw + u * 1.0, xytext=pw,
+    pw = np.array([-0.2, (-w[0] * -0.2 - b) / w[1]])
+    tip = pw + u * 0.5
+    ax.annotate("", xy=tip, xytext=pw,
                 arrowprops=dict(arrowstyle="-|>", color=C4, lw=2.6, mutation_scale=18),
                 zorder=5)
-    ax.annotate("$w$ = vector pháp tuyến\n(vuông góc với siêu phẳng)",
-                xy=tuple(pw + u * 1.05), xytext=(-0.25, 8.45),
-                color=C4, fontsize=9.5, fontweight="bold", va="top", ha="left",
-                arrowprops=dict(arrowstyle="->", color=C4, lw=1.3),
-                bbox=dict(boxstyle="round,pad=.3", fc="white", ec=C4, alpha=.95))
+    ax.text(tip[0] + 0.12, tip[1] + 0.32,
+            "$w$: vector pháp tuyến,\nvuông góc với siêu phẳng",
+            color=C4, fontsize=9.5, va="bottom", ha="left",
+            bbox=dict(boxstyle="round,pad=.3", fc="white", ec=C4, alpha=.95))
 
     # mũi tên 2 chiều đo độ rộng margin (vẽ ở phần dưới-phải, vùng trống)
     pm = np.array([4.15, (-w[0] * 4.15 - b) / w[1]])
@@ -99,21 +101,22 @@ def fig_margin_geometry():
     ax.annotate("", xy=q1, xytext=q0,
                 arrowprops=dict(arrowstyle="<|-|>", color=C3, lw=2.4, mutation_scale=15),
                 zorder=5)
-    ax.annotate(r"độ rộng margin $=\dfrac{2}{\|w\|}=%.2f$" % (2 / nw),
-                xy=tuple(pm), xytext=(6.05, 1.05), color=C3, fontsize=11,
-                fontweight="bold", arrowprops=dict(arrowstyle="->", color=C3),
-                bbox=dict(boxstyle="round,pad=.35", fc="#ecfdf5", ec=C3))
+    # nhãn đặt ngay cạnh đầu trên của mũi tên hai chiều, không dùng đường dẫn
+    ax.text(q1[0] + 0.22, q1[1] + 0.18,
+            r"độ rộng margin $=\dfrac{2}{\|w\|}=%.2f$" % (2 / nw),
+            color=C3, fontsize=10.5, va="bottom", ha="left",
+            bbox=dict(boxstyle="round,pad=.35", fc="#ecfdf5", ec=C3))
 
     ax.text(6.15, 6.10,
-            "Dải giữa hai đường đứt nét\nKHÔNG chứa điểm dữ liệu nào\n"
-            r"$\Rightarrow y_i(w^Tx_i+b)\geq 1\;\forall i$"
-            "\n\nChỉ 3 điểm chạm lề là quan trọng;\nxoá mọi điểm còn lại vẫn ra\nĐÚNG siêu phẳng này.",
+            "Dải giữa hai đường đứt nét\nkhông chứa điểm dữ liệu nào,\ntức là "
+            r"$y_i(w^Tx_i+b)\geq 1\;\forall i$."
+            f"\n\nChỉ {len(sv)} điểm chạm lề là quan trọng;\nbỏ mọi điểm còn lại vẫn ra\nđúng siêu phẳng này.",
             fontsize=9, color="dimgray", va="top",
             bbox=dict(boxstyle="round,pad=.45", fc="#f8f8f8", ec="lightgray"))
 
     ax.set_xlim(-0.4, 9.4); ax.set_ylim(-0.5, 8.6)
     ax.set_xlabel("$x_1$"); ax.set_ylabel("$x_2$")
-    # legend đặt NGOÀI vùng vẽ (phía dưới) để không che support vector / đường lề
+    # legend đặt ngoài vùng vẽ (phía dưới) để không che support vector / đường lề
     ax.legend(fontsize=8.5, loc="upper center", bbox_to_anchor=(0.5, -0.09),
               ncol=3, frameon=False, handlelength=1.9, columnspacing=1.5)
     ax.set_title("Hình học của margin trong SVM", fontweight="bold")
@@ -131,13 +134,13 @@ def fig_why_large_margin():
     xs = np.linspace(0, 8.4, 60)
     lvl = lambda c: (-w[0] * xs - b + c) / w[1]
 
-    # ba đường tách khác nhau, TẤT CẢ đều chia đúng 100% dữ liệu train
+    # ba đường tách khác nhau, tất cả đều chia đúng 100% dữ liệu train
     others = [((-0.30, 4.15), "đường A (thoai thoải)", "#7c3aed"),
               ((-3.50, 13.8), "đường B (dốc đứng)", "#0891b2")]
     # đường C: song song với SVM nhưng ép sát lớp +1
     cC = 0.90
 
-    # điểm test mới: nằm giữa đường C và siêu phẳng SVM  (f = 0.45 > 0 → thật sự là lớp +1)
+    # điểm test mới: nằm giữa đường C và siêu phẳng SVM  (f = 0.45 > 0 nên nhãn thật là lớp +1)
     tx = 3.05
     test = np.array([tx, (0.45 - b - w[0] * tx) / w[1]])
 
@@ -161,16 +164,15 @@ def fig_why_large_margin():
     _scatter2(ax, X, y)
     for c, ls in [(1, "--"), (-1, "--")]:
         ax.plot(xs, lvl(c), color="k", lw=1, ls=ls, alpha=.6)
-    ax.plot(xs, lvl(cC), lw=2, color=C4, label="đường C: margin HẸP")
-    ax.plot(xs, lvl(0), lw=2.8, color="k", label=f"SVM: margin RỘNG ({2/nw:.2f})")
+    ax.plot(xs, lvl(cC), lw=2, color=C4, label="đường C: margin hẹp")
+    ax.plot(xs, lvl(0), lw=2.8, color="k", label=f"SVM: margin rộng ({2/nw:.2f})")
     ax.scatter(*test, marker="*", s=460, color=C2, edgecolor="k",
                linewidth=1.1, zorder=6)
-    ax.annotate("Ngôi sao = điểm TEST mới (thật sự là lớp $+1$)\n"
-                "• đường C  → đoán lớp $-1$  → SAI\n"
-                "• SVM      → đoán lớp $+1$  → ĐÚNG",
+    ax.annotate("Ngôi sao là điểm test mới, nhãn thật là lớp $+1$.\n"
+                "Đường C đoán lớp $-1$: sai.\n"
+                "SVM đoán lớp $+1$: đúng.",
                 xy=tuple(test), xytext=(0.15, 9.25), fontsize=9.5,
                 va="top", ha="left",
-                arrowprops=dict(arrowstyle="->", color="dimgray"),
                 bbox=dict(boxstyle="round,pad=.45", fc="#fff7ed", ec=C4))
     ax.set_title("Margin rộng là vùng đệm an toàn", fontsize=10.5)
     ax.set_xlim(0, 8.4); ax.set_ylim(0, 9.4)
@@ -235,7 +237,7 @@ def fig_hard_vs_soft():
                                              mutation_scale=12), zorder=5)
     axes[2].plot([], [], color=C4, lw=1.8,
                  label=r"$\xi_i$ = mức vi phạm lề")
-    # legend + công thức đặt DƯỚI panel để không đè lên điểm dữ liệu / đường lề
+    # legend + công thức đặt dưới panel để không đè lên điểm dữ liệu / đường lề
     axes[2].legend(fontsize=8.5, loc="upper right", bbox_to_anchor=(1.0, -0.15),
                    frameon=False)
     axes[2].text(0.0, -0.26,
@@ -253,7 +255,7 @@ def fig_hard_vs_soft():
 def fig_effect_of_C():
     """C điều khiển đánh đổi: margin rộng & nhiều SV  <->  bám sát dữ liệu."""
     X, y = make_blobs(n_samples=100, centers=[(0, 0), (4, 4)],
-                      cluster_std=2.2, random_state=1)   # hai lớp CÓ chồng lấn
+                      cluster_std=2.2, random_state=1)   # hai lớp có chồng lấn
     fig, axes = plt.subplots(1, 3, figsize=(15.2, 5.2))
     for ax, C in zip(axes, [0.01, 1, 100]):
         clf = SVC(kernel="linear", C=C).fit(X, y)
@@ -266,20 +268,21 @@ def fig_effect_of_C():
                      f"margin = {2/np.linalg.norm(clf.coef_):.2f}, "
                      f"acc = {clf.score(X, y)*100:.1f}%", fontsize=10)
         ax.set_xlabel("$x_1$"); ax.set_ylabel("$x_2$")
-    axes[0].legend(fontsize=8, loc="upper left", framealpha=.95)
-    # chú thích đặt DƯỚI mỗi panel: bên trong panel sẽ đè lên support vector
+    # legend ở góc dưới-trái panel 1: góc trên-trái có đường lề đi qua, bị che
+    axes[0].legend(fontsize=8, loc="lower left", framealpha=.95)
+    # chú thích đặt dưới mỗi panel: bên trong panel sẽ đè lên support vector
     box = dict(boxstyle="round,pad=.35", fc="white", ec="lightgray", alpha=.95)
-    axes[0].annotate("C nhỏ → khoan dung với vi phạm\nmargin RỘNG, NHIỀU support vector\n"
+    axes[0].annotate("C nhỏ: khoan dung với vi phạm,\nmargin rộng, nhiều support vector\n"
                  "(bias cao, variance thấp)",
                  xy=(0, 0), xycoords="axes fraction", textcoords="offset points",
                  xytext=(0, -42), fontsize=8.5, color="#444444",
                  va="top", ha="left", bbox=box)
-    axes[1].annotate("C vừa → cân bằng\n(mặc định của sklearn là C = 1)",
+    axes[1].annotate("C vừa: cân bằng\n(sklearn mặc định C = 1)",
                  xy=(0, 0), xycoords="axes fraction", textcoords="offset points",
                  xytext=(0, -42), fontsize=8.5, color="#444444",
                  va="top", ha="left", bbox=box)
-    axes[2].annotate("C lớn → khắt khe, cố gò sát dữ liệu\nmargin HẸP, ÍT support vector\n"
-                 "(bias thấp, variance cao → dễ overfit)",
+    axes[2].annotate("C lớn: khắt khe, bám sát dữ liệu,\nmargin hẹp, ít support vector\n"
+                 "(bias thấp, variance cao, dễ overfit)",
                  xy=(0, 0), xycoords="axes fraction", textcoords="offset points",
                  xytext=(0, -42), fontsize=8.5, color="#444444",
                  va="top", ha="left", bbox=box)
@@ -302,7 +305,7 @@ def fig_kernel_trick_3d():
     th = np.linspace(0, 2 * np.pi, 300)
     r = np.sqrt(z0)
     ax.plot(r * np.cos(th), r * np.sin(th), color="k", lw=2.2,
-            label="ranh giới đúng: một ĐƯỜNG TRÒN")
+            label="ranh giới đúng là một đường tròn")
     ax.set_aspect("equal")
     ax.set_xlim(-1.3, 1.3); ax.set_ylim(-1.3, 1.95)
     ax.set_xlabel("$x_1$"); ax.set_ylabel("$x_2$")
@@ -341,24 +344,25 @@ def fig_gamma_rbf():
     """gamma nhỏ = ảnh hưởng lan xa (mượt); gamma lớn = mỗi điểm một ốc đảo (overfit)."""
     X, y = make_moons(n_samples=220, noise=.22, random_state=42)
     fig, axes = plt.subplots(1, 4, figsize=(16.5, 4.3))
-    notes = ["quá mượt, gần như tuyến tính\n(UNDERFIT)",
-             "vừa đẹp, bám hình lưỡi liềm",
-             "bắt đầu uốn éo theo nhiễu",
-             "mỗi điểm một 'ốc đảo' riêng\n(OVERFIT nặng)"]
+    notes = ["quá mượt, gần như tuyến tính\n(underfit)",
+             "vừa phải, bám hình lưỡi liềm",
+             "bắt đầu uốn theo nhiễu",
+             "mỗi điểm một 'ốc đảo' riêng\n(overfit nặng)"]
     for ax, g, note in zip(axes, [0.1, 1, 10, 100], notes):
         clf = SVC(kernel="rbf", C=1.0, gamma=g).fit(X, y)
         _boundary(ax, clf, X, pad=.5, levels=(0,))
         _scatter2(ax, X, y, s=20)
         ax.set_title(f"gamma = {g}\nacc = {clf.score(X, y)*100:.1f}%, "
                      f"{len(clf.support_vectors_)} SV", fontsize=10)
-        # chú thích đặt DƯỚI panel: bên trong panel sẽ đè lên đường ranh giới
+        # chú thích đặt dưới panel: bên trong panel sẽ đè lên đường ranh giới
         ax.annotate(note, xy=(0, 0), xycoords="axes fraction",
                     textcoords="offset points", xytext=(0, -42), fontsize=8.5,
                     color="#444444", va="top", ha="left",
                     bbox=dict(boxstyle="round,pad=.3", fc="white", ec="lightgray", alpha=.95))
         ax.set_xlabel("$x_1$")
     axes[0].set_ylabel("$x_2$")
-    axes[0].legend(fontsize=8, loc="upper left", framealpha=.95)
+    # legend ở góc dưới-phải panel 1: góc trên-trái có điểm dữ liệu bị che
+    axes[0].legend(fontsize=8, loc="lower right", framealpha=.95)
     fig.suptitle("Ảnh hưởng của gamma trong RBF", fontweight="bold")
     fig.tight_layout(rect=[0, 0.02, 1, 0.94])
     save(fig, "06_anh_huong_gamma_rbf.png")
@@ -382,7 +386,7 @@ def fig_compare_kernels():
         ax.set_title(f"{name}\nacc = {clf.score(Xs, y)*100:.1f}%", fontsize=9.5)
         ax.set_xlabel("$x_1$ (đã scale)")
     axes[0].set_ylabel("$x_2$ (đã scale)")
-    # một legend chung đặt NGOÀI panel: legend trong panel 1 che mất ranh giới
+    # một legend chung đặt ngoài panel: legend trong panel 1 che mất ranh giới
     h, l = axes[0].get_legend_handles_labels()
     fig.legend(h, l, loc="lower center", ncol=2, fontsize=9.5, frameon=False,
                bbox_to_anchor=(0.5, 0.005), handlelength=1.6, columnspacing=2.0)
@@ -416,7 +420,7 @@ def fig_hinge_loss():
             bbox=dict(boxstyle="round,pad=.2", fc="white", ec="none", alpha=.85))
     ax.set_xlabel(r"functional margin $m = y\,(w^Tx+b)$")
     ax.set_ylabel("mất mát")
-    ax.set_ylim(-.15, 3.2)
+    ax.set_ylim(-1.3, 3.2); ax.set_yticks(np.arange(0, 3.01, .5))
     ax.legend(fontsize=8.5, loc="upper right", framealpha=.95)
     ax.set_title("Hinge loss so với các hàm mất mát khác", fontsize=10)
 
@@ -425,21 +429,23 @@ def fig_hinge_loss():
     ax.plot(m, logistic, color=C1, lw=2.2, label="log loss (Logistic Regression)")
     ax.fill_between(m, 0, hinge, where=(m >= 1), color=C3, alpha=.25)
     ax.plot([1, 1], [-.15, 1.35], color=C3, lw=1.2, ls=":")
-    ax.annotate("Hinge = 0 HOÀN TOÀN khi $m\\geq1$\n"
-                "→ điểm ngoài lề KHÔNG đóng góp gradient\n"
-                "→ nghiệm chỉ phụ thuộc support vector\n"
-                "    (mô hình THƯA)",
-                xy=(1.9, .02), xytext=(.18, 2.15), fontsize=9,
+    # hộp này đặt dưới đoạn hinge = 0 (vùng trống, đã nới đáy trục): mọi đường dẫn
+    # đi từ phía trên xuống đều phải cắt đường log loss nằm ngay trên đoạn đó
+    ax.annotate("Hinge bằng 0 khi $m\\geq1$:\n"
+                "điểm ngoài lề không góp gradient,\n"
+                "nghiệm chỉ phụ thuộc support vector\n"
+                "(mô hình thưa)",
+                xy=(1.9, -.03), xytext=(.72, -.33), fontsize=8.8,
                 va="top", ha="left",
                 arrowprops=dict(arrowstyle="->", color=C3),
                 bbox=dict(boxstyle="round,pad=.4", fc="#ecfdf5", ec=C3))
-    ax.annotate("Log loss > 0 với MỌI điểm\n→ mọi mẫu đều kéo nghiệm một chút\n(mô hình KHÔNG thưa)",
+    ax.annotate("Log loss > 0 với mọi điểm,\nmọi mẫu đều kéo nghiệm một chút\n(mô hình không thưa)",
                 xy=(2.4, logistic[np.argmin(np.abs(m - 2.4))]), xytext=(.18, 3.14),
                 fontsize=9, va="top", ha="left",
                 arrowprops=dict(arrowstyle="->", color=C1),
                 bbox=dict(boxstyle="round,pad=.4", fc="#eff6ff", ec=C1))
     ax.set_xlabel(r"$m = y\,(w^Tx+b)$"); ax.set_ylabel("mất mát")
-    ax.set_ylim(-.15, 3.2)
+    ax.set_ylim(-1.3, 3.2); ax.set_yticks(np.arange(0, 3.01, .5))
     ax.legend(fontsize=9, loc="lower left", framealpha=.95)
     ax.set_title("Hinge loss so với log loss", fontsize=10)
 
@@ -459,7 +465,7 @@ def fig_rbf_similarity():
     for g, col in zip([0.1, 1, 10, 100], [C1, C3, C4, C2]):
         ax.plot(d, np.exp(-g * d ** 2), lw=2.2, color=col, label=f"$\\gamma$ = {g}")
     ax.axhline(.5, color="gray", ls=":", lw=1)
-    ax.text(3.97, .545, "mức 'giống nhau một nửa'", fontsize=8.5, color="#444444",
+    ax.text(3.97, .545, "K = 0.5 (giống một nửa)", fontsize=8.5, color="#444444",
             ha="right", va="bottom",
             bbox=dict(boxstyle="round,pad=.22", fc="white", ec="none", alpha=.88))
     ax.set_xlabel(r"khoảng cách $\|x-x'\|$")
@@ -481,8 +487,8 @@ def fig_rbf_similarity():
         a.set_aspect("equal")
     fig.text(0.762, 0.855, "Vùng ảnh hưởng của 3 support vector (dấu ×)",
              ha="center", fontsize=10)
-    fig.text(0.762, 0.055, "càng đỏ = kernel càng lớn = càng 'giống' một support vector\n"
-             r"$\gamma$ lớn → các ốc đảo tách rời → model chỉ nhớ từng điểm một",
+    fig.text(0.762, 0.055, "càng đỏ thì kernel càng lớn, tức càng 'giống' một support vector;\n"
+             r"$\gamma$ lớn làm các vùng ảnh hưởng tách rời, model chỉ nhớ từng điểm một",
              ha="center", fontsize=9, color="#444444")
 
     fig.suptitle("RBF kernel như một thước đo độ giống nhau", fontweight="bold")
@@ -491,7 +497,7 @@ def fig_rbf_similarity():
 
 # ---------------------------------------------------------------- 10
 def fig_svr_epsilon_tube():
-    """Giới thiệu SVR: thay vì lề rỗng, ta muốn dữ liệu NẰM TRONG ống epsilon."""
+    """Giới thiệu SVR: thay vì lề rỗng, ta muốn dữ liệu nằm trong ống epsilon."""
     from sklearn.svm import SVR
     rng = np.random.default_rng(4)
     x = np.sort(rng.uniform(0, 10, 70))
@@ -507,9 +513,9 @@ def fig_svr_epsilon_tube():
     ax.plot(xs, yh, color=C3, lw=2.4, label="SVR")
     inside = np.abs(y - m.predict(x.reshape(-1, 1))) <= eps + 1e-9
     ax.scatter(x[inside], y[inside], s=28, color=C1, edgecolor="k", linewidth=.4,
-               label="điểm TRONG ống → mất mát = 0")
+               label="điểm trong ống: mất mát bằng 0")
     ax.scatter(x[~inside], y[~inside], s=52, color=C2, edgecolor="k", linewidth=.5,
-               marker="s", label="điểm NGOÀI ống → support vector, bị phạt")
+               marker="s", label="điểm ngoài ống: support vector, bị phạt")
     ax.set_xlabel("x"); ax.set_ylabel("y")
     lo, hi = ax.get_ylim()
     ax.set_ylim(lo, hi + 0.95)          # chừa chỗ cho legend, tránh đè lên dữ liệu
