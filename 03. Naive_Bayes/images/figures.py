@@ -250,22 +250,25 @@ def fig_laplace_smoothing():
                  fontsize=10)
 
     ax = axes[2]; ax.axis("off")
-    ax.text(0, .97, "Laplace / Lidstone smoothing", fontsize=11.5, fontweight="bold", va="top")
-    ax.text(0, .82, r"$\hat{P}(x_i \mid y)=\dfrac{N_{i,y}+\alpha}{N_y + \alpha V}$",
-            fontsize=15, va="top")
-    ax.text(0, .60,
+    ax.text(0, 1.02, "Laplace / Lidstone smoothing", fontsize=11.5,
+            fontweight="bold", va="top")
+    ax.text(0, .90, r"$\hat{P}(x_i \mid y)=\dfrac{N_{i,y}+\alpha}{N_y + \alpha V}$",
+            fontsize=14, va="top")
+    ax.text(0, .68,
             "$N_{i,y}$: số lần từ $i$ xuất hiện trong lớp $y$\n"
             "$N_y$: tổng số từ của lớp $y$\n"
             "$V$: kích thước từ điển\n"
             "$\\alpha$: lượng \"đếm ảo\" cộng thêm",
-            fontsize=9.4, va="top", color="#374151")
-    ax.text(0, .32, "• $\\alpha=1$: Laplace (add-one) — mặc định sklearn\n"
-                    "• $0<\\alpha<1$: Lidstone — thường tốt hơn cho text\n"
-                    "• $\\alpha\\to\\infty$: mọi từ như nhau → model vô dụng\n"
-                    "• $\\alpha=0$: một từ chưa từng thấy → $P=0$ → sập",
-            fontsize=9.4, va="top", color="#374151")
-    ax.text(0, .04, "Cách đọc theo Bayes: $\\alpha$ chính là prior Dirichlet\ntrên phân phối từ.",
-            fontsize=9.2, va="bottom", style="italic", color=C1)
+            fontsize=9.0, va="top", color="#374151")
+    ax.text(0, .42,
+            "• $\\alpha=1$: Laplace (add-one) — mặc định sklearn\n"
+            "• $0<\\alpha<1$: Lidstone — thường tốt hơn cho text\n"
+            "• $\\alpha\\to\\infty$: mọi từ như nhau → model vô dụng\n"
+            "• $\\alpha=0$: từ chưa từng thấy → $P=0$ → sập",
+            fontsize=9.0, va="top", color="#374151")
+    ax.text(0, .13,
+            "Cách đọc theo Bayes: $\\alpha$ chính là prior\nDirichlet trên phân phối từ.",
+            fontsize=8.9, va="top", style="italic", color=C1)
     fig.suptitle("Laplace smoothing chữa bài toán \"xác suất bằng 0\"", fontweight="bold")
     fig.tight_layout()
     save(fig, "05_laplace_smoothing.png")
@@ -446,14 +449,13 @@ def fig_text_pipeline():
 
     fig, axes = plt.subplots(1, 3, figsize=(14.5, 3.9))
     ax = axes[0]; ax.axis("off")
-    ax.text(0, .95, "1. Văn bản thô", fontsize=11, fontweight="bold", va="top")
+    ax.text(0, 1.00, "1. Văn bản thô", fontsize=11, fontweight="bold", va="top")
     for i, (d, l) in enumerate(zip(docs, labels)):
         col = C3 if l == "positive" else C2
-        ax.text(0, .74 - i * .22, f'doc {i}: "{d}"', fontsize=9.6, va="top")
-        ax.text(0, .66 - i * .22, f"nhãn: {l}", fontsize=9, va="top", color=col)
-    ax.text(0, .06, "CountVectorizer tách từ, hạ chữ thường,\nbỏ stop-words, dựng từ điển.",
-            fontsize=8.8, va="bottom", color="dimgray")
-
+        ax.text(0, .82 - i * .20, f'doc {i}: "{d}"', fontsize=9.4, va="top")
+        ax.text(0, .74 - i * .20, f"nhãn: {l}", fontsize=8.8, va="top", color=col)
+    ax.text(0, .20, "CountVectorizer tách từ, hạ chữ thường,\nbỏ stop-words, dựng từ điển.",
+            fontsize=8.6, va="top", color="dimgray")
     ax = axes[1]
     im = ax.imshow(counts, cmap="Blues", aspect="auto")
     ax.set_xticks(range(len(vocab))); ax.set_xticklabels(vocab, rotation=35, ha="right")
@@ -466,24 +468,23 @@ def fig_text_pipeline():
     ax.set_title("2. Ma trận Bag-of-Words\n(hàng = văn bản, cột = từ)", fontsize=10)
 
     ax = axes[2]; ax.axis("off")
-    ax.text(0, .97, "3. Naive Bayes đếm và tính", fontsize=11, fontweight="bold", va="top")
-    ax.text(0, .82, r"$P(y)=\dfrac{\text{số doc lớp } y}{\text{tổng doc}}$"
-                    "\n\n"
-                    r"$P(w \mid y)=\dfrac{\text{đếm}(w, y)+\alpha}{\sum_{w'}\text{đếm}(w',y)+\alpha V}$",
-            fontsize=11.5, va="top")
-    ax.text(0, .48,
-            "Dự đoán doc mới:\n"
+    ax.text(0, 1.02, "3. Naive Bayes đếm và tính", fontsize=11, fontweight="bold", va="top")
+    ax.text(0, .90, r"$P(y)=\dfrac{\text{số doc lớp } y}{\text{tổng doc}}$",
+            fontsize=12, va="top")
+    ax.text(0, .68,
+            r"$P(w \mid y)=\dfrac{\text{đếm}(w,y)+\alpha}"
+            r"{\sum_{w'}\text{đếm}(w',y)+\alpha V}$", fontsize=12, va="top")
+    ax.text(0, .41, "Dự đoán doc mới:", fontsize=9.4, va="top", fontweight="bold")
+    ax.text(0, .32,
             r"$\hat{y}=\arg\max_y [\log P(y) + \sum_w n_w \log P(w\mid y)]$",
-            fontsize=10.5, va="top")
-    ax.text(0, .22,
-            "Toàn bộ \"huấn luyện\" chỉ là ĐẾM —\n"
-            "một lượt duyệt dữ liệu, không lặp,\n"
-            "không learning rate, không hội tụ.\n"
-            "Đó là lý do NB nhanh hơn mọi model khác\n"
-            "hàng trăm lần.",
-            fontsize=9.3, va="top", color="#374151")
-    ax.text(0, 0, "⚠️ fit_transform CHỈ trên train, transform trên test.",
-            fontsize=9, va="bottom", color=C2, fontweight="bold")
+            fontsize=10, va="top")
+    ax.text(0, .25,
+            "Toàn bộ \"huấn luyện\" chỉ là ĐẾM — một lượt duyệt\n"
+            "dữ liệu, không lặp, không learning rate. Đó là lý do\n"
+            "NB nhanh hơn mọi model khác hàng trăm lần.",
+            fontsize=8.9, va="top", color="#374151")
+    ax.text(0, .04, "⚠️ fit_transform CHỈ trên train, transform trên test.",
+            fontsize=8.9, va="top", color=C2, fontweight="bold")
     fig.suptitle("Đường ống phân loại văn bản với Naive Bayes", fontweight="bold")
     fig.tight_layout()
     save(fig, "09_duong_ong_van_ban.png")

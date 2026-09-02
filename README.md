@@ -9,6 +9,8 @@ Mỗi bài lab gồm ba phần: **lý thuyết** giải thích "vì sao" trướ
 ```
 Machine Learning/
 ├── 01. Linear_Regression/            # Hồi quy tuyến tính, Normal Eq + GD
+│   ├── Linear_Regression.ipynb
+│   └── images/                       # hình minh hoạ + figures.py sinh ra chúng
 ├── 02. Logistic_Regression/          # Hồi quy logistic — bắc cầu sang phân loại
 ├── 03. Naive_Bayes/                  # Phân loại xác suất, Bernoulli/Multinomial/Gaussian
 ├── 04. KNN/                          # K-Nearest Neighbors, scale & metric
@@ -21,6 +23,39 @@ Machine Learning/
 ├── 11. Final_Examination/            # Đề thi cuối kỳ
 └── README.md
 ```
+
+Mỗi lab từ 01 đến 09 đều có thư mục `images/` theo đúng cấu trúc trên.
+
+## Hình minh hoạ
+
+Mỗi lab có thư mục `images/` chứa **9–10 hình minh hoạ** được nhúng thẳng vào phần lý thuyết
+của notebook. Hình hiện ngay trên GitHub — sinh viên đọc được lý thuyết mà **không cần chạy
+notebook hay cài đặt gì**.
+
+Toàn bộ hình đều do script `images/figures.py` của chính lab đó sinh ra bằng matplotlib. Không
+có ảnh tải từ web nên không vướng bản quyền, không sợ link chết, và quan trọng nhất: **mọi con
+số trên hình đều tái lập được**. Muốn xem một hình được tạo thế nào, hoặc muốn tự thí nghiệm
+với tham số khác, chỉ cần mở file đó ra sửa rồi chạy lại:
+
+```bash
+cd "01. Linear_Regression/images"
+python figures.py          # ghi đè toàn bộ .png trong thư mục
+```
+
+Vài hình đáng chú ý:
+
+| Lab | Hình | Trả lời câu hỏi |
+|---|---|---|
+| 01 | Mặt mất mát 3D + đường đi Gradient Descent | GD thực sự "đi" thế nào trên loss surface? |
+| 01 | Phép chiếu vuông góc của Normal Equation | Vì sao lại là $(X^TX)^{-1}X^Ty$? |
+| 02 | BCE lồi vs MSE không lồi | Vì sao không dùng MSE cho phân loại? |
+| 03 | Định lý Bayes qua 10.000 người xét nghiệm | Vì sao xét nghiệm chính xác 99% mà chỉ 17% người dương tính có bệnh? |
+| 04 | Lời nguyền chiều cao | Vì sao KNN sụp đổ khi nhiều feature? |
+| 05 | MDI vs permutation importance | Vì sao `feature_importances_` có thể đánh lừa bạn? |
+| 06 | Kernel trick nâng chiều 3D | Vì sao dữ liệu vòng tròn lại tách được bằng mặt phẳng? |
+| 07 | Từ hai phân phối điểm số đến đường ROC | ROC sinh ra từ đâu? |
+| 08 | Thuật toán Lloyd từng bước | K-Means hội tụ ra sao qua từng vòng lặp? |
+| 09 | XOR trong không gian ẩn | Tầng ẩn thực chất làm gì? |
 
 ## Vì sao thứ tự này?
 
@@ -62,12 +97,15 @@ Sau khi hoàn thành, sinh viên có thể:
 ## Yêu cầu môi trường
 
 ```bash
-pip install numpy pandas matplotlib seaborn scikit-learn
+pip install numpy scipy pandas matplotlib seaborn scikit-learn
 pip install torch torchvision      # cho lab MLP
-pip install xlrd openpyxl          # đọc file .xls/.xlsx của Iris
+pip install xlrd openpyxl          # đọc file .xls/.xlsx của Iris — BẮT BUỘC cho lab KNN
 pip install cvxopt                 # cho Đề thi thử (Câu 2 SVM) và bài tập SVM nâng cao
 pip install imbalanced-learn       # cho bài tập class imbalance (tuỳ chọn)
 ```
+
+Chỉ cần `numpy`, `scipy`, `pandas`, `matplotlib`, `scikit-learn` là chạy được các script
+`images/figures.py` (không cần torch).
 
 Khuyến nghị: Python 3.9+, dùng Jupyter Notebook hoặc Google Colab.
 

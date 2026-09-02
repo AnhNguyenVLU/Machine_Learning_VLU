@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# Dữ liệu được tải tự động khi chạy notebook (FashionMNIST, MNIST, CIFAR-10...)
+09. MLP/data/
+**/data/MNIST/
+**/data/FashionMNIST/
+**/data/cifar-10-batches-py/
+**/*.tar.gz
+
+# Hệ điều hành
+.DS_Store
+Thumbs.db
