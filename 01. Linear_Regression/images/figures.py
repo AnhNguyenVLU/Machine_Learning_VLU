@@ -417,16 +417,22 @@ def fig_ridge_lasso():
                                                     lvl * np.array([1.45, 2.1])]),
                    colors=C2, linewidths=[.9, .9, .9, 2.2, .9, .9], zorder=2)
         ax.scatter(*c, color=C2, s=55, zorder=6)
-        ax.text(c[0] + .14, c[1] + .1, "nghiệm OLS\n(không phạt)", color=C2, fontsize=8.5)
+        ax.text(c[0] + .16, c[1] + .12, "nghiệm OLS\n(không phạt)", color=C2, fontsize=8.5,
+                bbox=dict(boxstyle="round,pad=0.28", facecolor="white", alpha=.92,
+                          edgecolor="0.85"))
         ax.scatter(*hit, color="k", s=85, zorder=7)
         ax.annotate("nghiệm sau khi phạt\n$w$ = ({:.2f}, {:.2f})".format(*hit), hit,
-                    xytext=(-2.05, 2.75), fontsize=8.5,
-                    arrowprops=dict(arrowstyle="->", color="k", lw=1.2))
+                    xytext=(-2.05, 2.85), fontsize=8.5,
+                    arrowprops=dict(arrowstyle="->", color="k", lw=1.2),
+                    bbox=dict(boxstyle="round,pad=0.28", facecolor="white", alpha=.92,
+                              edgecolor="0.85"))
         ax.axhline(0, color="k", lw=.9); ax.axvline(0, color="k", lw=.9)
         ax.set_xlim(-2.2, 4.0); ax.set_ylim(-2.0, 3.4)
         ax.set_xlabel("$w_1$"); ax.set_ylabel("$w_2$")
         ax.set_title(name, fontsize=10.5)
-        ax.text(-2.1, -1.92, txt, fontsize=7.8, color="dimgray", va="bottom")
+        ax.text(-2.1, -1.92, txt, fontsize=7.8, color="#374151", va="bottom",
+                bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=.92,
+                          edgecolor="0.85"))
         ax.set_aspect("equal")
 
     # (c) đường đi của hệ số Lasso
