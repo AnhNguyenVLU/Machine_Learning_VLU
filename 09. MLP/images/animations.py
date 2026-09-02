@@ -51,6 +51,9 @@ def anim_mlp_hoc():
             cache.append(A)
         return cache
 
+    def bce(p, y):
+        return float(-np.mean(y * np.log(p + 1e-12) + (1 - y) * np.log(1 - p + 1e-12)))
+
     def step(lr=.12):
         c = forward(Xtr)
         p = c[-1].ravel()
@@ -62,7 +65,7 @@ def anim_mlp_hoc():
                 d = (d @ Ws[i].T) * (c[i] > 0)
             Ws[i] -= lr * gW
             bs[i] -= lr * gb
-        return float(-np.mean(ytr * np.log(p + 1e-12) + (1 - ytr) * np.log(1 - p + 1e-12)))
+        return bce(p, ytr)
 
     pad = .55
     xx, yy = np.meshgrid(np.linspace(X[:, 0].min() - pad, X[:, 0].max() + pad, 110),
@@ -79,7 +82,9 @@ def anim_mlp_hoc():
             losses.append(step()); ep += 1
         P = forward(G)[-1].reshape(xx.shape)
         acc = ((forward(Xte)[-1].ravel() >= .5).astype(int) == yte).mean() * 100
-        snaps.append((P.copy(), ep, losses[-1] if losses else np.nan, acc))
+        # ở epoch 0 chưa có bước cập nhật nào, tính loss trực tiếp từ trọng số khởi tạo
+        cur = losses[-1] if losses else bce(forward(Xtr)[-1].ravel(), ytr)
+        snaps.append((P.copy(), ep, cur, acc))
 
     fig, (a1, a2) = plt.subplots(1, 2, figsize=(11, 4.3),
                                  gridspec_kw={"width_ratios": [1.25, 1]})

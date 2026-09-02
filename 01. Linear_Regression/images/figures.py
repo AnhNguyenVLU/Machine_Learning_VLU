@@ -41,11 +41,16 @@ def fig_regression_vs_classification():
     ax[0].set_title("Hồi quy: output là số thực liên tục")
     ax[0].set_xlabel("Diện tích (m²)"); ax[0].set_ylabel("Giá (triệu)")
     ax[0].set_ylim(y.min() - 6, y.max() + 14)
-    ax[0].annotate("mỗi diện tích cho ra\nMỘT con số (98.0 triệu)", xy=(160, 50 + .3 * 160),
-                   xytext=(24, y.max() + 3), fontsize=8.8, color="#374151",
-                   arrowprops=dict(arrowstyle="->", color="gray", lw=1.3),
-                   bbox=dict(boxstyle="round,pad=0.3", facecolor="white",
-                             alpha=.9, edgecolor="0.8"))
+    # khoanh tròn một điểm trên đường và chú thích ở vùng trống phía dưới bên phải,
+    # không dùng đường dẫn để khỏi cắt qua các điểm dữ liệu
+    ax[0].scatter([160], [50 + .3 * 160], s=130, facecolor="none", edgecolor="k",
+                  linewidth=1.4, zorder=5)
+    ax[0].text(.97, .05, "điểm khoanh tròn: diện tích 160 m²\n"
+               "cho ra một con số, 98.0 triệu",
+               transform=ax[0].transAxes, fontsize=8.6, color="#374151",
+               ha="right", va="bottom",
+               bbox=dict(boxstyle="round,pad=0.3", facecolor="white",
+                         alpha=.9, edgecolor="0.8"))
 
     xa = rng.normal(2.2, .55, 40); ya = rng.normal(2.2, .55, 40)
     xb = rng.normal(4.2, .55, 40); yb = rng.normal(4.0, .55, 40)
@@ -72,7 +77,7 @@ def fig_residuals_geometry():
     fig, ax = plt.subplots(figsize=(9.2, 4.6))
     for xi, yi, yhi in zip(x, y, yh):
         e = yi - yhi
-        # cạnh hình vuông = |e| trên CẢ hai trục (nhờ set_aspect("equal") ở dưới)
+        # cạnh hình vuông = |e| trên cả hai trục (nhờ set_aspect("equal") ở dưới)
         ax.add_patch(plt.Rectangle((xi, min(yi, yhi)), abs(e), abs(e),
                                    facecolor=C4, alpha=.30, edgecolor=C4, lw=1.1, zorder=1))
         ax.plot([xi, xi], [yi, yhi], color="dimgray", lw=1.5, ls="--", zorder=2)
@@ -85,7 +90,7 @@ def fig_residuals_geometry():
     ax.add_patch(plt.Rectangle((0, 0), 0, 0, facecolor=C4, alpha=.5, edgecolor=C4,
                                label=r"hình vuông cạnh $|e_i|$, diện tích $e_i^2$"))
 
-    ax.set_aspect("equal")          # BẮT BUỘC: có vậy hình vuông mới thật sự vuông
+    ax.set_aspect("equal")          # cần tỉ lệ trục bằng nhau thì hình vuông mới thật sự vuông
     ax.set_xlim(x.min() - .8, x.max() + 3.6)
     ax.set_ylim(y.min() - 1.4, y.max() + 2.6)
     ax.set_xlabel("x"); ax.set_ylabel("y")
@@ -101,9 +106,9 @@ def fig_residuals_geometry():
 
 # ---------------------------------------------------------------- 3
 def fig_loss_surface_gd():
-    """Feature KHÔNG chuẩn hoá -> Hessian có số điều kiện ~137 -> contour dẹt như khe hẹp.
-    GD lao rất nhanh vào khe rồi BÒ rất chậm dọc theo khe. Đây chính là lý do
-    mục 4.2c nói phải scale feature trước khi chạy Gradient Descent."""
+    """Feature không chuẩn hoá nên Hessian có số điều kiện ~137, contour dẹt như khe hẹp.
+    GD đi rất nhanh vào khe rồi đi rất chậm dọc theo khe. Đây là lý do
+    mục 4.2c nói nên scale feature trước khi chạy Gradient Descent."""
     rng = np.random.default_rng(42)
     N = 60
     x = np.linspace(0, 10, N)
@@ -141,16 +146,16 @@ def fig_loss_surface_gd():
     ax2.contour(W, B, Z, levels=np.geomspace(Z.min() + 1, Z.max(), 16),
                 colors="0.6", linewidths=.8)
     ax2.plot(path[:50, 0], path[:50, 1], "-", color=C2, lw=2.4, zorder=4,
-             label="50 bước đầu: LAO vào khe")
+             label="50 bước đầu: đi nhanh vào khe")
     ax2.plot(path[50:, 0], path[50:, 1], "-", color=C1, lw=2.4, zorder=4,
-             label=f"{n_step - 50} bước sau: BÒ dọc khe")
+             label=f"{n_step - 50} bước sau: đi chậm dọc khe")
     ax2.scatter([path[0, 0]], [path[0, 1]], s=95, color="k", zorder=6,
                 label="điểm khởi tạo")
     ax2.scatter([3], [5], marker="*", s=340, color=C4, zorder=6, edgecolor="k",
                 linewidth=.7, label="nghiệm tối ưu (3, 5)")
-    ax2.annotate("cái KHE hẹp: contour dẹt\n"
-                 f"số điều kiện $\\kappa \\approx {kappa:.0f}$\n"
-                 f"→ cần tới {n_step} bước mới tới đáy",
+    ax2.annotate("khe hẹp: contour dẹt,\n"
+                 f"số điều kiện $\\kappa \\approx {kappa:.0f}$,\n"
+                 f"nên cần tới {n_step} bước mới tới đáy",
                  xy=(2.3, 9.4), xytext=(3.35, 13.2), fontsize=8.6,
                  arrowprops=dict(arrowstyle="->", color="k", lw=1.4),
                  bbox=dict(boxstyle="round,pad=0.35", facecolor="white",
@@ -172,7 +177,7 @@ def fig_loss_surface_gd():
 
 # ---------------------------------------------------------------- 4
 def fig_learning_rate():
-    """Ba chế độ của learning rate. Dùng feature ĐÃ CHUẨN HOÁ nên Hessian = 2I,
+    """Ba chế độ của learning rate. Dùng feature đã chuẩn hoá nên Hessian = 2I,
     ngưỡng phân kỳ lý thuyết đúng bằng lr = 2/lambda_max = 1.0 (kiểm chứng được)."""
     rng = np.random.default_rng(42)
     N = 60
@@ -200,7 +205,7 @@ def fig_learning_rate():
 
     cfg = [(0.02, "lr quá nhỏ (0.02)", "40 bước vẫn chưa tới đích\nĐúng hướng, nhưng phí thời gian", C1),
            (0.35, "lr vừa (0.35)", "Hội tụ đúng tâm sau ~15 bước", C3),
-           (1.02, "lr quá lớn (1.02)", "Vượt ngưỡng 1.0 → văng ra xa dần\nLoss tăng vọt rồi thành inf", C2)]
+           (1.02, "lr quá lớn (1.02)", "Vượt ngưỡng 1.0 nên văng ra xa dần,\nloss tăng nhanh rồi thành inf", C2)]
 
     fig, axes = plt.subplots(2, 3, figsize=(13.5, 7.4),
                              gridspec_kw={"height_ratios": [1.45, 1]})
@@ -279,8 +284,8 @@ def fig_normal_equation_projection():
             color=C3, fontsize=10.5, fontweight="bold")
     ax.text(y[0] - .30, y[1] + 1.15, y[2] - .78,
             "phần dư $e=y-\\hat{y}$\n$\\perp$ mặt phẳng", color="dimgray", fontsize=9.5)
-    ax.text(P[0] - .05, P[1] - .78, .05, "cột $x_1$", fontsize=9.5)
-    ax.text(Q[0] - .62, Q[1] + .12, .04, "cột $x_2$", fontsize=9.5)
+    ax.text(P[0] + .12, P[1] - 1.05, -.02, "cột $x_1$", fontsize=9.5)
+    ax.text(Q[0] - .28, Q[1] + .22, .04, "cột $x_2$", fontsize=9.5)  # lệch trái để không đè đường gạch đứt
     ax.text(-2.4, -1.5, -.06, "không gian cột của $X$\n(mọi tổ hợp tuyến tính $X\\theta$)",
             color=C1, fontsize=9.5)
 
@@ -336,8 +341,8 @@ def fig_residual_diagnostics():
 
 # ---------------------------------------------------------------- 7
 def fig_bias_variance():
-    """Chú ý: PHẢI có StandardScaler trong pipeline. Không có nó, ma trận Vandermonde
-    của PolynomialFeatures bậc cao bị suy biến số học và train RMSE lại TĂNG -
+    """Chú ý: cần có StandardScaler trong pipeline. Không có nó, ma trận Vandermonde
+    của PolynomialFeatures bậc cao bị suy biến số học và train RMSE lại tăng,
     một hiện tượng số học, không phải hiện tượng thống kê."""
     from sklearn.linear_model import LinearRegression
     from sklearn.pipeline import make_pipeline
@@ -375,10 +380,10 @@ def fig_bias_variance():
     ax.plot(degs, tr, "o-", color=C1, ms=4, label="train RMSE")
     ax.plot(degs, te, "s-", color=C2, ms=4, label="test RMSE")
     best = degs[int(np.argmin(te))]
-    ax.axvline(best, color=C3, ls="--", lw=1.6)
+    ax.axvline(best, ymax=.76, color=C3, ls="--", lw=1.6)  # dừng dưới legend
     ax.set_yscale("log")
     ax.set_ylim(min(tr) * .72, max(te) * 2.4)
-    ax.annotate(f"điểm ngọt\nbậc {best}", xy=(best, min(te)),
+    ax.annotate(f"bậc tốt nhất\ntrên test: {best}", xy=(best, min(te)),
                 xytext=(.56, .40), textcoords="axes fraction", fontsize=8.8,
                 color=C3, fontweight="bold",
                 arrowprops=dict(arrowstyle="->", color=C3, lw=1.4),
@@ -387,8 +392,8 @@ def fig_bias_variance():
     ax.set_xlabel("bậc đa thức (độ phức tạp)"); ax.set_ylabel("RMSE (thang log)")
     ax.set_title("Đường cong bias-variance", fontsize=10)
     ax.legend(fontsize=8, loc="upper left", framealpha=.92)
-    ax.text(.97, .03, "test RMSE quay đầu đi lên\nchính là overfitting",
-            transform=ax.transAxes, fontsize=8.0, ha="right", va="bottom",
+    ax.text(.97, .97, "test RMSE quay đầu đi lên\nchính là overfitting",
+            transform=ax.transAxes, fontsize=8.0, ha="right", va="top",
             bbox=dict(boxstyle="round,pad=0.3", facecolor="white",
                       alpha=.93, edgecolor="0.8"))
     fig.suptitle("Đánh đổi bias và variance theo bậc đa thức",
@@ -409,15 +414,15 @@ def fig_ridge_lasso():
         d1, d2 = w1 - c[0], w2 - c[1]
         return A[0, 0] * d1 ** 2 + 2 * A[0, 1] * d1 * d2 + A[1, 1] * d2 ** 2
 
-    G1, G2 = np.meshgrid(np.linspace(-2.2, 4.0, 400), np.linspace(-2.0, 3.4, 400))
+    G1, G2 = np.meshgrid(np.linspace(-2.2, 4.0, 400), np.linspace(-2.4, 3.4, 400))
     ZQ = Q(G1, G2)
 
     fig = plt.figure(figsize=(14, 4.6))
     specs = [
         ("Ridge (L2):  $w_1^2+w_2^2 \\leq t$", "l2",
-         "Vùng ràng buộc TRÒN, không có góc.\nĐiểm tiếp xúc hầu như luôn có\ncả hai toạ độ khác 0\n→ hệ số bị CO NHỎ, không về 0."),
+         "Vùng ràng buộc tròn, không có góc.\nĐiểm tiếp xúc hầu như luôn có\ncả hai toạ độ khác 0,\nnên hệ số bị co nhỏ, không về 0."),
         ("Lasso (L1):  $|w_1|+|w_2| \\leq t$", "l1",
-         "Vùng ràng buộc có GÓC NHỌN nằm\nngay trên trục toạ độ. Ellipse rất dễ\nchạm đúng vào góc\n→ hệ số bằng ĐÚNG 0."),
+         "Vùng ràng buộc có góc nhọn nằm\nngay trên trục toạ độ. Ellipse rất dễ\nchạm đúng vào góc,\nnên hệ số bằng đúng 0."),
     ]
     for k, (name, kind, txt) in enumerate(specs):
         ax = fig.add_subplot(1, 3, k + 1)
@@ -447,15 +452,15 @@ def fig_ridge_lasso():
                           edgecolor="0.85"))
         ax.scatter(*hit, color="k", s=85, zorder=7)
         ax.annotate("nghiệm sau khi phạt\n$w$ = ({:.2f}, {:.2f})".format(*hit), hit,
-                    xytext=(-2.05, 2.85), fontsize=8.5,
+                    xytext=(0.55, 2.55), fontsize=8.5,
                     arrowprops=dict(arrowstyle="->", color="k", lw=1.2),
                     bbox=dict(boxstyle="round,pad=0.28", facecolor="white", alpha=.92,
                               edgecolor="0.85"))
         ax.axhline(0, color="k", lw=.9); ax.axvline(0, color="k", lw=.9)
-        ax.set_xlim(-2.2, 4.0); ax.set_ylim(-2.0, 3.4)
+        ax.set_xlim(-2.2, 4.0); ax.set_ylim(-2.4, 3.4)  # chừa chỗ cho hộp chữ dưới vùng ràng buộc
         ax.set_xlabel("$w_1$"); ax.set_ylabel("$w_2$")
         ax.set_title(name, fontsize=10.5)
-        ax.text(-2.1, -1.92, txt, fontsize=7.8, color="#374151", va="bottom",
+        ax.text(-2.1, -2.32, txt, fontsize=7.8, color="#374151", va="bottom",
                 bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=.92,
                           edgecolor="0.85"))
         ax.set_aspect("equal")
@@ -475,11 +480,11 @@ def fig_ridge_lasso():
                 alpha=1.0 if real else .55,
                 label=("$w_%d$ (thật)" % i) if real else ("$w_%d$ (nhiễu)" % i if i == 1 else None))
     ax.set_xscale("log"); ax.axhline(0, color="k", lw=1)
-    ax.set_xlabel(r"$\alpha$ (mức phạt) tăng dần $\rightarrow$")
+    ax.set_xlabel(r"$\alpha$ (mức phạt, tăng dần sang phải)")
     ax.set_ylabel("giá trị hệ số")
     ax.set_title("Lasso path của các hệ số", fontsize=10.5)
     ax.legend(fontsize=7.5, ncol=1, loc="center right", bbox_to_anchor=(1.0, 0.62))  # vùng α>3 trống
-    ax.text(.03, .04, "hệ số lần lượt bị ép về đúng 0,\ntức là tự động chọn feature",
+    ax.text(.03, .15, "hệ số lần lượt bị ép về đúng 0,\ntức là tự động chọn feature",
             transform=ax.transAxes, fontsize=8.2, va="bottom",
             bbox=dict(boxstyle="round,pad=0.3", facecolor="white",
                       alpha=.93, edgecolor="0.85"))
@@ -512,7 +517,7 @@ def fig_outlier_robustness():
         ax.legend(fontsize=8, loc="lower right", framealpha=.94)
         ax.set_xlabel("x"); ax.set_ylabel("y")
         if k == 1:
-            ax.text(.97, .60, "OLS bị outlier kéo lệch,\nHuber gần như giữ nguyên",
+            ax.text(.97, .72, "OLS bị outlier kéo lệch,\nHuber gần như giữ nguyên",
                     transform=ax.transAxes, fontsize=8.3, ha="right", va="top",
                     bbox=dict(boxstyle="round,pad=0.3", facecolor="white",
                               alpha=.93, edgecolor="0.8"))
@@ -521,7 +526,7 @@ def fig_outlier_robustness():
     delta = 1.35
     hub_l = np.where(np.abs(e) <= delta, .5 * e ** 2, delta * (np.abs(e) - .5 * delta))
     ax = axes[2]
-    ax.plot(e, e ** 2, color=C2, lw=2, label="MSE: $e^2$ (phạt bùng nổ)")
+    ax.plot(e, e ** 2, color=C2, lw=2, label="MSE: $e^2$ (phạt tăng rất nhanh)")
     ax.plot(e, np.abs(e), color=C1, lw=2, label="MAE: $|e|$")
     ax.plot(e, hub_l, color=C3, lw=2.4, ls="--", label=r"Huber ($\delta$=1.35)")
     ax.set_xlabel("sai số e"); ax.set_ylabel("mất mát"); ax.legend(fontsize=8)

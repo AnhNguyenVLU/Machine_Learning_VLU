@@ -62,7 +62,7 @@ Vài hình đáng chú ý:
 | Bước | Lý do |
 |---|---|
 | 1. Linear Regression | Bài đơn giản nhất: output liên tục, mô hình tuyến tính, MSE. Là nền tảng cho mọi thứ phía sau |
-| 2. Logistic Regression | Mở rộng tự nhiên: thêm sigmoid + BCE → bài phân loại đầu tiên |
+| 2. Logistic Regression | Mở rộng tự nhiên của bài 1: thêm sigmoid và BCE là có bài phân loại đầu tiên |
 | 3. Naive Bayes | Cách phân loại theo xác suất, tư duy khác Logistic nhưng vẫn đơn giản |
 | 4. KNN | Không có training thực sự, chỉ tính khoảng cách nên rất trực quan |
 | 5. Decision Tree + RF | Mô hình cây + ensemble đầu tiên |
@@ -90,7 +90,7 @@ Vài hình đáng chú ý:
 
 Sau khi hoàn thành, sinh viên có thể:
 - Hiểu cơ chế của các thuật toán ML cơ bản, không dừng ở mức "biết gọi sklearn".
-- Thực hiện đầy đủ pipeline: load → preprocess → split → train → evaluate → tune.
+- Thực hiện đầy đủ một pipeline: nạp dữ liệu, tiền xử lý, chia tập, huấn luyện, đánh giá, tinh chỉnh.
 - Tránh các bẫy phổ biến: data leakage, scale lẫn lộn, mất cân bằng class, sai metric.
 - So sánh model với baseline (DummyClassifier, KNN, ...) trước khi kết luận.
 
@@ -123,6 +123,6 @@ Khuyến nghị: Python 3.9+, dùng Jupyter Notebook hoặc Google Colab.
 | Data leakage khi scale | `fit` scaler chỉ trên train, `transform` test |
 | Accuracy lừa với class imbalance | Dùng F1, ROC-AUC, hoặc resampling |
 | KNN không scale | Luôn `StandardScaler` trước KNN |
-| Softmax + CrossEntropyLoss | KHÔNG đặt `nn.Softmax` cuối model trong PyTorch |
+| Softmax + CrossEntropyLoss | Không đặt `nn.Softmax` ở cuối model khi dùng `nn.CrossEntropyLoss` trong PyTorch |
 | Train test trên full data | Luôn `train_test_split` trước mọi bước |
 | Chọn k bừa | Dùng cross-validation chứ không phải đoán mò |
