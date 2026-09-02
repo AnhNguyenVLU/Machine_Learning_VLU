@@ -58,24 +58,35 @@ def fig_regression_vs_classification():
 # ---------------------------------------------------------------- 2
 def fig_residuals_geometry():
     rng = np.random.default_rng(3)
-    x = np.linspace(1, 9, 12)
-    y = 2.1 * x + 3 + rng.normal(0, 2.4, 12)
+    x = np.linspace(1, 11, 11)
+    y = 0.62 * x + 4 + rng.normal(0, 1.05, 11)
     w, b = np.polyfit(x, y, 1)
     yh = w * x + b
 
-    fig, ax = plt.subplots(figsize=(7.4, 4.4))
-    ax.scatter(x, y, s=48, color=C1, zorder=3, label="dữ liệu thật $y_i$")
-    ax.plot(x, yh, color=C2, lw=2.2, label=r"đường dự đoán $\hat{y}=wx+b$")
+    fig, ax = plt.subplots(figsize=(9.2, 4.6))
     for xi, yi, yhi in zip(x, y, yh):
-        ax.plot([xi, xi], [yi, yhi], color="gray", lw=1.4, ls="--", zorder=2)
-        side = abs(yi - yhi)
-        ax.add_patch(plt.Rectangle((xi, min(yi, yhi)), side * .55, side,
-                                   color=C4, alpha=.28, zorder=1))
-    ax.plot([], [], color="gray", ls="--", label=r"sai số $e_i=\hat{y}_i-y_i$")
-    ax.add_patch(plt.Rectangle((0, 0), 0, 0, color=C4, alpha=.4, label=r"$e_i^2$ (MSE cộng các ô này)"))
+        e = yi - yhi
+        # cạnh hình vuông = |e| trên CẢ hai trục (nhờ set_aspect("equal") ở dưới)
+        ax.add_patch(plt.Rectangle((xi, min(yi, yhi)), abs(e), abs(e),
+                                   facecolor=C4, alpha=.30, edgecolor=C4, lw=1.1, zorder=1))
+        ax.plot([xi, xi], [yi, yhi], color="dimgray", lw=1.5, ls="--", zorder=2)
+    ax.plot(np.r_[x.min() - .4, x.max() + .4],
+            w * np.r_[x.min() - .4, x.max() + .4] + b, color=C2, lw=2.4, zorder=3,
+            label=r"đường dự đoán $\hat{y}=wx+b$")
+    ax.scatter(x, y, s=52, color=C1, zorder=4, edgecolor="white", linewidth=.8,
+               label=r"dữ liệu thật $y_i$")
+    ax.plot([], [], color="dimgray", ls="--", label=r"sai số $e_i=y_i-\hat{y}_i$")
+    ax.add_patch(plt.Rectangle((0, 0), 0, 0, facecolor=C4, alpha=.5, edgecolor=C4,
+                               label=r"hình vuông cạnh $|e_i|$, diện tích $e_i^2$"))
+
+    ax.set_aspect("equal")          # BẮT BUỘC: có vậy hình vuông mới thật sự vuông
+    ax.set_xlim(x.min() - .8, x.max() + 3.6)
+    ax.set_ylim(y.min() - 1.4, y.max() + 2.6)
+    ax.set_xlabel("x"); ax.set_ylabel("y")
+    ax.legend(fontsize=8.4, loc="upper left", framealpha=.95)
     ax.set_title("MSE = trung bình DIỆN TÍCH các hình vuông sai số\n"
-                 "→ điểm càng xa đường, phạt càng nặng (bình phương)", fontsize=10)
-    ax.set_xlabel("x"); ax.set_ylabel("y"); ax.legend(fontsize=8, loc="upper left")
+                 "điểm xa gấp đôi → ô vuông rộng gấp 4 → bị phạt gấp 4",
+                 fontsize=10.5)
     save(fig, "02_mse_hinh_vuong_sai_so.png")
 
 

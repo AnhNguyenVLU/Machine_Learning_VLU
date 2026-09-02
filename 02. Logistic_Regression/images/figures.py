@@ -34,40 +34,77 @@ def fig_why_not_linear():
     rng = np.random.default_rng(1)
     x = np.r_[rng.normal(2.2, .8, 20), rng.normal(6.0, .8, 20)]
     y = np.r_[np.zeros(20), np.ones(20)]
-    xo = np.r_[x, [17., 18., 19.]]; yo = np.r_[y, [1., 1., 1.]]
-    xs = np.linspace(-1, 20, 400).reshape(-1, 1)
+    outs = np.array([30., 33., 36., 39., 42.])          # 5 điểm lớp 1 ở rất xa
+    xo = np.r_[x, outs]; yo = np.r_[y, np.ones(len(outs))]
+    xs = np.linspace(-1, 44, 500).reshape(-1, 1)
 
-    fig, axes = plt.subplots(1, 3, figsize=(14.5, 3.9))
-    for ax, (xa, ya, ttl) in zip(axes[:2],
-            [(x, y, "Linear Regression trên nhãn 0/1"),
-             (xo, yo, "…và chỉ 3 điểm ở xa đã phá nát ranh giới")]):
-        lin = LinearRegression().fit(xa.reshape(-1, 1), ya)
-        pr = lin.predict(xs).ravel()
-        ax.scatter(xa, ya, s=42, c=["#93c5fd" if t == 0 else "#fca5a5" for t in ya],
-                   edgecolor="k", linewidth=.5, zorder=4)
-        ax.plot(xs, pr, color=C1, lw=2.2)
-        ax.axhline(.5, color="gray", ls=":", lw=1.4)
-        ax.fill_between(xs.ravel(), pr, 1, where=pr > 1, color=C2, alpha=.18)
-        ax.fill_between(xs.ravel(), pr, 0, where=pr < 0, color=C2, alpha=.18)
-        cut = (.5 - lin.intercept_) / lin.coef_[0]
-        ax.axvline(cut, color=C2, ls="--", lw=1.8)
-        ax.text(cut + .3, .06, f"ngưỡng\nx={cut:.1f}", color=C2, fontsize=8.5)
-        ax.set_ylim(-.55, 1.6); ax.set_title(ttl, fontsize=10)
-        ax.set_xlabel("x"); ax.set_ylabel("y / xác suất")
-    axes[0].text(-.6, 1.32, "vùng đỏ: dự đoán > 1 hoặc < 0\n→ KHÔNG thể đọc là xác suất",
-                 color=C2, fontsize=8.5)
+    def dots(ax, xa, ya, wrong=None):
+        cols = ["#93c5fd" if t == 0 else "#fca5a5" for t in ya]
+        ax.scatter(xa, ya, s=48, c=cols, edgecolor="k", linewidth=.5, zorder=4)
+        if wrong is not None and wrong.any():
+            ax.scatter(xa[wrong], ya[wrong], s=150, marker="x", color="k",
+                       linewidth=2.2, zorder=6)
 
-    log = LogisticRegression().fit(xo.reshape(-1, 1), yo)
-    ax = axes[2]
-    ax.scatter(xo, yo, s=42, c=["#93c5fd" if t == 0 else "#fca5a5" for t in yo],
-               edgecolor="k", linewidth=.5, zorder=4)
-    ax.plot(xs, log.predict_proba(xs)[:, 1], color=C3, lw=2.4)
+    fig, axes = plt.subplots(1, 3, figsize=(15, 4.1))
+
+    # (a) linear, không outlier
+    lin0 = LinearRegression().fit(x.reshape(-1, 1), y)
+    pr0 = lin0.predict(xs).ravel()
+    cut0 = (.5 - lin0.intercept_) / lin0.coef_[0]
+    ax = axes[0]
+    ax.plot(xs, pr0, color=C1, lw=2.4)
+    ax.fill_between(xs.ravel(), pr0, 1, where=pr0 > 1, color=C2, alpha=.16)
+    ax.fill_between(xs.ravel(), pr0, 0, where=pr0 < 0, color=C2, alpha=.16)
+    dots(ax, x, y)
     ax.axhline(.5, color="gray", ls=":", lw=1.4)
-    cut = -log.intercept_[0] / log.coef_[0][0]
-    ax.axvline(cut, color=C3, ls="--", lw=1.8)
-    ax.text(cut + .3, .06, f"ngưỡng\nx={cut:.1f}", color=C3, fontsize=8.5)
-    ax.set_ylim(-.55, 1.6); ax.set_xlabel("x"); ax.set_ylabel("xác suất")
-    ax.set_title("Logistic Regression: cùng dữ liệu có outlier\n→ ngưỡng gần như không đổi", fontsize=10)
+    ax.axvline(cut0, color=C2, ls="--", lw=1.8)
+    ax.text(cut0 + .6, -.42, f"ngưỡng x={cut0:.1f}", color=C2, fontsize=9)
+    ax.text(-.5, 1.42, "vùng tô đỏ: dự đoán $>1$ hoặc $<0$\n→ KHÔNG đọc được là xác suất",
+            color=C2, fontsize=8.8)
+    ax.set_title("Linear Regression trên nhãn 0/1\n(chưa có outlier: sai 0/40)", fontsize=10)
+
+    # (b) linear, có outlier
+    lin = LinearRegression().fit(xo.reshape(-1, 1), yo)
+    pr = lin.predict(xs).ravel()
+    cut = (.5 - lin.intercept_) / lin.coef_[0]
+    wrong = (lin.predict(x.reshape(-1, 1)) >= .5).astype(int) != y
+    ax = axes[1]
+    ax.plot(xs, pr, color=C1, lw=2.4)
+    ax.fill_between(xs.ravel(), pr, 1, where=pr > 1, color=C2, alpha=.16)
+    ax.fill_between(xs.ravel(), pr, 0, where=pr < 0, color=C2, alpha=.16)
+    dots(ax, xo, yo, np.r_[wrong, np.zeros(len(outs), bool)])
+    ax.axhline(.5, color="gray", ls=":", lw=1.4)
+    ax.axvline(cut0, color="gray", ls="--", lw=1.5)
+    ax.axvline(cut, color=C2, ls="--", lw=1.9)
+    ax.annotate("", xy=(cut, -.30), xytext=(cut0, -.30),
+                arrowprops=dict(arrowstyle="->", color=C2, lw=1.8))
+    ax.text((cut0 + cut) / 2 - 1.5, -.50, f"ngưỡng trôi\n{cut0:.1f} → {cut:.1f}",
+            color=C2, fontsize=9)
+    ax.text(20, .16, "✗ = điểm bị phân loại SAI\ndù dữ liệu của nó không đổi",
+            fontsize=8.8)
+    ax.set_title(f"…thêm 5 điểm lớp 1 ở xa\n→ sai {wrong.sum()}/40 điểm ban đầu", fontsize=10)
+
+    # (c) logistic trên CÙNG dữ liệu có outlier
+    log0 = LogisticRegression().fit(x.reshape(-1, 1), y)
+    lcut0 = -log0.intercept_[0] / log0.coef_[0][0]
+    log = LogisticRegression().fit(xo.reshape(-1, 1), yo)
+    lcut = -log.intercept_[0] / log.coef_[0][0]
+    lwrong = (log.predict_proba(x.reshape(-1, 1))[:, 1] >= .5).astype(int) != y
+    ax = axes[2]
+    ax.plot(xs, log.predict_proba(xs)[:, 1], color=C3, lw=2.6)
+    dots(ax, xo, yo, np.r_[lwrong, np.zeros(len(outs), bool)])
+    ax.axhline(.5, color="gray", ls=":", lw=1.4)
+    ax.axvline(lcut, color=C3, ls="--", lw=1.9)
+    ax.text(lcut + .6, -.42, f"ngưỡng x={lcut:.1f}", color=C3, fontsize=9)
+    ax.text(9, 1.30, f"ngưỡng khi CHƯA có outlier: {lcut0:.2f}\n"
+                     f"ngưỡng khi CÓ outlier:      {lcut:.2f}\n→ không xê dịch",
+            color=C3, fontsize=8.8)
+    ax.set_title(f"Logistic Regression, CÙNG dữ liệu có outlier\n"
+                 f"→ sai {lwrong.sum()}/40 điểm ban đầu", fontsize=10)
+
+    for ax in axes:
+        ax.set_ylim(-.62, 1.62); ax.set_xlim(-2, 45)
+        ax.set_xlabel("x"); ax.set_ylabel("y / xác suất")
     fig.suptitle("Vì sao không dùng Linear Regression cho bài phân loại", fontweight="bold")
     fig.tight_layout()
     save(fig, "01_vi_sao_khong_dung_linear.png")
@@ -248,14 +285,21 @@ def fig_regularization_C():
     axes[0].text(-3.9, 2.1, "phạt MẠNH:\nchuyển tiếp rất mờ", fontsize=8.3, color="k")
     axes[2].text(-3.9, 2.1, "phạt YẾU:\nchuyển tiếp gắt như bậc thang", fontsize=8.3, color="k")
 
-    Cgrid = np.geomspace(1e-4, 1e4, 40)
-    norms = [np.linalg.norm(LogisticRegression(C=c).fit(Xa, ya).coef_) for c in Cgrid]
+    Cgrid = np.geomspace(1e-4, 1e10, 36)
+    # tol chặt: để mặc định (1e-4) thì solver dừng sớm và đường cong PHẲNG giả tạo
+    norms = [np.linalg.norm(
+        LogisticRegression(C=c, max_iter=200000, tol=1e-12).fit(Xa, ya).coef_)
+        for c in Cgrid]
     ax = axes[3]
-    ax.plot(Cgrid, norms, "o-", color=C2, ms=3.5)
-    ax.set_xscale("log"); ax.set_yscale("log")
+    ax.plot(Cgrid, norms, "o-", color=C2, ms=3.8)
+    ax.set_xscale("log")          # trục y TUYẾN TÍNH: đường thẳng đi lên = tăng theo log(C)
     ax.set_xlabel("C  (= $1/\\alpha$, càng lớn càng ÍT phạt)")
     ax.set_ylabel("$\\|w\\|$")
-    ax.set_title("Dữ liệu tách hoàn toàn: bỏ regularization\nthì $\\|w\\|$ chạy ra vô cực", fontsize=10)
+    ax.set_title("Dữ liệu tách hoàn toàn: $\\|w\\|$ tăng KHÔNG GIỚI HẠN\n"
+                 "theo $\\log C$ — nghiệm MLE nằm ở vô cực", fontsize=10)
+    ax.text(2e-4, max(norms) * .80,
+            "trục x là log, trục y tuyến tính\n→ đường thẳng nghĩa là\n"
+            "$\\|w\\|$ vẫn tăng mãi khi bỏ phạt", fontsize=8.3, color="#374151")
     fig.suptitle("Tham số C của Logistic Regression: C nhỏ = phạt mạnh = hệ số nhỏ",
                  fontweight="bold")
     fig.tight_layout()
