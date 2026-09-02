@@ -169,35 +169,52 @@ def fig_learning_rate():
 
 # ---------------------------------------------------------------- 5
 def fig_normal_equation_projection():
-    fig = plt.figure(figsize=(6.6, 5.2))
+    fig = plt.figure(figsize=(7.4, 5.6))
     ax = fig.add_subplot(111, projection="3d")
-    # mặt phẳng = không gian cột của X
-    g = np.linspace(-1.1, 1.1, 10)
+
+    # mặt phẳng = không gian cột của X (mọi tổ hợp tuyến tính của 2 cột)
+    P = np.array([1.0, .22, 0.]); Q = np.array([.18, 1.0, 0.])
+    g = np.linspace(-1.9, 1.9, 12)
     G1, G2 = np.meshgrid(g, g)
-    P = np.array([1.0, .25, 0]); Q = np.array([.2, 1.0, 0])
     S = G1[..., None] * P + G2[..., None] * Q
-    ax.plot_surface(S[..., 0], S[..., 1], S[..., 2], alpha=.28, color=C1)
+    ax.plot_surface(S[..., 0], S[..., 1], S[..., 2], alpha=.22, color=C1,
+                    edgecolor=C1, linewidth=.25, rstride=1, cstride=1)
 
-    y = np.array([.75, .55, 1.15])
-    yhat = np.array([.75, .55, 0.0])
-    ax.quiver(0, 0, 0, *y, color=C2, lw=2.4, arrow_length_ratio=.12)
-    ax.quiver(0, 0, 0, *yhat, color=C3, lw=2.4, arrow_length_ratio=.14)
-    ax.plot(*zip(yhat, y), color="gray", ls="--", lw=1.8)
-    ax.quiver(0, 0, 0, *P, color="k", lw=1.4, arrow_length_ratio=.14)
-    ax.quiver(0, 0, 0, *Q, color="k", lw=1.4, arrow_length_ratio=.14)
+    yhat = np.array([1.05, .78, 0.])
+    y = yhat + np.array([0., 0., 1.35])
 
-    ax.text(*y, "  y (thật)", color=C2, fontsize=10)
-    ax.text(*(yhat * 1.02), "  ŷ = Xθ (dự đoán)", color=C3, fontsize=10)
-    ax.text(.78, .86, .58, "phần dư e = y − ŷ\n⊥ mặt phẳng", color="dimgray", fontsize=9)
-    ax.text(*P, " cột $x_1$", fontsize=8.5)
-    ax.text(*Q, " cột $x_2$", fontsize=8.5)
-    ax.text(-1.15, -1.15, -.05, "không gian cột của X\n(mọi tổ hợp tuyến tính $X\\theta$)",
-            color=C1, fontsize=9)
+    ax.quiver(0, 0, 0, *y, color=C2, lw=3.0, arrow_length_ratio=.10)
+    ax.quiver(0, 0, 0, *yhat, color=C3, lw=3.0, arrow_length_ratio=.13)
+    ax.plot(*zip(yhat, y), color="dimgray", ls="--", lw=2.0)
+    ax.quiver(0, 0, 0, *P, color="k", lw=1.6, arrow_length_ratio=.16)
+    ax.quiver(0, 0, 0, *Q, color="k", lw=1.6, arrow_length_ratio=.16)
+
+    # ký hiệu góc vuông tại chân đường vuông góc
+    d = .16
+    corner = [yhat + np.array([-d * .9, -d * .2, 0]),
+              yhat + np.array([-d * .9, -d * .2, d]),
+              yhat + np.array([0, 0, d])]
+    ax.plot(*zip(*corner), color="dimgray", lw=1.3)
+
+    ax.text(y[0] + .06, y[1], y[2] + .06, "$y$  (giá trị thật)", color=C2,
+            fontsize=11, fontweight="bold")
+    ax.text(yhat[0] + .16, yhat[1] + .42, -.30, "$\\hat{y}=X\\theta$\n(dự đoán)",
+            color=C3, fontsize=10.5, fontweight="bold")
+    ax.text(y[0] - .30, y[1] + 1.15, y[2] - .78,
+            "phần dư $e=y-\\hat{y}$\n$\\perp$ mặt phẳng", color="dimgray", fontsize=9.5)
+    ax.text(P[0] - .05, P[1] - .78, .05, "cột $x_1$", fontsize=9.5)
+    ax.text(Q[0] - .62, Q[1] + .12, .04, "cột $x_2$", fontsize=9.5)
+    ax.text(-2.4, -1.5, -.06, "không gian cột của $X$\n(mọi tổ hợp tuyến tính $X\\theta$)",
+            color=C1, fontsize=9.5)
+
+    ax.set_xlim(-2.2, 2.2); ax.set_ylim(-2.2, 2.2); ax.set_zlim(-.35, 1.6)
     ax.set_xticks([]); ax.set_yticks([]); ax.set_zticks([])
+    ax.set_box_aspect((1, 1, .62))
     ax.set_title("Ý nghĩa hình học của Normal Equation\n"
                  r"$\hat{y}$ là HÌNH CHIẾU VUÔNG GÓC của $y$ xuống không gian cột của $X$"
-                 "\n" r"$X^T(y-X\theta)=0 \;\Rightarrow\; \theta=(X^TX)^{-1}X^Ty$", fontsize=10)
-    ax.view_init(elev=20, azim=-60)
+                 "\n" r"$X^T(y-X\theta)=0 \;\Rightarrow\; \hat{\theta}=(X^TX)^{-1}X^Ty$",
+                 fontsize=10.5, pad=2)
+    ax.view_init(elev=17, azim=-62)
     save(fig, "05_normal_equation_hinh_chieu.png")
 
 
