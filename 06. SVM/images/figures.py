@@ -116,8 +116,7 @@ def fig_margin_geometry():
     # legend đặt NGOÀI vùng vẽ (phía dưới) để không che support vector / đường lề
     ax.legend(fontsize=8.5, loc="upper center", bbox_to_anchor=(0.5, -0.09),
               ncol=3, frameon=False, handlelength=1.9, columnspacing=1.5)
-    ax.set_title("Giải phẫu SVM: siêu phẳng, hai lề và độ rộng margin",
-                 fontweight="bold")
+    ax.set_title("Hình học của margin trong SVM", fontweight="bold")
     save(fig, "01_hinh_hoc_margin.png")
 
 
@@ -150,8 +149,7 @@ def fig_why_large_margin():
         ax.plot(xs, a * xs + c, lw=2, color=col, label=lab)
     ax.plot(xs, lvl(cC), lw=2, color=C4, label="đường C (ép sát lớp $+1$)")
     ax.plot(xs, lvl(0), lw=2.8, color="k", label="đường max-margin (SVM)")
-    ax.set_title("Có VÔ SỐ đường tách đúng 100% dữ liệu train\n"
-                 "→ dựa vào đâu để chọn một đường?", fontsize=10.5)
+    ax.set_title("Nhiều đường cùng tách đúng dữ liệu train", fontsize=10.5)
     ax.set_xlim(0, 8.4); ax.set_ylim(0, 9.4)
     ax.legend(fontsize=8.5, loc="upper center", bbox_to_anchor=(0.5, -0.11),
               ncol=3, frameon=False, handlelength=1.9, columnspacing=1.3)
@@ -174,14 +172,13 @@ def fig_why_large_margin():
                 va="top", ha="left",
                 arrowprops=dict(arrowstyle="->", color="dimgray"),
                 bbox=dict(boxstyle="round,pad=.45", fc="#fff7ed", ec=C4))
-    ax.set_title("Margin rộng = vùng đệm an toàn\n"
-                 "dữ liệu mới lệch một chút vẫn không bị lật nhãn", fontsize=10.5)
+    ax.set_title("Margin rộng là vùng đệm an toàn", fontsize=10.5)
     ax.set_xlim(0, 8.4); ax.set_ylim(0, 9.4)
     ax.legend(fontsize=8.5, loc="upper center", bbox_to_anchor=(0.5, -0.11),
               ncol=2, frameon=False, handlelength=1.9, columnspacing=1.3)
     ax.set_xlabel("$x_1$"); ax.set_ylabel("$x_2$")
 
-    fig.suptitle("Vì sao SVM chọn đường có margin LỚN NHẤT", fontweight="bold")
+    fig.suptitle("Vì sao SVM chọn margin lớn nhất", fontweight="bold")
     fig.tight_layout(rect=[0, 0, 1, 0.95])
     save(fig, "02_vi_sao_margin_lon.png")
 
@@ -211,10 +208,10 @@ def fig_hard_vs_soft():
         ax.set_xlabel("$x_1$"); ax.set_ylabel("$x_2$")
         return clf, w, b
 
-    draw(axes[0], X, y, 1e6, "Dữ liệu sạch — hard-margin ($C\\to\\infty$)")
+    draw(axes[0], X, y, 1e6, "Dữ liệu sạch, hard-margin ($C\\to\\infty$)")
 
     clf, w, b = draw(axes[1], Xo, yo, 1e6,
-                     "THÊM 1 OUTLIER — hard-margin bắt buộc\nphải chiều nó → margin co lại gần bằng 0")
+                     "Thêm 1 outlier, hard-margin phải chiều theo")
     axes[1].scatter(*Xo[-1], marker="*", s=430, color=C2, edgecolor="k",
                     linewidth=1.1, zorder=6)
     axes[1].annotate("outlier", xy=Xo[-1], xytext=(4.55, 2.15), fontsize=9.5,
@@ -222,8 +219,7 @@ def fig_hard_vs_soft():
                      arrowprops=dict(arrowstyle="->", color=C2))
 
     clf, w, b = draw(axes[2], Xo, yo, 0.1,
-                     "Soft-margin ($C=0.1$) — chấp nhận outlier vi phạm\n"
-                     "để giữ margin rộng, tổng quát hoá tốt hơn")
+                     "Soft-margin ($C=0.1$), bỏ qua outlier")
     axes[2].scatter(*Xo[-1], marker="*", s=430, color=C2, edgecolor="k",
                     linewidth=1.1, zorder=6)
     # mũi tên slack xi_i: từ điểm tới lề của lớp nó
@@ -248,8 +244,7 @@ def fig_hard_vs_soft():
                  transform=axes[2].transAxes, va="top", ha="left", fontsize=9,
                  bbox=dict(boxstyle="round,pad=.35", fc="#fff7ed", ec=C4))
 
-    fig.suptitle("Hard-margin giòn như thuỷ tinh — soft-margin mới dùng được ngoài đời",
-                 fontweight="bold")
+    fig.suptitle("Hard-margin so với soft-margin", fontweight="bold")
     fig.tight_layout(rect=[0, 0.10, 1, 0.94])
     save(fig, "03_hard_vs_soft_margin.png")
 
@@ -267,9 +262,9 @@ def fig_effect_of_C():
         sv = clf.support_vectors_
         ax.scatter(sv[:, 0], sv[:, 1], s=180, facecolors="none",
                    edgecolors=C3, linewidths=1.8, zorder=4)
-        ax.set_title(f"C = {C}\n{len(sv)} support vector, "
+        ax.set_title(f"C = {C}\n{len(sv)} SV, "
                      f"margin = {2/np.linalg.norm(clf.coef_):.2f}, "
-                     f"train acc = {clf.score(X, y)*100:.1f}%", fontsize=10)
+                     f"acc = {clf.score(X, y)*100:.1f}%", fontsize=10)
         ax.set_xlabel("$x_1$"); ax.set_ylabel("$x_2$")
     axes[0].legend(fontsize=8, loc="upper left", framealpha=.95)
     # chú thích đặt DƯỚI mỗi panel: bên trong panel sẽ đè lên support vector
@@ -288,8 +283,7 @@ def fig_effect_of_C():
                  xy=(0, 0), xycoords="axes fraction", textcoords="offset points",
                  xytext=(0, -42), fontsize=8.5, color="#444444",
                  va="top", ha="left", bbox=box)
-    fig.suptitle(r"Tham số $C$ chính là nghịch đảo của mức regularization ($C \approx 1/\lambda$)",
-                 fontweight="bold")
+    fig.suptitle(r"Ảnh hưởng của tham số $C$", fontweight="bold")
     fig.tight_layout(rect=[0, 0.02, 1, 0.95])
     save(fig, "04_anh_huong_tham_so_C.png")
 
@@ -313,7 +307,7 @@ def fig_kernel_trick_3d():
     ax.set_xlim(-1.3, 1.3); ax.set_ylim(-1.3, 1.95)
     ax.set_xlabel("$x_1$"); ax.set_ylabel("$x_2$")
     ax.legend(fontsize=8.5, loc="upper center")
-    ax.set_title("KHÔNG GIAN GỐC 2D\nkhông một ĐƯỜNG THẲNG nào tách nổi", fontsize=11)
+    ax.set_title("Không gian gốc 2D", fontsize=11)
 
     # mũi tên "nâng chiều" ở giữa hai panel
     fig.text(.400, .60, r"$\phi$", fontsize=22, color=C4, fontweight="bold",
@@ -334,11 +328,10 @@ def fig_kernel_trick_3d():
     ax.set_xlabel("$x_1$"); ax.set_ylabel("$x_2$")
     ax.set_zlabel("$x_3 = x_1^2 + x_2^2$")
     ax.view_init(elev=16, azim=-62)
-    ax.set_title(r"SAU KHI NÂNG CHIỀU $\phi(x)=(x_1,\,x_2,\,x_1^2+x_2^2)$"
-                 "\nmột MẶT PHẲNG $x_3 = %.2f$ tách được hoàn hảo" % z0, fontsize=11)
+    ax.set_title(r"Sau khi nâng chiều $\phi(x)=(x_1,\,x_2,\,x_1^2+x_2^2)$",
+                 fontsize=11)
 
-    fig.suptitle("Kernel trick: bài toán khó ở chiều thấp có thể trở thành dễ ở chiều cao\n"
-                 r"và SVM không cần tính $\phi(x)$ — chỉ cần $K(x,x')=\langle\phi(x),\phi(x')\rangle$",
+    fig.suptitle("Kernel trick: nâng chiều dữ liệu vòng tròn",
                  fontweight="bold", fontsize=11.5)
     save(fig, "05_kernel_trick_nang_chieu_3d.png")
 
@@ -348,15 +341,15 @@ def fig_gamma_rbf():
     """gamma nhỏ = ảnh hưởng lan xa (mượt); gamma lớn = mỗi điểm một ốc đảo (overfit)."""
     X, y = make_moons(n_samples=220, noise=.22, random_state=42)
     fig, axes = plt.subplots(1, 4, figsize=(16.5, 4.3))
-    notes = ["quá mượt — gần như tuyến tính\n(UNDERFIT)",
-             "vừa đẹp — bám hình lưỡi liềm",
+    notes = ["quá mượt, gần như tuyến tính\n(UNDERFIT)",
+             "vừa đẹp, bám hình lưỡi liềm",
              "bắt đầu uốn éo theo nhiễu",
              "mỗi điểm một 'ốc đảo' riêng\n(OVERFIT nặng)"]
     for ax, g, note in zip(axes, [0.1, 1, 10, 100], notes):
         clf = SVC(kernel="rbf", C=1.0, gamma=g).fit(X, y)
         _boundary(ax, clf, X, pad=.5, levels=(0,))
         _scatter2(ax, X, y, s=20)
-        ax.set_title(f"gamma = {g}\ntrain acc = {clf.score(X, y)*100:.1f}%, "
+        ax.set_title(f"gamma = {g}\nacc = {clf.score(X, y)*100:.1f}%, "
                      f"{len(clf.support_vectors_)} SV", fontsize=10)
         # chú thích đặt DƯỚI panel: bên trong panel sẽ đè lên đường ranh giới
         ax.annotate(note, xy=(0, 0), xycoords="axes fraction",
@@ -366,8 +359,7 @@ def fig_gamma_rbf():
         ax.set_xlabel("$x_1$")
     axes[0].set_ylabel("$x_2$")
     axes[0].legend(fontsize=8, loc="upper left", framealpha=.95)
-    fig.suptitle(r"RBF kernel: $\gamma$ là NGHỊCH ĐẢO bề rộng ảnh hưởng của mỗi support vector",
-                 fontweight="bold")
+    fig.suptitle("Ảnh hưởng của gamma trong RBF", fontweight="bold")
     fig.tight_layout(rect=[0, 0.02, 1, 0.94])
     save(fig, "06_anh_huong_gamma_rbf.png")
 
@@ -387,15 +379,14 @@ def fig_compare_kernels():
         clf = SVC(C=1.0, **kw).fit(Xs, y)
         _boundary(ax, clf, Xs, pad=.4, levels=(0,))
         _scatter2(ax, Xs, y, s=18)
-        ax.set_title(f"{name}\ntrain acc = {clf.score(Xs, y)*100:.1f}%", fontsize=9.5)
+        ax.set_title(f"{name}\nacc = {clf.score(Xs, y)*100:.1f}%", fontsize=9.5)
         ax.set_xlabel("$x_1$ (đã scale)")
     axes[0].set_ylabel("$x_2$ (đã scale)")
     # một legend chung đặt NGOÀI panel: legend trong panel 1 che mất ranh giới
     h, l = axes[0].get_legend_handles_labels()
     fig.legend(h, l, loc="lower center", ncol=2, fontsize=9.5, frameon=False,
                bbox_to_anchor=(0.5, 0.005), handlelength=1.6, columnspacing=2.0)
-    fig.suptitle("Cùng dữ liệu — mỗi kernel là một 'giả thuyết' khác nhau về hình dạng ranh giới\n"
-                 "(sigmoid hiếm khi thắng RBF, chủ yếu còn tồn tại vì lý do lịch sử)",
+    fig.suptitle("Năm kernel trên cùng một bộ dữ liệu",
                  fontweight="bold", fontsize=11)
     fig.tight_layout(rect=[0, 0.07, 1, 0.93])
     save(fig, "07_so_sanh_cac_kernel.png")
@@ -414,11 +405,11 @@ def fig_hinge_loss():
     ax = axes[0]
     ax.step(m, zero_one, where="post", color="k", lw=2.4,
             label="0-1 loss (mục tiêu thật sự)")
-    ax.plot(m, hinge, color=C2, lw=2.4, label=r"hinge $\max(0,\,1-m)$ — SVM")
+    ax.plot(m, hinge, color=C2, lw=2.4, label=r"hinge $\max(0,\,1-m)$, dùng trong SVM")
     ax.plot(m, sq_hinge, color=C4, lw=2, ls="--",
             label=r"squared hinge $\max(0,\,1-m)^2$")
     ax.plot(m, logistic, color=C1, lw=2,
-            label=r"log loss $\log_2(1+e^{-m})$ — LogReg")
+            label=r"log loss $\log_2(1+e^{-m})$, dùng trong LogReg")
     ax.axvline(0, color="gray", lw=1)
     ax.plot([1, 1], [-.15, 2.30], color=C3, lw=1.2, ls=":")
     ax.text(1.12, 1.42, "$m=1$: mép lề", color=C3, fontsize=9,
@@ -427,8 +418,7 @@ def fig_hinge_loss():
     ax.set_ylabel("mất mát")
     ax.set_ylim(-.15, 3.2)
     ax.legend(fontsize=8.5, loc="upper right", framealpha=.95)
-    ax.set_title("Hinge loss là CẬN TRÊN LỒI của 0-1 loss\n"
-                 "→ tối thiểu hinge thì cũng ép 0-1 loss xuống, mà lại tối ưu được", fontsize=10)
+    ax.set_title("Hinge loss so với các hàm mất mát khác", fontsize=10)
 
     ax = axes[1]
     ax.plot(m, hinge, color=C2, lw=2.6, label="hinge (SVM)")
@@ -451,10 +441,9 @@ def fig_hinge_loss():
     ax.set_xlabel(r"$m = y\,(w^Tx+b)$"); ax.set_ylabel("mất mát")
     ax.set_ylim(-.15, 3.2)
     ax.legend(fontsize=9, loc="lower left", framealpha=.95)
-    ax.set_title("SVM và Logistic Regression khác nhau ở ĐÚNG một chỗ: hàm mất mát", fontsize=10)
+    ax.set_title("Hinge loss so với log loss", fontsize=10)
 
-    fig.suptitle("Đọc SVM dưới lăng kính hàm mất mát: "
-                 r"$\min_w \frac{1}{2}\|w\|^2 + C\sum_i \max(0,\,1-y_i(w^Tx_i+b))$",
+    fig.suptitle("SVM nhìn từ góc độ hàm mất mát",
                  fontweight="bold", fontsize=11)
     fig.tight_layout()
     save(fig, "08_hinge_loss_vs_cac_loss_khac.png")
@@ -476,8 +465,7 @@ def fig_rbf_similarity():
     ax.set_xlabel(r"khoảng cách $\|x-x'\|$")
     ax.set_ylabel(r"$K(x,x') = \exp(-\gamma\|x-x'\|^2)$")
     ax.legend(fontsize=9)
-    ax.set_title(r"$\gamma$ lớn $\Rightarrow$ độ giống nhau tụt về 0 rất nhanh"
-                 "\n$\\Rightarrow$ mỗi điểm chỉ 'nhìn thấy' hàng xóm cực gần", fontsize=10)
+    ax.set_title("Độ giống nhau giảm theo khoảng cách", fontsize=10)
 
     # bản đồ vùng ảnh hưởng 2D của 3 support vector
     svs = np.array([[-1.4, -1.0], [1.5, .3], [0.0, 1.7]])
@@ -497,8 +485,7 @@ def fig_rbf_similarity():
              r"$\gamma$ lớn → các ốc đảo tách rời → model chỉ nhớ từng điểm một",
              ha="center", fontsize=9, color="#444444")
 
-    fig.suptitle(r"RBF kernel đo ĐỘ GIỐNG NHAU theo khoảng cách — $\gamma$ = nghịch đảo bề rộng ảnh hưởng",
-                 fontweight="bold")
+    fig.suptitle("RBF kernel như một thước đo độ giống nhau", fontweight="bold")
     save(fig, "09_rbf_kernel_do_giong_nhau.png")
 
 
@@ -527,8 +514,7 @@ def fig_svr_epsilon_tube():
     lo, hi = ax.get_ylim()
     ax.set_ylim(lo, hi + 0.95)          # chừa chỗ cho legend, tránh đè lên dữ liệu
     ax.legend(fontsize=8.5, loc="upper left", framealpha=.95)
-    ax.set_title("SVR — Support Vector Regression\n"
-                 r"mất mát $= \max(0,\,|y-\hat{y}|-\epsilon)$: sai lệch nhỏ hơn $\epsilon$ được tha bổng",
+    ax.set_title(r"SVR và ống $\epsilon$-insensitive",
                  fontsize=10.5, fontweight="bold")
     save(fig, "10_svr_ong_epsilon.png")
 

@@ -99,8 +99,7 @@ def fig_impurity_criteria():
     ax.set_xlabel("p"); ax.set_ylabel("impurity (đã chuẩn hoá)")
     ax.set_ylim(-.05, 1.16)
     ax.legend(fontsize=8.4, loc="lower center", framealpha=.95)
-    ax.set_title("Entropy và Gini gần như TRÙNG NHAU\n"
-                 "→ đổi `criterion` hiếm khi đổi kết quả", fontsize=10.5)
+    ax.set_title("Entropy và Gini gần như trùng nhau", fontsize=10.5)
     ax.text(.045, 1.13,
             "Entropy & Gini LÕM CHẶT (strictly concave)\n"
             "→ mọi phép chia không tầm thường đều cho gain > 0.\n"
@@ -109,8 +108,7 @@ def fig_impurity_criteria():
             "→ KHÔNG dùng để mọc cây, chỉ dùng để cắt tỉa.",
             fontsize=8.2, color="#334155", va="top",
             bbox=dict(boxstyle="round", fc="#f8fafc", ec="#94a3b8", alpha=.95))
-    fig.suptitle("Impurity đo 'độ hỗn loạn' của một nút — cây luôn chia sao cho impurity giảm nhiều nhất",
-                 fontweight="bold")
+    fig.suptitle("Entropy, Gini và Misclassification", fontweight="bold")
     fig.tight_layout()
     save(fig, "01_entropy_gini_misclassification.png")
 
@@ -154,8 +152,7 @@ def fig_one_split():
     ax.set_yticks([]); ax.set_ylim(-.45, .45)
     ax.set_xlabel("giá trị feature x")
     ax.legend(fontsize=8.5, loc="upper left", framealpha=.95)
-    ax.set_title("Bước 1: liệt kê MỌI ngưỡng ứng viên\n(trung điểm giữa 2 giá trị liền kề)",
-                 fontsize=10)
+    ax.set_title("Bước 1: liệt kê ngưỡng ứng viên", fontsize=10.5)
 
     ax = fig.add_subplot(1, 3, 2)
     ax.plot(thr, ig, color=C1, lw=2.2, label="Information Gain (entropy)")
@@ -170,7 +167,7 @@ def fig_one_split():
                 arrowprops=dict(arrowstyle="->", color="gray"))
     ax.set_xlabel("ngưỡng t"); ax.set_ylabel("mức giảm impurity")
     ax.legend(fontsize=8.5, loc="upper left", framealpha=.95)
-    ax.set_title("Bước 2: chấm điểm từng ngưỡng\n→ chọn ngưỡng cho gain LỚN NHẤT", fontsize=10)
+    ax.set_title("Bước 2: chấm điểm từng ngưỡng", fontsize=10.5)
 
     ax = fig.add_subplot(1, 3, 3)
     ax.set_xlim(0, 10); ax.set_ylim(0, 10)
@@ -204,10 +201,9 @@ def fig_one_split():
             f"− ({len(R)}/{N})·{_entropy(R.mean()):.3f} = {ig.max():.3f}",
             ha="center", fontsize=9.6, color="#334155",
             bbox=dict(boxstyle="round", fc="#f0fdf4", ec=C3))
-    ax.set_title("Bước 3: cây con thu được sau MỘT bước chia", fontsize=10)
+    ax.set_title("Bước 3: cây con sau một bước chia", fontsize=10.5)
 
-    fig.suptitle("CART làm gì ở MỘT nút: thử mọi (feature, ngưỡng) → chọn cái làm impurity giảm nhiều nhất",
-                 fontweight="bold")
+    fig.suptitle("Một bước chia của thuật toán CART", fontweight="bold")
     fig.tight_layout()
     save(fig, "02_mot_buoc_split.png")
 
@@ -228,25 +224,21 @@ def fig_axis_aligned():
     dt1 = DecisionTreeClassifier(random_state=0).fit(X, y_axis)
     _boundary(axes[0], dt1, X, y_axis)
     axes[0].axvline(0, color=C4, lw=2.4, ls="--", zorder=4)
-    axes[0].set_title(f"Ranh giới THẲNG ĐỨNG — cây khớp HOÀN HẢO\n"
-                      f"chỉ tốn {dt1.get_n_leaves()} lá, sâu {dt1.get_depth()}",
-                      fontsize=9.8)
+    axes[0].set_title(f"Ranh giới dọc: {dt1.get_n_leaves()} lá, sâu {dt1.get_depth()}",
+                      fontsize=10.5)
 
     dt2 = DecisionTreeClassifier(random_state=0).fit(X, y_diag)
     _boundary(axes[1], dt2, X, y_diag)
     axes[1].plot([-3.5, 3.5], [-3.5, 3.5], color=C4, lw=2.4, ls="--", zorder=4)
-    axes[1].set_title(f"Ranh giới CHÉO — cây phải leo bậc thang\n"
-                      f"({dt2.get_n_leaves()} lá, sâu {dt2.get_depth()}) để xấp xỉ 1 đường thẳng",
-                      fontsize=9.8)
+    axes[1].set_title(f"Ranh giới chéo: {dt2.get_n_leaves()} lá, sâu {dt2.get_depth()}",
+                      fontsize=10.5)
 
     lr = LogisticRegression().fit(X, y_diag)
     _boundary(axes[2], lr, X, y_diag)
     axes[2].plot([-3.5, 3.5], [-3.5, 3.5], color=C4, lw=2.4, ls="--", zorder=4)
-    axes[2].set_title("Cùng dữ liệu, Logistic Regression\nchỉ cần ĐÚNG 1 đường thẳng", fontsize=9.8)
+    axes[2].set_title("Logistic Regression: một đường thẳng", fontsize=10.5)
 
-    fig.suptitle("Điểm yếu cố hữu của Decision Tree: mọi phép chia đều SONG SONG TRỤC "
-                 "(axis-aligned)\n"
-                 "đường cam đứt nét = ranh giới THẬT của dữ liệu",
+    fig.suptitle("Cây chia song song trục; đường cam là ranh giới thật",
                  fontweight="bold", fontsize=11)
     fig.tight_layout()
     save(fig, "03_ranh_gioi_bac_thang.png")
@@ -262,16 +254,16 @@ def fig_max_depth():
 
     fig, sub_axes = plt.subplots(1, 5, figsize=(17.4, 4.0),
                                  gridspec_kw=dict(width_ratios=[1, 1, 1, 1, 1.35]))
-    cfg = [(1, "max_depth = 1 (decision stump)\n1 nhát cắt — UNDERFIT nặng"),
-           (3, "max_depth = 3\nbắt được hình dạng chính"),
-           (6, "max_depth = 6\nbắt đầu mọc thêm ô nhỏ"),
-           (None, "max_depth = None\nmỗi ô nhiễu một hộp — OVERFIT")]
+    cfg = [(1, "max_depth = 1 (decision stump)"),
+           (3, "max_depth = 3"),
+           (6, "max_depth = 6"),
+           (None, "max_depth = None")]
     for i, (d, ttl) in enumerate(cfg):
         ax = sub_axes[i]
         m = DecisionTreeClassifier(max_depth=d, random_state=0).fit(Xtr, ytr)
         _boundary(ax, m, Xtr, ytr)
         ax.set_title(f"{ttl}\ntrain {m.score(Xtr, ytr)*100:.0f}% / test "
-                     f"{m.score(Xte, yte)*100:.0f}% / {m.get_n_leaves()} lá", fontsize=8.8)
+                     f"{m.score(Xte, yte)*100:.0f}% / {m.get_n_leaves()} lá", fontsize=9.4)
 
     depths = list(range(1, 21))
     tr = [DecisionTreeClassifier(max_depth=d, random_state=0).fit(Xtr, ytr).score(Xtr, ytr)
@@ -291,8 +283,8 @@ def fig_max_depth():
             bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="none", alpha=.85))
     ax.set_xlabel("max_depth"); ax.set_ylabel("Accuracy (%)")
     ax.legend(fontsize=8, loc="lower right", framealpha=.95)
-    ax.set_title("Train leo mãi lên 100%,\ntest quay đầu → OVERFIT", fontsize=9)
-    fig.suptitle("`max_depth` là nút vặn quan trọng nhất của Decision Tree",
+    ax.set_title("Accuracy theo max_depth", fontsize=9.8)
+    fig.suptitle("Ảnh hưởng của max_depth tới ranh giới và accuracy",
                  fontweight="bold")
     fig.tight_layout()
     save(fig, "04_anh_huong_max_depth.png")
@@ -330,11 +322,10 @@ def fig_ccp_pruning():
                 fontsize=9, color="#334155", va="top", ha="left",
                 bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="none", alpha=.9),
                 arrowprops=dict(arrowstyle="->", color="gray"))
-    ax.set_xlabel(r"$\alpha$ (ccp_alpha) — phạt càng nặng, cây càng nhỏ  →")
+    ax.set_xlabel(r"$\alpha$ (ccp_alpha): phạt càng nặng, cây càng nhỏ  →")
     ax.set_ylabel("Accuracy (%)")
     ax.legend(fontsize=9, loc="upper right", framealpha=.95)
-    ax.set_title("Cắt tỉa vừa đủ làm TEST accuracy TĂNG\n"
-                 "(cây đầy đủ train 100% nhưng test kém hơn)", fontsize=10)
+    ax.set_title("Accuracy theo ccp_alpha", fontsize=10.5)
 
     ax = axes[1]
     ax.plot(alphas, leaves, "o-", color=C4, ms=3.5, label="số lá $|T|$")
@@ -345,11 +336,10 @@ def fig_ccp_pruning():
     ax2.set_ylabel("độ sâu cây", color="#7c3aed")
     ax2.tick_params(axis="y", labelcolor="#7c3aed")
     ax.axvline(alphas[ibest], color=C3, ls="--", lw=1.8)
-    ax.set_title(r"Tăng $\alpha$ → cây co lại đơn điệu"
-                 "\n(mỗi bậc thang là một nhánh bị cắt)", fontsize=10)
+    ax.set_title(r"Số lá và độ sâu theo $\alpha$", fontsize=10.5)
 
-    fig.suptitle(r"Cost-complexity pruning:  $R_\alpha(T) = R(T) + \alpha\,|T|$"
-                 "  — trả tiền cho mỗi chiếc lá", fontweight="bold")
+    fig.suptitle(r"Cost-complexity pruning:  $R_\alpha(T) = R(T) + \alpha\,|T|$",
+                 fontweight="bold")
     fig.tight_layout()
     save(fig, "05_cost_complexity_pruning.png")
 
@@ -387,9 +377,7 @@ def fig_bagging_oob():
             ax.text(b + .5, yv + .5, txt, ha="center", va="center", fontsize=7.6, color=tc)
         n_oob = int((counts[b] == 0).sum())
         ax.text(b + .5, -.75, f"{n_oob}/{N} OOB", ha="center", fontsize=8.6, color=C2)
-    ax.set_title("Bootstrap: mỗi cây bốc N mẫu CÓ HOÀN LẠI\n"
-                 "→ vài mẫu bị lấy 2–3 lần, vài mẫu KHÔNG được lấy lần nào (OOB)",
-                 fontsize=10)
+    ax.set_title("Bootstrap: bốc N mẫu có hoàn lại", fontsize=10.5)
 
     ax = fig.add_subplot(1, 2, 2)
     Ns = np.arange(2, 201)
@@ -408,11 +396,9 @@ def fig_bagging_oob():
     ax.set_xlabel("N (số mẫu trong tập train)")
     ax.set_ylabel("tỷ lệ mẫu KHÔNG được cây này nhìn thấy (%)")
     ax.set_ylim(22, 44); ax.legend(fontsize=9, loc="lower right")
-    ax.set_title("Xác suất một mẫu là OOB hội tụ rất nhanh về 1/e\n"
-                 "→ mỗi cây bỏ sót ~36.8% dữ liệu = tập validation MIỄN PHÍ", fontsize=10)
+    ax.set_title("Tỷ lệ mẫu OOB hội tụ về 1/e", fontsize=10.5)
 
-    fig.suptitle("Bagging và Out-of-Bag: nguồn ngẫu nhiên thứ nhất của Random Forest",
-                 fontweight="bold")
+    fig.suptitle("Bagging và Out-of-Bag", fontweight="bold")
     fig.tight_layout()
     save(fig, "06_bagging_va_oob.png")
 
@@ -432,8 +418,7 @@ def fig_rf_smooths():
     axes[0].set_xlabel("ranh giới sắc lẹm, đầy góc cạnh", fontsize=8.6, color="dimgray")
     axes[3].set_xlabel("ranh giới mượt, có vùng 'lưỡng lự' (màu nhạt)",
                        fontsize=8.6, color="dimgray")
-    fig.suptitle("Càng nhiều cây, biên quyết định càng mượt — màu càng nhạt nghĩa là "
-                 "xác suất càng gần 0.5 (rừng đang phân vân)", fontweight="bold")
+    fig.suptitle("Biên quyết định của rừng theo số cây", fontweight="bold")
     fig.tight_layout()
     save(fig, "07_random_forest_lam_muot.png")
 
@@ -474,11 +459,10 @@ def fig_n_estimators():
                 xytext=(18, 95.4), fontsize=9, color="#334155",
                 bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="none", alpha=.85),
                 arrowprops=dict(arrowstyle="->", color="gray"))
-    ax.set_xlabel("n_estimators (số cây) — thang log")
+    ax.set_xlabel("n_estimators (số cây, thang log)")
     ax.set_ylabel("Accuracy (%)"); ax.set_ylim(66, 103)
     ax.legend(fontsize=8.6, loc="lower center", ncol=2)
-    ax.set_title("Thêm cây chỉ có LỢI (rồi bão hoà) — khác hẳn tăng `max_depth`\n"
-                 "OOB score bám sát test accuracy mà không tốn một mẫu nào",
+    ax.set_title("Accuracy và OOB score theo số cây",
                  fontweight="bold", fontsize=11)
     save(fig, "08_test_acc_theo_so_cay.png")
 
@@ -516,8 +500,7 @@ def fig_importance_bias():
     axes[0].barh(ypos, imp, color=cols, alpha=.85)
     axes[0].set_yticks(ypos); axes[0].set_yticklabels(names, fontsize=8.4)
     axes[0].invert_yaxis(); axes[0].set_xlabel("feature_importances_ (impurity-based)")
-    axes[0].set_title("BỊ THIÊN VỊ: feature nhiễu có NHIỀU giá trị\n"
-                      "vẫn được chấm điểm cao", fontsize=10)
+    axes[0].set_title("Impurity importance (MDI)", fontsize=10.5)
     axes[0].set_xlim(0, imp.max() * 1.20)
     for i, v in enumerate(imp):
         axes[0].text(v + imp.max() * .022, i, f"{v:.3f}", va="center", fontsize=8.4)
@@ -528,8 +511,7 @@ def fig_importance_bias():
     axes[1].invert_yaxis()
     axes[1].axvline(0, color="k", lw=1)
     axes[1].set_xlabel("permutation_importance (đo trên tập TEST)")
-    axes[1].set_title("TRUNG THỰC: feature nhiễu tụt về ~0\n"
-                      "vì xáo trộn chúng không làm accuracy giảm", fontsize=10)
+    axes[1].set_title("Permutation importance trên tập test", fontsize=10.5)
     # đẩy nhãn số ra SAU đầu mút thanh sai số để không đè lên nó
     pm, ps = perm.importances_mean, perm.importances_std
     right = float((pm + ps).max())
@@ -537,8 +519,7 @@ def fig_importance_bias():
     for i, (v, e) in enumerate(zip(pm, ps)):
         axes[1].text(v + e + right * .022, i, f"{v:.3f}", va="center", fontsize=8.4)
 
-    fig.suptitle("Xanh = feature THẬT SỰ hữu ích, Đỏ = feature NHIỄU thuần tuý  —  "
-                 "hai cách đo cho hai câu trả lời rất khác nhau", fontweight="bold")
+    fig.suptitle("Feature importance: MDI so với permutation", fontweight="bold")
     fig.tight_layout()
     save(fig, "09_feature_importance_thien_vi.png")
 

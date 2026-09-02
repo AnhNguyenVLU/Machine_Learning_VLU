@@ -89,10 +89,10 @@ def fig_how_knn_works():
         ax.scatter(*q, marker="*", s=240, color=C4, edgecolor="k", linewidth=.8,
                    zorder=5, label="điểm cần dự đoán")
         n_red = int(y[nn].sum()); n_blue = k - n_red
-        win = "ĐỎ" if n_red > n_blue else "XANH"
+        win = "đỏ" if n_red > n_blue else "xanh"
         col = C2 if n_red > n_blue else C1
-        ax.set_title(f"k = {k}:  {n_blue} phiếu XANH  vs  {n_red} phiếu ĐỎ"
-                     f"  →  dự đoán {win}", fontsize=10.5, color=col)
+        ax.set_title(f"k = {k}: {n_blue} phiếu xanh, {n_red} phiếu đỏ → {win}",
+                     fontsize=10.5, color=col)
         ax.set_xlim(-0.2, 7.0); ax.set_ylim(-0.85, 6.9)
         ax.set_xlabel("feature 1"); ax.set_ylabel("feature 2")
         ax.set_aspect("equal")
@@ -102,7 +102,7 @@ def fig_how_knn_works():
                               "k không phải tham số 'chọn đại'.",
                  fontsize=9, color="#334155", va="bottom",
                  bbox=dict(boxstyle="round,pad=0.35", fc="#fff7ed", ec=C4, alpha=.95))
-    fig.suptitle("KNN hoạt động thế nào: khoanh vùng k hàng xóm gần nhất rồi biểu quyết",
+    fig.suptitle("Cách KNN dự đoán: k hàng xóm gần nhất biểu quyết",
                  fontweight="bold")
     fig.tight_layout()
     save(fig, "01_cach_knn_hoat_dong.png")
@@ -113,16 +113,15 @@ def fig_boundary_by_k():
     from sklearn.neighbors import KNeighborsClassifier
     X, y = _moons(300, 0.22, 0)
     fig, axes = plt.subplots(1, 4, figsize=(15.5, 4.1))
-    notes = ["k = 1 — mỗi điểm nhiễu tự tạo một 'ốc đảo'\nOVERFIT (variance cao)",
-             "k = 5 — bắt được hình dạng hai vầng trăng\nVỪA ĐẸP",
-             "k = 15 — mượt hơn, bỏ qua nhiễu lẻ\nvẫn tốt",
-             "k = 50 — quá mượt, nuốt luôn chi tiết\nUNDERFIT (bias cao)"]
+    notes = ["k = 1: ranh giới lởm chởm",
+             "k = 5: bám đúng hai vầng trăng",
+             "k = 15: mượt hơn, bỏ qua nhiễu lẻ",
+             "k = 50: quá mượt, mất chi tiết"]
     for ax, k, note in zip(axes, [1, 5, 15, 50], notes):
         m = KNeighborsClassifier(n_neighbors=k).fit(X, y)
         _boundary(ax, m, X, y)
-        ax.set_title(note, fontsize=9.5)
-    fig.suptitle("k điều khiển ĐỘ PHỨC TẠP của KNN: k nhỏ = ranh giới lởm chởm, "
-                 "k lớn = ranh giới mượt", fontweight="bold")
+        ax.set_title(note, fontsize=10)
+    fig.suptitle("Ranh giới quyết định theo k", fontweight="bold")
     fig.tight_layout()
     save(fig, "02_bien_quyet_dinh_theo_k.png")
 
@@ -178,8 +177,7 @@ def fig_bias_variance_k():
     ax.set_xlabel("k   (độ phức tạp mô hình GIẢM dần khi k tăng  →)")
     ax.set_ylabel("Accuracy (%)")
     ax.legend(fontsize=8.6, loc="lower left", framealpha=.95)
-    ax.set_title("Đường cong bias–variance của KNN\n"
-                 "k nhỏ = variance cao, k lớn = bias cao, điểm ngọt nằm ở giữa",
+    ax.set_title("Đường cong bias-variance của KNN theo k",
                  fontweight="bold", fontsize=11)
     save(fig, "03_bias_variance_theo_k.png")
 
@@ -207,9 +205,9 @@ def fig_why_scale():
 
     fig, axes = plt.subplots(1, 2, figsize=(12.6, 4.6))
     for ax, (P, Q, nn, ttl, xl, yl) in zip(axes, [
-            (X, q, nn_raw, "TRƯỚC khi scale — Income lấn át hoàn toàn Age",
-             "Age (20–70)", "Income (20.000–200.000)"),
-            (Xs, qs, nn_s, "SAU StandardScaler — hai trục có tiếng nói ngang nhau",
+            (X, q, nn_raw, "Trước khi scale: Income lấn át Age",
+             "Age (20 đến 70)", "Income (20.000 đến 200.000)"),
+            (Xs, qs, nn_s, "Sau StandardScaler: hai trục ngang nhau",
              "Age (đã chuẩn hoá)", "Income (đã chuẩn hoá)")]):
         ax.scatter(P[y == 0, 0], P[y == 0, 1], s=34, color=C1, alpha=.75, label="lớp 0 (trẻ)")
         ax.scatter(P[y == 1, 0], P[y == 1, 1], s=34, color=C2, marker="s", alpha=.75,
@@ -221,9 +219,9 @@ def fig_why_scale():
         ax.scatter(*Q, marker="*", s=380, color=C4, edgecolor="k", linewidth=.8,
                    zorder=5, label="điểm cần dự đoán")
         n1 = int(y[nn].sum())
-        verdict = "SAI" if n1 > k - n1 else "ĐÚNG"
-        ax.set_title(f"{ttl}\nBiểu quyết: {k - n1} phiếu lớp 0  vs  {n1} phiếu lớp 1"
-                     f"  →  dự đoán {verdict}", fontsize=9.8)
+        verdict = "sai" if n1 > k - n1 else "đúng"
+        ax.set_title(f"{ttl}\n{k - n1} phiếu lớp 0, {n1} phiếu lớp 1 → dự đoán {verdict}",
+                     fontsize=9.8)
         ax.set_xlabel(xl); ax.set_ylabel(yl)
     # legend dùng chung, đặt HẲN ra ngoài để không che điểm dữ liệu nào
     h, lg = axes[0].get_legend_handles_labels()
@@ -238,8 +236,7 @@ def fig_why_scale():
                  "→ hàng xóm được chọn theo Income, còn Age bị bỏ qua.",
                  fontsize=8.2, color="#334155", va="bottom",
                  bbox=dict(boxstyle="round,pad=0.35", fc="#fef2f2", ec=C2, alpha=.95))
-    fig.suptitle("Vì sao BẮT BUỘC phải chuẩn hoá trước khi dùng KNN — "
-                 "đổi scale là đổi luôn tập hàng xóm", fontweight="bold")
+    fig.suptitle("Vì sao phải chuẩn hoá trước khi dùng KNN", fontweight="bold")
     fig.tight_layout()
     save(fig, "04_vi_sao_phai_scale.png")
 
@@ -258,14 +255,13 @@ def fig_minkowski_balls():
     fig, axes = plt.subplots(1, 3, figsize=(14.2, 4.4))
 
     ax = axes[0]
-    for p, name, col in [(1, "L1 — Manhattan (hình thoi)", C1),
-                         (2, "L2 — Euclidean (hình tròn)", C3)]:
+    for p, name, col in [(1, "L1: Manhattan (hình thoi)", C1),
+                         (2, "L2: Euclidean (hình tròn)", C3)]:
         X, Y = ball(p)
         ax.plot(X, Y, color=col, lw=2.2, label=name)
     ax.plot([-1, 1, 1, -1, -1], [-1, -1, 1, 1, -1], color=C2, lw=2.2,
-            label=r"L$\infty$ — Chebyshev (hình vuông)")
-    ax.set_title("'Quả cầu đơn vị': tập hợp các điểm\ncách gốc đúng 1 đơn vị",
-                 fontsize=10)
+            label=r"L$\infty$: Chebyshev (hình vuông)")
+    ax.set_title("Quả cầu đơn vị của ba metric", fontsize=10.5)
     ax.legend(fontsize=7.4, loc="upper center", framealpha=.95,
               handlelength=1.5, borderpad=.45)
     ax.set_aspect("equal"); ax.set_xlim(-1.75, 1.75); ax.set_ylim(-1.45, 2.45)
@@ -310,9 +306,9 @@ def fig_minkowski_balls():
               handlelength=1.5, borderpad=.45, markerscale=.5, labelspacing=.5)
     ax.set_aspect("equal"); ax.set_xlim(-1.3, 1.3); ax.set_ylim(-1.45, 2.45)
     ax.axhline(0, color="k", lw=.7); ax.axvline(0, color="k", lw=.7)
-    ax.set_title("Cùng dữ liệu, khác metric,\nkhác hàng xóm gần nhất", fontsize=10)
+    ax.set_title("Đổi metric thì đổi hàng xóm gần nhất", fontsize=10.5)
 
-    fig.suptitle("Hình dạng của khoảng cách quyết định 'ai là hàng xóm'",
+    fig.suptitle("Hình dạng quả cầu đơn vị theo từng metric",
                  fontweight="bold")
     fig.tight_layout()
     save(fig, "05_qua_cau_don_vi_minkowski.png")
@@ -359,14 +355,13 @@ def fig_curse_of_dimensionality():
     ax.text(1.2, .96, "giới hạn = 1: 'gần nhất' ≈ 'xa nhất'", color=C2, fontsize=8.6)
     ax.set_xlabel("số chiều d"); ax.set_ylabel(r"$d_{min}\,/\,d_{max}$")
     ax.set_ylim(0, 1.08)
-    ax.set_title("Tỷ số khoảng cách gần nhất / xa nhất\n→ tiến về 1 khi d tăng", fontsize=9.8)
+    ax.set_title("Tỷ số khoảng cách gần nhất trên xa nhất", fontsize=10)
 
     ax = axes[1]
     ax.loglog(dims, contrast, "s-", color=C4, lw=2)
     ax.set_xlabel("số chiều d")
     ax.set_ylabel(r"$(d_{max}-d_{min})\,/\,d_{min}$")
-    ax.set_title("Độ tương phản khoảng cách sụp đổ\n"
-                 "→ khái niệm 'hàng xóm gần' mất ý nghĩa", fontsize=9.8)
+    ax.set_title("Độ tương phản khoảng cách theo số chiều", fontsize=10)
 
     ax = axes[2]
     ax.semilogx(dims2, np.array(accs) * 100, "o-", color=C2, lw=2)
@@ -375,10 +370,9 @@ def fig_curse_of_dimensionality():
     ax.set_xlabel("số chiều d (chỉ 2 chiều đầu là hữu ích)")
     ax.set_ylabel("Test accuracy KNN k=5 (%)")
     ax.set_ylim(45, 100)
-    ax.set_title("Thêm chiều NHIỄU → accuracy tụt dốc\n"
-                 "dù thông tin hữu ích không đổi", fontsize=9.8)
+    ax.set_title("Accuracy của KNN khi thêm chiều nhiễu", fontsize=10)
 
-    fig.suptitle("Lời nguyền chiều cao (curse of dimensionality) — kẻ thù số 1 của KNN",
+    fig.suptitle("Lời nguyền chiều cao (curse of dimensionality)",
                  fontweight="bold")
     fig.tight_layout()
     save(fig, "06_loi_nguyen_chieu_cao.png")
@@ -417,8 +411,7 @@ def fig_weights_uniform_vs_distance():
     ax.text(-0.45, -0.42, "q", fontsize=12, color=C4, fontweight="bold",
             ha="center", va="center")
     ax.set_aspect("equal"); ax.set_xlim(-2.9, 2.9); ax.set_ylim(-3.0, 2.25)
-    ax.set_title("k = 5 hàng xóm của q:\n2 phiếu ĐỎ rất gần, 3 phiếu XANH ở rất xa",
-                 fontsize=9.8)
+    ax.set_title("5 hàng xóm: 2 đỏ ở gần, 3 xanh ở xa", fontsize=10)
     ax.set_xticks([]); ax.set_yticks([]); ax.grid(False); ax.set_frame_on(False)
 
     ax = axes[1]
@@ -433,25 +426,23 @@ def fig_weights_uniform_vs_distance():
                                              "lớp ĐỎ\n(2 hàng xóm gần)"])
     ax.set_ylabel("tổng số phiếu"); ax.set_ylim(0, max(vd) * 1.3)
     ax.legend(fontsize=8, loc="upper left")
-    ax.set_title(f"uniform → XANH thắng (3 > 2)\n"
-                 f"distance → ĐỎ thắng ({vd[1]:.2f} > {vd[0]:.2f})", fontsize=9.8)
+    ax.set_title(f"uniform: xanh thắng (3 > 2)\n"
+                 f"distance: đỏ thắng ({vd[1]:.2f} > {vd[0]:.2f})", fontsize=10)
 
     # (c)(d) ảnh hưởng lên vùng quyết định
     X, y = _moons(90, 0.36, 3)
     for ax, wname, ttl in zip(axes[2:], ["uniform", "distance"],
-                              ["weights='uniform', k=25\nmọi hàng xóm nói to như nhau",
-                               "weights='distance', k=25\nhàng xóm gần có tiếng nói lớn hơn"]):
+                              ["weights='uniform', k = 25",
+                               "weights='distance', k = 25"]):
         m = KNeighborsClassifier(n_neighbors=25, weights=wname).fit(X, y)
         _boundary(ax, m, X, y)
         for c in ax.collections[-2:]:
             c.set_sizes([34])
-        ax.set_title(ttl, fontsize=9.8)
+        ax.set_title(ttl, fontsize=10)
     axes[3].set_xlabel("→ ranh giới bám sát điểm train hơn, gồ ghề hơn\n"
                        "(và train accuracy luôn = 100%)", fontsize=8.4, color="dimgray")
 
-    fig.suptitle("weights='uniform' vs weights='distance' — "
-                 "khi hàng xóm ở xa, trọng số khoảng cách đổi cả kết quả",
-                 fontweight="bold")
+    fig.suptitle("Trọng số uniform so với distance", fontweight="bold")
     fig.tight_layout()
     save(fig, "07_uniform_vs_distance.png")
 
@@ -483,12 +474,9 @@ def fig_voronoi():
                    edgecolor="w", linewidth=.6, zorder=4)
         ax.set_xlim(0, 9.5); ax.set_ylim(0, 9.0)
         ax.set_xticks([]); ax.set_yticks([]); ax.grid(False)
-    axes[0].set_title("Sơ đồ Voronoi: mỗi điểm train sở hữu một ô\n"
-                      "(tập các vị trí mà NÓ là điểm gần nhất)", fontsize=10)
-    axes[1].set_title("1-NN decision boundary = gộp các ô cùng nhãn\n"
-                      "→ ranh giới là đường gấp khúc đa giác", fontsize=10)
-    fig.suptitle("1-NN chính là sơ đồ Voronoi — thêm/bớt MỘT điểm train là đổi ngay ranh giới "
-                 "(vì sao k=1 có variance rất cao)", fontweight="bold", fontsize=11)
+    axes[0].set_title("Sơ đồ Voronoi của tập train", fontsize=10.5)
+    axes[1].set_title("Ranh giới 1-NN: gộp các ô cùng nhãn", fontsize=10.5)
+    fig.suptitle("1-NN chính là sơ đồ Voronoi", fontweight="bold", fontsize=11)
     fig.tight_layout()
     save(fig, "08_voronoi_1nn.png")
 
@@ -502,21 +490,20 @@ def fig_knn_regression():
     xs = np.linspace(0, 2 * np.pi, 600).reshape(-1, 1)
 
     fig, axes = plt.subplots(1, 4, figsize=(15.5, 3.7))
-    cfg = [(1, "uniform", "k = 1 — nối thẳng qua từng điểm\nOVERFIT hoàn toàn", C2),
-           (5, "uniform", "k = 5 — bậc thang vừa phải\nvừa đẹp", C3),
-           (25, "uniform", "k = 25 — bậc thang thô,\nbẹp ở hai đầu (bias cao)", C1),
-           (5, "distance", "k = 5, weights='distance'\nliên tục, đi ĐÚNG qua từng điểm train", C4)]
+    cfg = [(1, "uniform", "k = 1: đi qua đúng từng điểm", C2),
+           (5, "uniform", "k = 5: bậc thang vừa phải", C3),
+           (25, "uniform", "k = 25: bậc thang thô, bẹp hai đầu", C1),
+           (5, "distance", "k = 5, weights='distance'", C4)]
     for ax, (k, wname, ttl, col) in zip(axes, cfg):
         m = KNeighborsRegressor(n_neighbors=k, weights=wname).fit(x.reshape(-1, 1), y)
         ax.scatter(x, y, s=22, color="k", alpha=.55, label="dữ liệu train")
         ax.plot(xs, np.sin(xs), "--", color="gray", lw=1.5, label="hàm thật sin(x)")
         ax.plot(xs, m.predict(xs), color=col, lw=2.2, label="KNN dự đoán")
         ax.set_ylim(-1.9, 1.9)
-        ax.set_title(ttl, fontsize=9.5)
+        ax.set_title(ttl, fontsize=10)
         ax.set_xlabel("x")
     axes[0].set_ylabel("y"); axes[0].legend(fontsize=7.5, loc="lower left")
-    fig.suptitle("KNeighborsRegressor: dự đoán = TRUNG BÌNH y của k hàng xóm "
-                 "→ đường dự đoán luôn là hàm bậc thang", fontweight="bold")
+    fig.suptitle("KNN cho hồi quy: đường dự đoán bậc thang", fontweight="bold")
     fig.tight_layout()
     save(fig, "09_knn_hoi_quy_bac_thang.png")
 

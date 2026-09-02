@@ -50,11 +50,11 @@ def _counts(t):
 def fig_confusion_anatomy():
     """Giải phẫu confusion matrix theo đúng layout của sklearn."""
     cm = np.array([[85, 15], [10, 90]])          # [[TN, FP], [FN, TP]]
-    names = [["TN — True Negative", "FP — False Positive"],
-             ["FN — False Negative", "TP — True Positive"]]
+    names = [["TN (True Negative)", "FP (False Positive)"],
+             ["FN (False Negative)", "TP (True Positive)"]]
     plain = [["model nói KHÔNG\nvà đúng là KHÔNG\n(đoán đúng, thầm lặng)",
               "model nói CÓ\nnhưng thật ra KHÔNG\n(BÁO ĐỘNG GIẢ)"],
-             ["model nói KHÔNG\nnhưng thật ra CÓ\n(BỎ SÓT — nguy hiểm nhất\ntrong y tế)",
+             ["model nói KHÔNG\nnhưng thật ra CÓ\n(BỎ SÓT, nguy hiểm nhất\ntrong y tế)",
               "model nói CÓ\nvà đúng là CÓ\n(bắt trúng)"]]
     cols = ["#dcfce7", "#fee2e2", "#fee2e2", "#dcfce7"]
 
@@ -79,8 +79,7 @@ def fig_confusion_anatomy():
     ax.tick_params(length=0)
     for s in ax.spines.values():
         s.set_visible(False)
-    ax.set_title("Giải phẫu Confusion Matrix — ĐÚNG layout của sklearn\n"
-                 "HÀNG = nhãn thật, CỘT = dự đoán, TN nằm ở góc TRÊN TRÁI",
+    ax.set_title("Confusion matrix theo layout của sklearn",
                  fontweight="bold", fontsize=12, pad=16)
     ax.text(1.0, 2.30, "Mẹo đọc tên: chữ thứ hai là ĐIỀU MODEL NÓI, "
                        "chữ thứ nhất là MODEL NÓI ĐÚNG HAY SAI.\n"
@@ -100,9 +99,9 @@ def fig_two_distributions():
     pn, pp = _pdf(x, .32, .135), _pdf(x, .63, .135)
 
     fig, axes = plt.subplots(1, 3, figsize=(15.6, 4.9), sharey=True)
-    tags = ["NGƯỠNG THẤP (0.35) — model 'dễ dãi'",
-            "NGƯỠNG VỪA (0.48)",
-            "NGƯỠNG CAO (0.62) — model 'khắt khe'"]
+    tags = ["Ngưỡng thấp 0.35 (dễ dãi)",
+            "Ngưỡng vừa 0.48",
+            "Ngưỡng cao 0.62 (khắt khe)"]
     notes = ["bắt được gần hết ca dương (recall cao)\nnhưng báo động giả rất nhiều (precision thấp)",
              "cân bằng giữa bỏ sót và báo động giả",
              "hầu như không báo động giả (precision cao)\nnhưng bỏ sót rất nhiều (recall thấp)"]
@@ -137,8 +136,7 @@ def fig_two_distributions():
     axes[0].plot([], [], color=C1, lw=6, alpha=.6, label="lớp ÂM thật sự")
     axes[0].plot([], [], color=C2, lw=6, alpha=.6, label="lớp DƯƠNG thật sự")
     axes[0].legend(fontsize=8.5, loc="upper left", framealpha=.95)
-    fig.suptitle("Mọi chỉ số đều sinh ra từ MỘT bức tranh này: hai phân phối chồng lấn + một ngưỡng cắt\n"
-                 "Kéo ngưỡng sang trái/phải là đánh đổi giữa BỎ SÓT (FN) và BÁO ĐỘNG GIẢ (FP)",
+    fig.suptitle("Hai phân phối điểm số và một ngưỡng cắt",
                  fontweight="bold", fontsize=11.5)
     fig.tight_layout()
     save(fig, "02_hai_phan_phoi_va_nguong.png")
@@ -166,7 +164,7 @@ def fig_threshold_to_roc():
     ax.set_xlim(0, 1); ax.set_ylim(0, 4.0)
     ax.set_xlabel("điểm số"); ax.set_ylabel("mật độ")
     ax.legend(fontsize=9, loc="upper left")
-    ax.set_title("Bước 1: trượt ngưỡng qua MỌI giá trị có thể", fontsize=10.5)
+    ax.set_title("Bước 1: trượt ngưỡng", fontsize=10.5)
 
     # phải: ROC + 3 điểm tương ứng
     ax = axes[1]
@@ -193,18 +191,16 @@ def fig_threshold_to_roc():
     ax.set_ylabel("TPR = TP/(TP+FN) = Recall")
     ax.set_xlim(-.02, 1.02); ax.set_ylim(-.02, 1.09)
     ax.legend(fontsize=9, loc="lower right")
-    ax.set_title("Bước 2: MỖI ngưỡng cho một điểm (FPR, TPR)\n"
-                 "Nối tất cả các điểm lại → đường ROC", fontsize=10.5)
+    ax.set_title("Bước 2: mỗi ngưỡng là một điểm ROC", fontsize=10.5)
 
-    fig.suptitle("ROC không phải phép màu: nó chỉ là quỹ đạo của cặp (FPR, TPR) khi ngưỡng chạy từ +∞ về −∞",
-                 fontweight="bold", fontsize=11.5)
+    fig.suptitle("Từ ngưỡng tới đường ROC", fontweight="bold", fontsize=11.5)
     fig.tight_layout()
     save(fig, "03_tu_nguong_den_roc.png")
 
 
 # ---------------------------------------------------------------- 4
 def fig_pr_tradeoff():
-    """Precision, Recall, F1 theo ngưỡng — và vì sao 0.5 không thiêng liêng."""
+    """Precision, Recall, F1 theo ngưỡng, và vì sao 0.5 không thiêng liêng."""
     rng = np.random.default_rng(11)
     neg = rng.normal(.35, .15, 5000)      # dữ liệu hơi mất cân bằng: ~11% lớp dương
     pos = rng.normal(.62, .15, 600)
@@ -221,8 +217,8 @@ def fig_pr_tradeoff():
     i5 = int(np.argmin(np.abs(ts - .5)))
 
     fig, ax = plt.subplots(figsize=(9.8, 5.6))
-    ax.plot(ts, P, color=C1, lw=2.4, label="Precision — 'báo động có đáng tin?'")
-    ax.plot(ts, R, color=C2, lw=2.4, label="Recall — 'có bỏ sót ca nào không?'")
+    ax.plot(ts, P, color=C1, lw=2.4, label="Precision: 'báo động có đáng tin?'")
+    ax.plot(ts, R, color=C2, lw=2.4, label="Recall: 'có bỏ sót ca nào không?'")
     ax.plot(ts, F, color=C3, lw=2.8, label="F1 (trung bình điều hoà)")
     # đường dóng chỉ vẽ trong vùng có đường cong, không chạy vào dải chú thích
     ax.plot([ts[best]] * 2, [0, 1.02], color=C3, ls="--", lw=1.6)
@@ -242,9 +238,8 @@ def fig_pr_tradeoff():
     ax.set_xlabel("ngưỡng quyết định"); ax.set_ylabel("giá trị chỉ số")
     ax.set_ylim(-.17, 1.36)
     ax.legend(fontsize=9, loc="upper left", framealpha=.95)
-    ax.set_title("Precision và Recall là hai đầu của một cái bập bênh\n"
-                 "(dữ liệu ~11% lớp dương)\n"
-                 "0.5 chỉ là mặc định của thư viện, KHÔNG phải ngưỡng tối ưu",
+    ax.set_title("Precision, recall và F1 theo ngưỡng\n"
+                 "(dữ liệu ~11% lớp dương)",
                  fontweight="bold", fontsize=11)
     ax.text(.985, .015, "Chọn ngưỡng là một QUYẾT ĐỊNH KINH DOANH,\nkhông phải mặc định của thư viện",
             transform=ax.transAxes, ha="right", va="bottom", fontsize=9, color=C2,
@@ -270,11 +265,11 @@ def fig_roc_vs_pr():
     for name, (y, s), col in sets:
         fpr, tpr, _ = roc_curve(y, s)
         axes[0].plot(fpr, tpr, lw=2.4, color=col,
-                     label=f"{name.splitlines()[0]} — AUC = {roc_auc_score(y, s):.3f}")
+                     label=f"{name.splitlines()[0]}, AUC = {roc_auc_score(y, s):.3f}")
         p, r, _ = precision_recall_curve(y, s)
         ap = average_precision_score(y, s)
         axes[1].plot(r, p, lw=2.4, color=col,
-                     label=f"{name.splitlines()[0]} — AP = {ap:.3f}")
+                     label=f"{name.splitlines()[0]}, AP = {ap:.3f}")
         axes[1].axhline(y.mean(), color=col, ls=":", lw=1.6)
         # baseline cao thì dán nhãn sát mép PHẢI, baseline thấp thì mép TRÁI
         base = y.mean()
@@ -286,15 +281,13 @@ def fig_roc_vs_pr():
     axes[0].plot([0, 1], [0, 1], "k--", lw=1.2)
     axes[0].set_xlabel("FPR"); axes[0].set_ylabel("TPR (Recall)")
     axes[0].legend(fontsize=8.8, loc="lower right")
-    axes[0].set_title("ROC gần như KHÔNG ĐỔI\n"
-                      "vì FPR có mẫu số TN rất lớn → FP tăng cũng không thấy", fontsize=10.5)
+    axes[0].set_title("Đường ROC ở hai mức mất cân bằng", fontsize=10.5)
     axes[1].set_xlabel("Recall"); axes[1].set_ylabel("Precision")
     axes[1].set_ylim(0, 1.24)
     axes[1].legend(fontsize=8.8, loc="upper right", framealpha=.95)
-    axes[1].set_title("PR curve SỤP ĐỔ\nvì precision có mẫu số (TP+FP) — FP dìm chết nó ngay", fontsize=10.5)
+    axes[1].set_title("Đường Precision-Recall tương ứng", fontsize=10.5)
 
-    fig.suptitle("Cùng một 'chất lượng model', mất cân bằng làm ROC nói dối còn PR nói thật\n"
-                 "→ dữ liệu lệch nhiều thì tin Precision–Recall / Average Precision",
+    fig.suptitle("ROC và PR khi dữ liệu mất cân bằng",
                  fontweight="bold", fontsize=11.5)
     fig.tight_layout()
     save(fig, "05_roc_vs_pr_khi_mat_can_bang.png")
@@ -336,7 +329,7 @@ def fig_accuracy_lies():
     ax.legend(fontsize=9.5, loc="upper right", framealpha=.95)
     # hai hộp chú thích đặt ở khoảng trống phía trên các cột thấp (F1/Kappa/MCC)
     ax.annotate("Model NGỐC có accuracy CAO HƠN model tốt\n"
-                "(0.950 > 0.943) — dù nó bỏ sót 100% ca hiếm!",
+                "(0.950 > 0.943), dù nó bỏ sót 100% ca hiếm.",
                 xy=(-.2, .96), xytext=(1.55, .99), fontsize=9.5, color=C2,
                 va="top", ha="left",
                 arrowprops=dict(arrowstyle="->", color=C2),
@@ -347,7 +340,7 @@ def fig_accuracy_lies():
                 va="top", ha="left",
                 arrowprops=dict(arrowstyle="->", color="dimgray"),
                 bbox=dict(boxstyle="round,pad=.35", fc="#f8f8f8", ec="lightgray"))
-    ax.set_title("Dữ liệu 95% lớp 0 / 5% lớp 1 — vì sao KHÔNG BAO GIỜ chỉ báo cáo accuracy",
+    ax.set_title("Năm chỉ số trên dữ liệu 95/5",
                  fontweight="bold", fontsize=11.5)
     save(fig, "06_accuracy_lua_doi.png")
 
@@ -385,8 +378,7 @@ def fig_macro_micro_weighted():
     ax.set_xticks(xpos); ax.set_xticklabels(labels, fontsize=9.5)
     ax.set_ylim(0, 1.12); ax.set_ylabel("giá trị")
     ax.legend(fontsize=9, loc="upper right", framealpha=.95)
-    ax.set_title("Chỉ số TỪNG LỚP: model làm tốt lớp A (nhiều mẫu),\n"
-                 "tệ hẳn ở lớp C (chỉ 30 mẫu)", fontsize=10.5)
+    ax.set_title("Chỉ số của từng lớp", fontsize=10.5)
 
     ax = axes[1]
     vals = [macro, weighted, micro]
@@ -399,16 +391,14 @@ def fig_macro_micro_weighted():
                 ha="center", fontsize=12, fontweight="bold")
     ax.set_xticks(range(3)); ax.set_xticklabels(names, fontsize=8.8)
     ax.set_ylim(0, 1.12); ax.set_ylabel("F1 tổng hợp")
-    ax.set_title("Ba cách GỘP cho ba con số rất khác nhau\n"
-                 "trên CÙNG một model, CÙNG một dự đoán", fontsize=10.5)
+    ax.set_title("Ba cách gộp F1 đa lớp", fontsize=10.5)
     ax.annotate("Chênh nhau\n%.0f điểm phần trăm!" % ((micro - macro) * 100),
                 xy=(.10, .71), xytext=(0, .99), ha="center", va="top",
                 fontsize=10, color=C2, fontweight="bold",
                 arrowprops=dict(arrowstyle="->", color=C2),
                 bbox=dict(boxstyle="round,pad=.35", fc="#fef2f2", ec=C2))
 
-    fig.suptitle("Macro trừng phạt việc bỏ rơi lớp hiếm — Micro/Weighted thì che giấu nó\n"
-                 "Báo cáo chỉ số đa lớp mà không nói rõ 'average' nào là báo cáo vô nghĩa",
+    fig.suptitle("Macro, weighted và micro trên cùng một model",
                  fontweight="bold", fontsize=11.5)
     fig.tight_layout()
     save(fig, "07_macro_micro_weighted.png")
@@ -445,8 +435,7 @@ def fig_calibration():
     ax.set_ylabel("tần suất dương THỰC TẾ trong nhóm")
     ax.legend(fontsize=8.6, loc="upper left")
     ax.set_xlim(0, 1); ax.set_ylim(0, 1)
-    ax.set_title("Reliability diagram (đường hiệu chỉnh)\n"
-                 "Đường THOẢI hơn đường chéo = QUÁ TỰ TIN; DỐC hơn = THIẾU tự tin", fontsize=10.5)
+    ax.set_title("Đường hiệu chỉnh (reliability diagram)", fontsize=10.5)
     ax.text(.45, .10, "Ở vùng xác suất cao, đường đỏ nằm\nDƯỚI đường chéo: model nói 90%\n"
             "nhưng thực tế chỉ ~72% đúng → NÓI QUÁ",
             fontsize=8.8, color=C2,
@@ -461,11 +450,9 @@ def fig_calibration():
     lo, hi = ax.get_ylim()
     ax.set_ylim(lo, hi * 1.28)          # chừa chỗ cho legend, tránh đè đỉnh cột
     ax.legend(fontsize=8.6, loc="upper right", framealpha=.95)
-    ax.set_title("Phân bố xác suất đầu ra\n"
-                 "Model quá tự tin dồn về hai đầu, thiếu tự tin dồn về giữa", fontsize=10.5)
+    ax.set_title("Phân bố xác suất đầu ra", fontsize=10.5)
 
-    fig.suptitle("Xác suất đúng ≠ nhãn đúng: hai model cùng AUC vẫn có thể lệch nhau rất xa về xác suất\n"
-                 r"Brier score $=\frac{1}{n}\sum (p_i - y_i)^2$ — càng nhỏ càng tốt",
+    fig.suptitle("Hiệu chỉnh xác suất và Brier score",
                  fontweight="bold", fontsize=11.5)
     fig.tight_layout()
     save(fig, "08_calibration_curve.png")
@@ -489,7 +476,7 @@ def fig_cross_validation():
     ax.text(1.02, .3, "  ← chỉ MỘT con số, phụ thuộc hoàn toàn vào việc\n"
                       "      random_state may hay rủi", va="center", fontsize=9.5, color=C2)
     ax.set_xlim(0, 1.75); ax.set_ylim(-.1, .7); ax.axis("off")
-    ax.set_title("Cách 1: train_test_split một lần — nhanh nhưng KHÔNG đáng tin",
+    ax.set_title("Cách 1: train_test_split một lần",
                  fontsize=11, fontweight="bold", loc="left")
 
     # (b) k-fold
@@ -507,7 +494,7 @@ def fig_cross_validation():
         ax.text(-.015, yb + .39, f"Vòng {i+1}", ha="right", va="center", fontsize=9.5)
         ax.text(1.02, yb + .39, f"→ score$_{i+1}$", va="center", fontsize=9.5, color="dimgray")
     ax.set_xlim(-.16, 1.35); ax.set_ylim(-.62, k + .05); ax.axis("off")
-    ax.set_title("Cách 2: k-fold cross-validation (k = 5) — mỗi mẫu được dùng làm validation ĐÚNG một lần",
+    ax.set_title("Cách 2: k-fold cross-validation (k = 5)",
                  fontsize=11, fontweight="bold", loc="left")
     ax.text(.5, -.30, r"Kết quả báo cáo = trung bình $\pm$ độ lệch chuẩn của 5 score "
                       "→ vừa có ước lượng, vừa có mức DAO ĐỘNG",
@@ -535,10 +522,10 @@ def fig_cross_validation():
     ax.text(1.02, .45, "mỗi fold giữ ĐÚNG 1 mẫu hiếm (10%) → ước lượng ổn định",
             va="center", fontsize=9, color=C3)
     ax.set_xlim(-.16, 2.0); ax.set_ylim(0, 2.0); ax.axis("off")
-    ax.set_title("Stratified k-fold: giữ nguyên tỷ lệ lớp trong TỪNG fold (ô đỏ = lớp hiếm)",
+    ax.set_title("Cách 3: stratified k-fold (ô đỏ = lớp hiếm)",
                  fontsize=11, fontweight="bold", loc="left")
 
-    fig.suptitle("Một lần chia dữ liệu chỉ cho một con số may rủi — cross-validation cho cả trung bình lẫn độ dao động",
+    fig.suptitle("Ba cách chia dữ liệu để đánh giá",
                  fontweight="bold", fontsize=11.5)
     fig.tight_layout()
     save(fig, "09_kfold_cross_validation.png")
