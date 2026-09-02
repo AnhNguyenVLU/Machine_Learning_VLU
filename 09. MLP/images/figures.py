@@ -5,7 +5,7 @@ Chạy:  python figures.py
 Kết quả: các file .png trong cùng thư mục, được nhúng vào notebook bằng markdown.
 
 LƯU Ý: script này KHÔNG dùng PyTorch. Toàn bộ mạng nơ-ron ở đây được cài bằng
-numpy thuần (lớp NPMLP bên dưới) — vừa để hình luôn tái lập được, vừa để sinh viên
+numpy thuần (lớp NPMLP bên dưới): vừa để hình luôn tái lập được, vừa để sinh viên
 đọc thẳng phần forward/backward mà không bị framework che mất.
 """
 import os
@@ -33,7 +33,7 @@ def save(fig, name):
 
 
 # ==================================================================
-#  Một MLP tí hon bằng numpy — dùng chung cho mọi hình bên dưới
+#  Một MLP tí hon bằng numpy, dùng chung cho mọi hình bên dưới
 # ==================================================================
 def relu(z):
     return np.maximum(0, z)
@@ -188,8 +188,10 @@ def fig_xor_hidden_space():
         ax.text(px + .06, py + .06, f"({px:.0f},{py:.0f})→{lb:.0f}", fontsize=9)
     ax.set_xlim(-.6, 1.7); ax.set_ylim(-.6, 1.7)
     ax.set_xlabel("$x_1$"); ax.set_ylabel("$x_2$"); ax.legend(fontsize=8, loc="upper left")
-    ax.set_title("(a) XOR trong KHÔNG GIAN GỐC\nmọi đường thẳng đều cắt sai — perceptron bó tay",
-                 fontsize=9.5)
+    ax.set_title("(a) XOR trong không gian gốc", fontsize=9.5)
+    ax.text(.03, .03, "mọi đường thẳng đều cắt sai:\nperceptron một tầng bó tay",
+            transform=ax.transAxes, fontsize=8.5, va="bottom", color="#7f1d1d",
+            bbox=dict(fc="white", ec="0.7", alpha=.95, boxstyle="round,pad=0.28"))
 
     # (b) không gian ẩn
     f, _ = ACT["tanh"]
@@ -208,9 +210,10 @@ def fig_xor_hidden_space():
         ax.text(px + .05, py + d, f"({ox:.0f},{oy:.0f})", fontsize=9)
     ax.set_xlim(hx[0], hx[-1] + .55)      # chừa chỗ cho nhãn của 2 điểm bên phải
     ax.set_xlabel("$h_1$"); ax.set_ylabel("$h_2$"); ax.grid(False)
-    ax.set_title("(b) CÙNG 4 điểm đó, nhìn trong KHÔNG GIAN ẨN $(h_1,h_2)$\n"
-                 "hai điểm lớp 0 bị ĐẨY TRÙNG nhau → giờ tách được bằng 1 đường thẳng",
-                 fontsize=9.5)
+    ax.set_title("(b) Bốn điểm đó trong không gian ẩn $(h_1,h_2)$", fontsize=9.5)
+    ax.text(.03, .97, "hai điểm lớp 0 bị ĐẨY TRÙNG nhau,\ngiờ tách được bằng 1 đường thẳng",
+            transform=ax.transAxes, fontsize=8.5, va="top", color="#065f46",
+            bbox=dict(fc="white", ec="0.7", alpha=.95, boxstyle="round,pad=0.28"))
 
     # (c) ranh giới mạng vẽ ngược lại trong không gian gốc
     ax = fig.add_subplot(1, 3, 3)
@@ -223,16 +226,17 @@ def fig_xor_hidden_space():
     ax.scatter(X[y == 1, 0], X[y == 1, 1], s=260, marker="s", color=C2, zorder=5, edgecolor="k")
     ax.set_xlabel("$x_1$"); ax.set_ylabel("$x_2$"); ax.grid(False)
     # góc trên-trái là vùng đỏ thuần, không có đường biên đi qua → đặt chú thích ở đó
-    ax.text(.03, .97, "vùng xanh (lớp 0) là một DẢI kẹp\ngiữa hai đường thẳng — perceptron\n"
+    ax.text(.03, .97, "vùng xanh (lớp 0) là một DẢI kẹp giữa\nhai đường thẳng, trong khi perceptron\n"
             "đơn chỉ tạo được MỘT nửa mặt phẳng\nnên không bao giờ vẽ nổi dải này",
             transform=ax.transAxes, fontsize=8.5, color="k", va="top",
             bbox=dict(fc="white", ec="0.6", alpha=.95, boxstyle="round,pad=0.3"))
-    ax.set_title("(c) Đường thẳng ở (b) khi kéo ngược về không gian gốc\n"
-                 "→ thành một DẢI: (0,0) và (1,1) ở trong, (0,1) và (1,0) ở ngoài", fontsize=9.5)
+    ax.set_title("(c) Ranh giới đó vẽ lại trong không gian gốc", fontsize=9.5)
 
-    fig.suptitle("TẦNG ẨN = MỘT PHÉP BIẾN ĐỔI KHÔNG GIAN. Mạng không 'vẽ đường cong' — "
-                 "nó bẻ cong KHÔNG GIAN rồi cắt bằng đường thẳng.",
+    fig.suptitle("Tầng ẩn như một phép biến đổi không gian",
                  fontweight="bold", fontsize=11.5)
+    fig.text(.5, -.03, "Mạng ở đây là 2-2-1, tầng ẩn dùng tanh. Mạng không hề 'vẽ đường cong': "
+             "nó bẻ cong KHÔNG GIAN rồi vẫn cắt bằng một đường thẳng.",
+             ha="center", va="top", fontsize=10, color="0.25")
     fig.tight_layout()
     save(fig, "01_xor_khong_gian_an.png")
 
@@ -281,10 +285,11 @@ def fig_architecture():
             fontsize=10.5, bbox=bb, zorder=5)
     ax.text(8.0, 0, r"$z=W_3^{\top}h_2+b_3$", ha="center", va="center",
             fontsize=10.5, bbox=bb, zorder=5)
-    ax.set_xlim(-1.2, 11); ax.set_ylim(-5.2, 5.4)
+    ax.text(4.8, 5.0, "Mỗi nút nối với TOÀN BỘ nút của tầng trước: tầng 'fully connected'",
+            ha="center", va="center", fontsize=11, color="0.3")
+    ax.set_xlim(-1.2, 11); ax.set_ylim(-5.2, 5.6)
     ax.axis("off")
-    ax.set_title("Kiến trúc MLP dùng trong lab: 784 → 256 → 128 → 10\n"
-                 "(mỗi nút được nối với TOÀN BỘ nút tầng trước → 'fully connected')",
+    ax.set_title("Kiến trúc MLP dùng trong lab: 784 → 256 → 128 → 10",
                  fontweight="bold", fontsize=12)
     save(fig, "02_kien_truc_mang.png")
 
@@ -333,9 +338,11 @@ def fig_activations():
                         xytext=(-5.85, .50), fontsize=8.5, color=C2, va="top",
                         arrowprops=dict(arrowstyle="->", color=C2),
                         bbox=dict(fc="white", ec="0.75", alpha=.9, boxstyle="round,pad=0.25"))
-    fig.suptitle("Hàng trên: hàm kích hoạt.  Hàng dưới: ĐẠO HÀM của nó — thứ thực sự chạy trong backprop\n"
-                 "Đạo hàm nhỏ ở đâu thì gradient chết ở đó",
+    fig.suptitle("Các hàm kích hoạt và đạo hàm của chúng",
                  fontweight="bold", fontsize=12)
+    fig.text(.5, -.02, r"Hàng trên là $\phi(z)$, hàng dưới là $\phi'(z)$: chính đạo hàm mới là "
+             "thứ thực sự chạy trong backprop.\nĐạo hàm nhỏ ở đâu thì gradient chết ở đó.",
+             ha="center", va="top", fontsize=10.5, color="0.25")
     fig.tight_layout()
     save(fig, "03_ham_kich_hoat.png")
 
@@ -363,8 +370,9 @@ def fig_vanishing_gradient():
     ax.set_ylabel(r"độ lớn gradient trung bình  $\overline{|\partial L/\partial W^{(l)}|}$  (log)")
     lo, hi = ax.get_ylim()
     ax.set_ylim(lo, hi * 300)                 # chừa dải trống phía trên cho legend
-    ax.legend(fontsize=9, loc="upper right", framealpha=.95)
-    ax.set_title("Mạng 10 tầng ẩn — gradient đo ngay sau khi khởi tạo", fontsize=10.5)
+    ax.legend(fontsize=9, loc="upper right", framealpha=.95,
+              title="mạng 10 tầng ẩn, 64 nút mỗi tầng", title_fontsize=8.5)
+    ax.set_title("(a) Gradient theo tầng, đo lúc mới khởi tạo", fontsize=10.5)
     r = res["sigmoid"][0]
     ratio = f"{r[-1] / r[0]:,.0f}".replace(",", ".")
     ax.annotate(f"gradient ở tầng 1 nhỏ hơn tầng 10\nkhoảng {ratio} lần → tầng đầu\ngần như KHÔNG học được gì",
@@ -384,10 +392,12 @@ def fig_vanishing_gradient():
     lo, hi = ax.get_ylim()
     ax.set_ylim(lo, hi * 200)                 # chừa dải trống phía trên cho legend
     ax.legend(fontsize=8.5, loc="upper left", framealpha=.95)
-    ax.set_title(r"Gốc rễ toán học: gradient là TÍCH $\prod_l \phi'(z^{(l)})\,W^{(l)}$"
-                 "\nnhân nhiều số < 1 → về 0;  nhân nhiều số > 1 → bùng nổ", fontsize=10.5)
-    fig.suptitle("VANISHING GRADIENT: vì sao mạng sâu dùng sigmoid gần như không học được tầng đầu",
-                 fontweight="bold", fontsize=12)
+    ax.set_title(r"(b) Hệ số nhân tích luỹ $\prod_l \phi'(z^{(l)})\,W^{(l)}$", fontsize=10.5)
+    fig.suptitle("Vanishing gradient trong mạng sâu", fontweight="bold", fontsize=12)
+    fig.text(.5, -.02, "Gốc rễ toán học: gradient là một TÍCH chạy dọc các tầng. "
+             "Nhân nhiều số nhỏ hơn 1 thì về 0, nhân nhiều số\nlớn hơn 1 thì bùng nổ. "
+             "Đó là lý do mạng sâu dùng sigmoid gần như không học được tầng đầu.",
+             ha="center", va="top", fontsize=10, color="0.25")
     fig.tight_layout()
     save(fig, "04_vanishing_gradient.png")
 
@@ -430,10 +440,10 @@ def fig_backprop_graph():
             fontsize=12.5, fontweight="bold")
     ax.text(0.0, 5.35, "BACKWARD ←  tính ĐẠO HÀM (nét đứt, đỏ)", color=C2,
             fontsize=12.5, fontweight="bold")
-    ax.text(7.4, 5.9, "Mạng 2–2–1, một mẫu, output sigmoid + binary cross-entropy",
+    ax.text(7.4, 5.9, "Mạng 2-2-1, một mẫu, output sigmoid + binary cross-entropy",
             fontsize=11, color="0.3")
 
-    fwd = ("FORWARD — đi từ trái sang phải, LƯU LẠI mọi giá trị trung gian\n"
+    fwd = ("FORWARD: đi từ trái sang phải, LƯU LẠI mọi giá trị trung gian\n"
            r"$z^{(1)} = W^{(1)\top}x + b^{(1)}$" "\n"
            r"$a^{(1)} = \phi(z^{(1)})$" "\n"
            r"$z^{(2)} = W^{(2)\top}a^{(1)} + b^{(2)}$" "\n"
@@ -442,7 +452,7 @@ def fig_backprop_graph():
     ax.text(0.2, .35, fwd, va="top", ha="left", fontsize=12, color=C1, linespacing=1.9,
             bbox=dict(fc="#eff6ff", ec=C1, boxstyle="round,pad=0.55"))
 
-    bwd = ("BACKWARD — đi ngược lại, DÙNG LẠI các giá trị vừa lưu\n"
+    bwd = ("BACKWARD: đi ngược lại, DÙNG LẠI các giá trị vừa lưu\n"
            r"$\dfrac{\partial L}{\partial \hat{y}} = \dfrac{\hat{y}-y}{\hat{y}(1-\hat{y})}$"
            "        " r"$\delta^{(2)} \equiv \dfrac{\partial L}{\partial z^{(2)}} = \hat{y}-y$" "\n"
            r"$\nabla_{W^{(2)}}L = a^{(1)}\,\delta^{(2)\top}$"
@@ -453,19 +463,21 @@ def fig_backprop_graph():
     ax.text(6.6, .35, bwd, va="top", ha="left", fontsize=12, color=C2, linespacing=2.4,
             bbox=dict(fc="#fef2f2", ec=C2, boxstyle="round,pad=0.55"))
 
-    ax.text(6.3, -4.35,
+    ax.text(6.3, -4.85,
             "Phép rút gọn ĐẸP NHẤT của deep learning: sigmoid (hoặc softmax) + cross-entropy "
             r"$\Rightarrow\ \delta^{(L)} = \hat{y} - y$" "\n"
-            r"Đạo hàm $\sigma'(z)=\sigma(1-\sigma)$ ở tử số triệt tiêu đúng mẫu số của loss "
-            "→ gradient KHÔNG bị bão hoà, dù $\\hat{y}$ sai bét.\n"
+            r"Đạo hàm $\sigma'(z)=\sigma(1-\sigma)$ ở tử số triệt tiêu đúng mẫu số của loss, "
+            "nên gradient KHÔNG bị bão hoà dù $\\hat{y}$ sai bét.\n"
             "Đó cũng là lý do PyTorch gộp softmax vào trong nn.CrossEntropyLoss thay vì để bạn tự viết.",
             ha="center", va="top", fontsize=11, color="#065f46", linespacing=1.7,
             bbox=dict(fc="#ecfdf5", ec=C3, boxstyle="round,pad=0.5"))
 
-    ax.set_xlim(-.4, 12.9); ax.set_ylim(-6.9, 6.4)
-    ax.set_title("Backpropagation trên ĐỒ THỊ TÍNH TOÁN\n"
-                 "Backprop KHÔNG phải thuật toán học — nó chỉ là quy tắc chuỗi\n"
-                 "được sắp xếp để mỗi đạo hàm trung gian chỉ phải tính MỘT lần",
+    ax.text(6.3, -3.55,
+            "Backprop KHÔNG phải là thuật toán học. Nó chỉ là quy tắc chuỗi được sắp xếp lại\n"
+            "sao cho mỗi đạo hàm trung gian chỉ phải tính đúng MỘT lần.",
+            ha="center", va="top", fontsize=11, color="0.25", linespacing=1.5)
+    ax.set_xlim(-.4, 12.9); ax.set_ylim(-7.4, 6.4)
+    ax.set_title("Backpropagation trên đồ thị tính toán",
                  fontweight="bold", fontsize=13)
     save(fig, "05_backprop_do_thi.png")
 
@@ -498,9 +510,10 @@ def fig_boundary_epochs():
     ax.set_xlim(-len(hist) * .05, len(hist) * 1.10)
     ax.set_xlabel("epoch"); ax.set_ylabel("binary cross-entropy")
     ax.set_title("Đường loss tương ứng", fontsize=9.5)
-    fig.suptitle("Ranh giới quyết định tiến hoá theo epoch (MLP 2–16–16–1, tanh, GD full-batch, numpy thuần)\n"
-                 "Bắt đầu gần như tuyến tính → cong dần → ôm lấy hai trăng lưỡi liềm",
-                 fontweight="bold", fontsize=11.5)
+    fig.suptitle("Ranh giới quyết định qua các epoch", fontweight="bold", fontsize=11.5)
+    fig.text(.5, -.04, "Mạng 2-16-16-1, kích hoạt tanh, gradient descent full-batch, cài bằng numpy thuần. "
+             "Ranh giới bắt đầu gần như\ntuyến tính, rồi cong dần cho tới khi ôm được hai trăng lưỡi liềm.",
+             ha="center", va="top", fontsize=10, color="0.25")
     fig.tight_layout()
     save(fig, "06_ranh_gioi_theo_epoch.png")
 
@@ -530,9 +543,9 @@ def fig_hidden_width():
                       f"{h} neuron ẩn\ntrain acc={net.acc(Xtr, ytr) * 100:.0f}%  "
                       f"test acc={net.acc(Xte, yte) * 100:.0f}%")
     # đặt nhãn chẩn đoán ngay dưới khung để không đè lên điểm dữ liệu
-    axes[0].set_xlabel("UNDERFIT — chỉ vẽ được 1 đường thẳng",
+    axes[0].set_xlabel("UNDERFIT: chỉ vẽ được 1 đường thẳng",
                        fontsize=9, color="#7f1d1d", fontweight="bold")
-    axes[3].set_xlabel("OVERFIT — ranh giới lượn theo từng điểm nhiễu",
+    axes[3].set_xlabel("OVERFIT: ranh giới lượn theo từng điểm nhiễu",
                        fontsize=9, color="#7f1d1d", fontweight="bold")
     ax = axes[4]
     ax.plot(allw, tr_l, "o-", color=C1, label="train loss")
@@ -544,10 +557,12 @@ def fig_hidden_width():
     ax.text(allw[int(np.argmin(te_l))] * 1.15, max(te_l) * .92, "điểm ngọt", color=C3, fontsize=9,
             bbox=dict(fc="white", ec="none", alpha=.85, boxstyle="round,pad=0.2"))
     ax.legend(fontsize=8.5, loc="upper right", framealpha=.95)
-    ax.set_title("train loss giảm dần,\ntest loss giảm rồi TĂNG", fontsize=9.5)
-    fig.suptitle("Số neuron ẩn = sức chứa (capacity) của mạng: quá ít → underfit, quá nhiều → overfit\n"
-                 "(dữ liệu moons nhiễu mạnh, chỉ 120 điểm train, KHÔNG regularization)",
-                 fontweight="bold", fontsize=11.5)
+    ax.set_title("Loss theo số neuron ẩn", fontsize=9.5)
+    fig.suptitle("Số neuron ẩn và sức chứa của mạng", fontweight="bold", fontsize=11.5)
+    fig.text(.5, -.10, "Dữ liệu moons nhiễu mạnh, chỉ 120 điểm train, không dùng regularization. "
+             "Sức chứa quá ít thì underfit,\nquá nhiều thì overfit: train loss vẫn giảm đều "
+             "trong khi test loss giảm rồi tăng trở lại.",
+             ha="center", va="top", fontsize=10, color="0.25")
     fig.tight_layout()
     save(fig, "07_so_neuron_an.png")
 
@@ -558,23 +573,24 @@ def fig_learning_rate():
     X, y = make_moons(n_samples=300, noise=.15, random_state=0)
     X = (X - X.mean(0)) / X.std(0); y = y.astype(float)
 
-    cfg = [(0.01, "QUÁ NHỎ (lr=0.01)", C1, "bò rất chậm — 300 epoch vẫn chưa học xong"),
+    cfg = [(0.01, "QUÁ NHỎ (lr=0.01)", C1, "bò rất chậm, 300 epoch vẫn chưa học xong"),
            (1.0, "VỪA (lr=1)", C3, "giảm nhanh, mượt, ổn định"),
            (3.0, "HƠI LỚN (lr=3)", C4, "vẫn xuống được nhưng nảy lên nảy xuống"),
-           (10.0, "QUÁ LỚN (lr=10)", C2, "phân kỳ — loss bắn lên rồi kẹt ở acc 50%")]
+           (10.0, "QUÁ LỚN (lr=10)", C2, "phân kỳ, loss bắn lên rồi kẹt ở acc 50%")]
     fig, axes = plt.subplots(1, 2, figsize=(13.5, 4.6))
     for lr, lab, col, note in cfg:
         net = NPMLP([2, 32, 32, 1], act="relu", seed=0, init="he")
         h, _, _ = net.fit(X, y, lr=lr, epochs=300)
         axes[0].plot(h, color=col, lw=2,
-                     label=f"{lab} — {note}  [acc cuối {net.acc(X, y) * 100:.0f}%]")
+                     label=f"{lab}: {note}  [acc cuối {net.acc(X, y) * 100:.0f}%]")
     axes[0].set_yscale("log")
     axes[0].set_xlabel("epoch"); axes[0].set_ylabel("loss (thang log)")
     lo, hi = axes[0].get_ylim()
     axes[0].set_ylim(lo, hi * 60)             # chừa dải trống phía trên cho legend
-    axes[0].legend(fontsize=8.2, loc="upper center", framealpha=.95)
-    axes[0].set_title("Cùng mạng (2–32–32–1, ReLU, He init), cùng khởi tạo,\nchỉ khác learning rate",
-                      fontsize=10.5)
+    axes[0].legend(fontsize=8.2, loc="upper center", framealpha=.95,
+                   title="mạng 2-32-32-1, ReLU, He init, cùng bộ trọng số ban đầu",
+                   title_fontsize=8.2)
+    axes[0].set_title("(a) Cùng một mạng, chỉ khác learning rate", fontsize=10.5)
 
     # minh hoạ trên mặt cắt 1 chiều
     ax = axes[1]
@@ -589,13 +605,16 @@ def fig_learning_rate():
             p.append(p[-1] - lr * 2 * p[-1])
         p = np.array(p)
         ax.plot(p, p ** 2, "o-", color=col, ms=5, lw=1.5, label=lab, alpha=.9)
-    ax.set_ylim(-.5, 14.5)                    # chừa dải trống phía trên cho legend
+    ax.set_ylim(-.5, 18.5)                    # chừa dải trống phía trên cho legend và chú thích
     ax.legend(fontsize=8.5, loc="upper left", framealpha=.95)
     ax.set_xlabel("tham số $w$"); ax.set_ylabel("$L(w)=w^2$")
-    ax.set_title(r"Vì sao: bước cập nhật là $w \leftarrow w - \eta\,\nabla L$" "\n"
-                 r"$\eta$ quá lớn → vượt qua đáy sang bờ bên kia, còn cao hơn chỗ cũ",
+    ax.set_title(r"(b) Bước cập nhật $w \leftarrow w - \eta\,\nabla L$ trên $L(w)=w^2$",
                  fontsize=10.5)
-    fig.suptitle("Learning rate là siêu tham số QUAN TRỌNG NHẤT của huấn luyện",
+    ax.text(.04, .74, r"$\eta$ quá lớn thì bước nhảy vượt qua đáy sang" "\n"
+            "bờ bên kia, điểm mới còn cao hơn chỗ cũ.",
+            transform=ax.transAxes, fontsize=8.5, va="top", color="0.2",
+            bbox=dict(fc="white", ec="0.75", alpha=.92, boxstyle="round,pad=0.28"))
+    fig.suptitle("Ảnh hưởng của learning rate tới huấn luyện",
                  fontweight="bold", fontsize=12)
     fig.tight_layout()
     save(fig, "08_learning_rate.png")
@@ -633,7 +652,7 @@ def fig_overfitting_dropout():
             bbox=dict(fc="white", ec="none", alpha=.85, boxstyle="round,pad=0.25"))
     ax.set_xlabel("epoch"); ax.set_ylabel("binary cross-entropy")
     ax.legend(fontsize=9, loc="center right")
-    ax.set_title("Dấu hiệu overfitting kinh điển: hai đường TÁCH NHAU", fontsize=10.5)
+    ax.set_title("(a) Train loss và validation loss theo epoch", fontsize=10.5)
 
     # sơ đồ dropout
     ax = fig.add_subplot(1, 2, 2)
@@ -664,7 +683,7 @@ def fig_overfitting_dropout():
                             color=C2, lw=2.2, zorder=4)
         ax.text(x0 + 1.5, 5.0, title, ha="center", fontsize=10, fontweight="bold")
     ax.text(5.0, -3.9,
-            "Lúc INFERENCE phải bật lại toàn bộ neuron — nhưng khi đó tổng đầu vào của mỗi neuron\n"
+            "Lúc INFERENCE phải bật lại toàn bộ neuron, nhưng khi đó tổng đầu vào của mỗi neuron\n"
             r"lớn gấp $1/(1-p)$ lần so với lúc train, nên phải bù lại. PyTorch dùng 'inverted dropout':"
             "\n"
             r"lúc train đã chia sẵn cho $(1-p)$, lúc eval không làm gì $\Rightarrow$ BẮT BUỘC gọi "
@@ -675,7 +694,7 @@ def fig_overfitting_dropout():
                      "phụ thuộc vào riêng một neuron nào\n(giống như huấn luyện một 'ensemble' "
                      "khổng lồ các mạng con rồi lấy trung bình)",
             ha="center", va="center", fontsize=9.5, color="0.25")
-    fig.suptitle("Overfitting và hai liều thuốc: EARLY STOPPING và DROPOUT",
+    fig.suptitle("Overfitting, early stopping và dropout",
                  fontweight="bold", fontsize=12)
     fig.tight_layout()
     save(fig, "09_overfitting_dropout.png")
@@ -708,10 +727,12 @@ def fig_weight_init():
             ax.grid(False)
         axes[r, L - 1].text(1.06, .5, note, transform=axes[r, L - 1].transAxes,
                             fontsize=8.5, va="center", color=col)
-    fig.suptitle("Phân phối ACTIVATION qua 6 tầng tanh (500 nút/tầng) — chỉ khác nhau ở cách KHỞI TẠO\n"
-                 r"Xavier: $\mathrm{Var}(W)=1/n_{in}$ cho tanh/sigmoid;  "
-                 r"He: $\mathrm{Var}(W)=2/n_{in}$ cho ReLU (bù lại việc ReLU giết một nửa tín hiệu)",
+    fig.suptitle("Phân phối activation qua 6 tầng tanh, 500 nút mỗi tầng",
                  fontweight="bold", fontsize=11.5)
+    fig.text(.44, -.02, "Ba hàng chạy trên cùng dữ liệu và cùng kiến trúc, chỉ khác nhau ở cách KHỞI TẠO trọng số.\n"
+             r"Xavier: $\mathrm{Var}(W)=1/n_{in}$ cho tanh/sigmoid;  "
+             r"He: $\mathrm{Var}(W)=2/n_{in}$ cho ReLU (bù lại việc ReLU giết một nửa tín hiệu).",
+             ha="center", va="top", fontsize=10, color="0.25")
     fig.tight_layout(rect=[0, 0, .88, 1])
     save(fig, "10_khoi_tao_trong_so.png")
 

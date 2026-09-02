@@ -61,7 +61,7 @@ def anim_lloyd():
     inert = [s[3] for s in states if s[3] is not None]
     a2.set_xlim(0, len(inert) + 1); a2.set_ylim(0, max(inert) * 1.15)
     a2.set_xlabel("nửa bước"); a2.set_ylabel("inertia")
-    a2.set_title("Inertia giảm sau mỗi nửa bước", fontsize=10.5)
+    a2.set_title("Inertia theo từng nửa bước", fontsize=10.5)
     iline, = a2.plot([], [], "o-", color=C4, lw=2.0, ms=4.5)
     itxt = a2.text(.97, .95, "", transform=a2.transAxes, ha="right", va="top",
                    fontsize=9.5, bbox=BOX)
