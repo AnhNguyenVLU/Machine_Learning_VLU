@@ -1,0 +1,476 @@
+"""
+Sinh toàn bộ hình minh hoạ cho Lab 03 - Naive Bayes.
+
+Chạy:  python figures.py
+Kết quả: các file .png trong cùng thư mục, được nhúng vào notebook bằng markdown.
+"""
+import os
+import numpy as np
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
+
+OUT = os.path.dirname(os.path.abspath(__file__))
+plt.rcParams.update({
+    "figure.dpi": 110, "savefig.dpi": 110, "savefig.bbox": "tight",
+    "font.size": 10, "axes.grid": True, "grid.alpha": 0.25,
+    "axes.spines.top": False, "axes.spines.right": False,
+    "figure.facecolor": "white", "axes.facecolor": "white",
+})
+C1, C2, C3, C4 = "#2563eb", "#dc2626", "#059669", "#d97706"
+
+
+def save(fig, name):
+    fig.savefig(os.path.join(OUT, name)); plt.close(fig); print("wrote", name)
+
+
+# ---------------------------------------------------------------- 1
+def fig_bayes_theorem():
+    """Nghịch lý xét nghiệm: minh hoạ bằng tần suất tự nhiên trên 10.000 người."""
+    N, prev, sens, spec = 10000, 0.01, 0.99, 0.95
+    sick = int(N * prev)                       # 100
+    tp = int(sick * sens)                      # 99
+    fn = sick - tp                             # 1
+    healthy = N - sick                         # 9900
+    fp = int(healthy * (1 - spec))             # 495
+    tn = healthy - fp
+
+    fig = plt.figure(figsize=(14, 4.6))
+
+    # (a) lưới 100x100 người
+    ax = fig.add_subplot(1, 3, 1)
+    grid = np.zeros((100, 100))
+    flat = grid.ravel()
+    flat[:tp] = 3; flat[tp:tp + fn] = 2; flat[tp + fn:tp + fn + fp] = 1
+    rng = np.random.default_rng(0)
+    idx = np.arange(N); rng.shuffle(idx)
+    img = np.zeros(N); img[idx] = flat
+    ax.imshow(img.reshape(100, 100), cmap=matplotlib.colors.ListedColormap(
+        ["#e5e7eb", "#fca5a5", "#fde68a", "#dc2626"]), interpolation="nearest")
+    ax.set_xticks([]); ax.set_yticks([]); ax.grid(False)
+    ax.set_title("10.000 người đi xét nghiệm", fontsize=10)
+    handles = [Rectangle((0, 0), 1, 1, color=c) for c in ["#e5e7eb", "#fca5a5", "#fde68a", "#dc2626"]]
+    ax.legend(handles, [f"khoẻ, âm tính ({tn})", f"khoẻ, DƯƠNG TÍNH GIẢ ({fp})",
+                        f"bệnh, âm tính giả ({fn})", f"bệnh, dương tính đúng ({tp})"],
+              fontsize=7.2, loc="upper center", bbox_to_anchor=(.5, -.02), ncol=2)
+
+    # (b) cột: ai thực sự dương tính
+    ax = fig.add_subplot(1, 3, 2)
+    ax.bar(["Dương tính giả\n(khoẻ)", "Dương tính đúng\n(bệnh)"], [fp, tp],
+           color=["#fca5a5", "#dc2626"])
+    ax.set_ylabel("số người")
+    ax.set_title(f"Trong {fp + tp} người có kết quả DƯƠNG TÍNH…", fontsize=10)
+    for i, v in enumerate([fp, tp]):
+        ax.text(i, v + 12, str(v), ha="center", fontweight="bold")
+    ax.text(.5, fp * .62, f"chỉ {tp/(tp+fp)*100:.1f}% thật sự có bệnh!",
+            ha="center", fontsize=11, color=C2, fontweight="bold")
+    ax.set_ylim(0, fp * 1.25)
+
+    # (c) công thức
+    ax = fig.add_subplot(1, 3, 3); ax.axis("off")
+    ax.text(0, .97, "Định lý Bayes làm rõ nghịch lý", fontsize=11.5, fontweight="bold", va="top")
+    ax.text(0, .80,
+            "$P(\\mathrm{bệnh}\\,|\\,+)=\\dfrac{P(+\\,|\\,\\mathrm{bệnh})\;P(\\mathrm{bệnh})}"
+            "{P(+)}$", fontsize=15, va="top")
+    ax.text(0, .58,
+            "$=\\dfrac{0.99 \\times 0.01}"
+            "{0.99\\times 0.01 + 0.05\\times 0.99} = 0.167$", fontsize=13, va="top")
+    ax.text(0, .36,
+            "Xét nghiệm chính xác 99% NHƯNG bệnh chỉ\n"
+            "gặp ở 1% dân số → prior $P(\\mathrm{bệnh})$ quá nhỏ\n"
+            "khiến posterior vẫn thấp.\n\n"
+            "Đây chính là lý do Naive Bayes LUÔN nhân\n"
+            "likelihood với PRIOR — bỏ prior đi là sai\n"
+            "hoàn toàn ở các bài mất cân bằng.",
+            fontsize=9.3, va="top", color="#374151")
+    fig.suptitle("Định lý Bayes: prior × likelihood → posterior", fontweight="bold")
+    fig.tight_layout()
+    save(fig, "01_dinh_ly_bayes.png")
+
+
+# ---------------------------------------------------------------- 2
+def fig_naive_assumption():
+    rng = np.random.default_rng(3)
+    n = 800
+    # feature tương quan mạnh
+    m = rng.multivariate_normal([0, 0], [[1, .88], [.88, 1]], n)
+    fig, axes = plt.subplots(1, 3, figsize=(14.5, 4.1))
+
+    ax = axes[0]
+    ax.scatter(m[:, 0], m[:, 1], s=9, alpha=.35, color=C1)
+    ax.set_title("Phân phối THẬT $P(x_1,x_2\\,|\\,y)$\n(hai feature tương quan $\\rho=0.88$)",
+                 fontsize=10)
+    ax.set_xlabel("$x_1$"); ax.set_ylabel("$x_2$"); ax.set_aspect("equal")
+    ax.set_xlim(-3.6, 3.6); ax.set_ylim(-3.6, 3.6)
+
+    ax = axes[1]
+    fake = np.c_[m[:, 0], rng.permutation(m[:, 1])]     # phá tương quan = giả định naive
+    ax.scatter(fake[:, 0], fake[:, 1], s=9, alpha=.35, color=C2)
+    ax.set_title("Naive Bayes NGHĨ phân phối là\n$P(x_1|y)\\cdot P(x_2|y)$ (đã mất tương quan)",
+                 fontsize=10)
+    ax.set_xlabel("$x_1$"); ax.set_ylabel("$x_2$"); ax.set_aspect("equal")
+    ax.set_xlim(-3.6, 3.6); ax.set_ylim(-3.6, 3.6)
+
+    ax = axes[2]; ax.axis("off")
+    ax.text(0, .98, "Giả định naive đánh đổi cái gì?", fontsize=11.5, fontweight="bold", va="top")
+    ax.text(0, .84, "$P(x_1,\\dots,x_n\\,|\\,y)=\\prod_{i=1}^{n} P(x_i\\,|\\,y)$",
+            fontsize=13.5, va="top")
+    ax.text(0, .66,
+            "MẤT: toàn bộ thông tin về tương quan\ngiữa các feature (hình giữa méo hẳn\nso với hình trái).\n\n"
+            "ĐƯỢC: số tham số phải ước lượng giảm\ntừ hàm MŨ xuống hàm TUYẾN TÍNH.",
+            fontsize=9.5, va="top", color="#374151")
+    ax.text(0, .30, "Với $n$ feature nhị phân, mỗi lớp cần:", fontsize=9.5, va="top",
+            fontweight="bold")
+    ax.text(0, .22, "• Phân phối liên kết đầy đủ: $2^n - 1$ tham số\n"
+                    "   → $n=30$ cần hơn 1 TỶ tham số\n"
+                    "• Naive Bayes: chỉ $n$ tham số\n"
+                    "   → $n=30$ cần đúng 30",
+            fontsize=9.5, va="top", color="#374151")
+    ax.text(0, .02, "Sai giả định nhưng vẫn dùng được, vì phân loại\nchỉ cần argmax đúng — "
+                    "chứ không cần xác suất đúng.",
+            fontsize=9.3, va="bottom", color=C2, style="italic")
+    fig.suptitle("Vì sao gọi là \"NAIVE\": đánh đổi độ chính xác của xác suất lấy sự đơn giản",
+                 fontweight="bold")
+    fig.tight_layout()
+    save(fig, "02_gia_dinh_naive.png")
+
+
+# ---------------------------------------------------------------- 3
+def fig_three_variants():
+    fig, axes = plt.subplots(1, 3, figsize=(14.5, 3.9))
+
+    ax = axes[0]
+    w = .34
+    ax.bar([1 - w/2, 2 - w/2], [.25, .75], width=w, color=C1, label="lớp spam")
+    ax.bar([1 + w/2, 2 + w/2], [.80, .20], width=w, color=C3, label="lớp ham")
+    ax.set_xticks([1, 2]); ax.set_xticklabels(["$x_i=0$\n(không có từ)", "$x_i=1$\n(có từ)"])
+    ax.set_ylabel("$P(x_i\\,|\\,y)$"); ax.legend(fontsize=8.5)
+    ax.set_title("BernoulliNB — feature NHỊ PHÂN\n"
+                 "$P(x_i|y)=p^{x_i}(1-p)^{1-x_i}$", fontsize=10)
+    ax.text(.55, .93, "Chú ý: việc từ KHÔNG xuất hiện\ncũng là bằng chứng",
+            fontsize=8.2, color="dimgray")
+
+    ax = axes[1]
+    from math import factorial
+    k = np.arange(0, 9)
+    for lam, col, lbl in [(1.2, C1, "lớp spam"), (3.4, C3, "lớp ham")]:
+        pk = np.exp(-lam) * lam ** k / np.array([factorial(int(i)) for i in k])
+        ax.bar(k + (.18 if col == C3 else -.18), pk, width=.36, color=col, label=lbl)
+    ax.set_xlabel("$x_i$ = số lần từ xuất hiện"); ax.set_ylabel("$P(x_i\\,|\\,y)$")
+    ax.legend(fontsize=8.5)
+    ax.set_title("MultinomialNB — feature ĐẾM\n"
+                 "$P(x|y)\\propto\\prod_i p_{i,y}^{x_i}$", fontsize=10)
+    ax.text(3.2, .27, "Chỉ đếm từ CÓ mặt;\ntừ vắng mặt không đóng góp",
+            fontsize=8.2, color="dimgray")
+
+    ax = axes[2]
+    xs = np.linspace(-4, 9, 500)
+    for mu, sd, col, lbl in [(1.0, 1.0, C1, "lớp spam: $\\mu$=1.0, $\\sigma$=1.0"),
+                             (4.5, 1.6, C3, "lớp ham: $\\mu$=4.5, $\\sigma$=1.6")]:
+        pdf = np.exp(-(xs - mu) ** 2 / (2 * sd ** 2)) / (sd * np.sqrt(2 * np.pi))
+        ax.plot(xs, pdf, color=col, lw=2.3, label=lbl); ax.fill_between(xs, pdf, alpha=.2, color=col)
+    ax.set_xlabel("$x_i$ (giá trị liên tục)"); ax.set_ylabel("mật độ $P(x_i\\,|\\,y)$")
+    ax.legend(fontsize=8.2)
+    ax.set_title("GaussianNB — feature LIÊN TỤC\n"
+                 "mỗi (feature, lớp) học riêng $\\mu$ và $\\sigma$", fontsize=10)
+    fig.suptitle("Ba biến thể Naive Bayes chỉ khác nhau ở cách mô hình hoá $P(x_i\\,|\\,y)$",
+                 fontweight="bold")
+    fig.tight_layout()
+    save(fig, "03_ba_bien_the.png")
+
+
+# ---------------------------------------------------------------- 4
+def fig_gaussian_nb_boundary():
+    from sklearn.naive_bayes import GaussianNB
+    from sklearn.discriminant_analysis import (LinearDiscriminantAnalysis,
+                                               QuadraticDiscriminantAnalysis)
+    rng = np.random.default_rng(1)
+    n = 220
+    A = rng.multivariate_normal([-1.1, -0.4], [[1.0, .75], [.75, 1.0]], n)
+    B = rng.multivariate_normal([1.6, 1.2], [[1.6, -.9], [-.9, 1.0]], n)
+    X = np.vstack([A, B]); y = np.r_[np.zeros(n), np.ones(n)]
+    xx, yy = np.meshgrid(np.linspace(-5, 6, 320), np.linspace(-4.5, 5.5, 320))
+    grid = np.c_[xx.ravel(), yy.ravel()]
+
+    fig, axes = plt.subplots(1, 3, figsize=(14.5, 4.3))
+    for ax, (mdl, ttl) in zip(axes, [
+            (GaussianNB(), "GaussianNB\n(giả định 2 feature độc lập → ellipse SONG SONG TRỤC)"),
+            (QuadraticDiscriminantAnalysis(), "QDA\n(cho phép hiệp phương sai đầy đủ, mỗi lớp riêng)"),
+            (LinearDiscriminantAnalysis(), "LDA\n(hiệp phương sai chung → ranh giới THẲNG)")]):
+        m = mdl.fit(X, y)
+        Z = m.predict_proba(grid)[:, 1].reshape(xx.shape)
+        ax.contourf(xx, yy, Z, levels=np.linspace(0, 1, 21), cmap="RdBu_r", alpha=.65)
+        ax.contour(xx, yy, Z, levels=[.5], colors="k", linewidths=2.2)
+        ax.scatter(A[:, 0], A[:, 1], s=11, color="#1e3a8a", alpha=.7)
+        ax.scatter(B[:, 0], B[:, 1], s=11, color="#7f1d1d", alpha=.7, marker="s")
+        ax.set_title(f"{ttl}\nacc = {m.score(X, y)*100:.1f}%", fontsize=9.3)
+        ax.set_xlabel("$x_1$"); ax.set_ylabel("$x_2$")
+    fig.suptitle("Ranh giới của Gaussian NB là đường CONG bậc hai — nhưng bị ép \"vuông góc\" "
+                 "vì giả định độc lập", fontweight="bold")
+    fig.tight_layout()
+    save(fig, "04_gaussian_nb_bien_quyet_dinh.png")
+
+
+# ---------------------------------------------------------------- 5
+def fig_laplace_smoothing():
+    counts = np.array([12, 7, 3, 0, 0, 1])
+    words = ["good", "great", "love", "sublime", "zesty", "nice"]
+    alphas = [0.0, 0.01, 1.0, 100.0]
+    V = len(words)
+
+    fig, axes = plt.subplots(1, 3, figsize=(14.5, 4))
+    ax = axes[0]
+    w = .2
+    for j, a in enumerate(alphas):
+        p = (counts + a) / (counts.sum() + a * V)
+        ax.bar(np.arange(V) + (j - 1.5) * w, p, width=w, label=f"$\\alpha$ = {a}")
+    ax.set_xticks(range(V)); ax.set_xticklabels(words, rotation=25, ha="right")
+    ax.set_ylabel("$P(\\mathrm{từ}\\,|\\,\\mathrm{lớp\\ positive})$"); ax.legend(fontsize=8)
+    ax.set_title("$\\alpha$=0: hai từ có xác suất = 0\n"
+                 "→ một từ lạ đủ giết cả tích", fontsize=10)
+    ax.annotate("$P=0$ !", (3, 0), xytext=(3.1, .18), color=C2, fontsize=10,
+                arrowprops=dict(arrowstyle="->", color=C2))
+
+    ax = axes[1]
+    ags = np.geomspace(1e-3, 1e3, 200)
+    for i, c in enumerate(counts):
+        ax.plot(ags, (c + ags) / (counts.sum() + ags * V), lw=1.9,
+                label=f"{words[i]} (đếm={c})")
+    ax.axhline(1 / V, color="k", ls="--", lw=1.4)
+    ax.text(1.5e-3, 1 / V * 1.08, "$1/V$ — phân phối đều", fontsize=8.3)
+    ax.set_xscale("log"); ax.set_xlabel(r"$\alpha$"); ax.set_ylabel("xác suất ước lượng")
+    ax.legend(fontsize=7, ncol=2)
+    ax.set_title("$\\alpha$ càng lớn, mọi từ càng bị kéo\nvề phân phối ĐỀU (quên dữ liệu)",
+                 fontsize=10)
+
+    ax = axes[2]; ax.axis("off")
+    ax.text(0, .97, "Laplace / Lidstone smoothing", fontsize=11.5, fontweight="bold", va="top")
+    ax.text(0, .82, r"$\hat{P}(x_i \mid y)=\dfrac{N_{i,y}+\alpha}{N_y + \alpha V}$",
+            fontsize=15, va="top")
+    ax.text(0, .60,
+            "$N_{i,y}$: số lần từ $i$ xuất hiện trong lớp $y$\n"
+            "$N_y$: tổng số từ của lớp $y$\n"
+            "$V$: kích thước từ điển\n"
+            "$\\alpha$: lượng \"đếm ảo\" cộng thêm",
+            fontsize=9.4, va="top", color="#374151")
+    ax.text(0, .32, "• $\\alpha=1$: Laplace (add-one) — mặc định sklearn\n"
+                    "• $0<\\alpha<1$: Lidstone — thường tốt hơn cho text\n"
+                    "• $\\alpha\\to\\infty$: mọi từ như nhau → model vô dụng\n"
+                    "• $\\alpha=0$: một từ chưa từng thấy → $P=0$ → sập",
+            fontsize=9.4, va="top", color="#374151")
+    ax.text(0, .04, "Cách đọc theo Bayes: $\\alpha$ chính là prior Dirichlet\ntrên phân phối từ.",
+            fontsize=9.2, va="bottom", style="italic", color=C1)
+    fig.suptitle("Laplace smoothing chữa bài toán \"xác suất bằng 0\"", fontweight="bold")
+    fig.tight_layout()
+    save(fig, "05_laplace_smoothing.png")
+
+
+# ---------------------------------------------------------------- 6
+def fig_log_probabilities():
+    rng = np.random.default_rng(0)
+    p = rng.uniform(.001, .05, 400)
+    prod = np.cumprod(p)
+    logsum = np.cumsum(np.log(p))
+
+    fig, axes = plt.subplots(1, 2, figsize=(12, 3.9))
+    ax = axes[0]
+    ax.plot(prod, color=C2, lw=2.2)
+    ax.axhline(np.finfo(float).tiny, color="k", ls="--", lw=1.4)
+    ax.text(120, np.finfo(float).tiny * 3, "giới hạn dưới của float64 ($\\approx 2.2\\times10^{-308}$)",
+            fontsize=8.4)
+    z = np.argmax(prod == 0) if (prod == 0).any() else len(prod)
+    ax.axvline(z, color=C2, ls=":", lw=1.8)
+    ax.text(z + 6, 1e-150, f"về ĐÚNG 0 sau {z} từ\n→ mọi lớp đều bằng 0\n→ không so sánh được",
+            color=C2, fontsize=8.6)
+    ax.set_yscale("log"); ax.set_ylim(1e-320, 1)
+    ax.set_xlabel("số từ đã nhân"); ax.set_ylabel(r"$\prod P(x_i|y)$")
+    ax.set_title("Nhân trực tiếp: TRÀN SỐ DƯỚI (underflow)", fontsize=10)
+
+    ax = axes[1]
+    ax.plot(logsum, color=C3, lw=2.2)
+    ax.set_xlabel("số từ đã cộng"); ax.set_ylabel(r"$\sum \log P(x_i|y)$")
+    ax.set_title("Cộng log: tuyến tính, an toàn tuyệt đối", fontsize=10)
+    ax.text(20, logsum[-1] * .35,
+            "$\\arg\\max$ không đổi vì $\\log$ đơn điệu tăng:\n"
+            "$\\arg\\max_y \\prod_i P = \\arg\\max_y \\sum_i \\log P$",
+            fontsize=9, color="#374151")
+    fig.suptitle("Vì sao mọi thư viện Naive Bayes làm việc trên thang LOG", fontweight="bold")
+    fig.tight_layout()
+    save(fig, "06_lam_viec_tren_thang_log.png")
+
+
+# ---------------------------------------------------------------- 7
+def fig_generative_vs_discriminative():
+    from sklearn.naive_bayes import GaussianNB
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.datasets import make_classification
+    from sklearn.model_selection import train_test_split
+
+    X, y = make_classification(n_samples=4000, n_features=20, n_informative=8,
+                               n_redundant=2, random_state=0)
+    Xtr, Xte, ytr, yte = train_test_split(X, y, test_size=.4, random_state=0, stratify=y)
+    sizes = [10, 20, 40, 80, 160, 320, 640, 1280, 2400]
+    rng = np.random.default_rng(0)
+    nb_m, lr_m = [], []
+    for s in sizes:
+        nb_s, lr_s = [], []
+        for rep in range(25):
+            idx = rng.choice(len(Xtr), s, replace=False)
+            if len(np.unique(ytr[idx])) < 2:
+                continue
+            nb_s.append(GaussianNB().fit(Xtr[idx], ytr[idx]).score(Xte, yte))
+            lr_s.append(LogisticRegression(max_iter=3000).fit(Xtr[idx], ytr[idx]).score(Xte, yte))
+        nb_m.append(np.mean(nb_s)); lr_m.append(np.mean(lr_s))
+
+    fig, axes = plt.subplots(1, 2, figsize=(12.5, 4.2))
+    ax = axes[0]
+    ax.plot(sizes, nb_m, "o-", color=C3, lw=2.2, label="Gaussian NB (sinh mẫu / generative)")
+    ax.plot(sizes, lr_m, "s-", color=C1, lw=2.2, label="Logistic Regression (phân biệt / discriminative)")
+    ax.set_xscale("log"); ax.set_xlabel("số mẫu huấn luyện (log)")
+    ax.set_ylabel("accuracy trên tập test"); ax.legend(fontsize=8.5)
+    ax.set_title("Naive Bayes thắng khi ÍT dữ liệu,\nLogistic thắng khi NHIỀU dữ liệu", fontsize=10)
+    ax.annotate("điểm giao nhau", (sizes[3], (nb_m[3] + lr_m[3]) / 2),
+                xytext=(30, min(nb_m) + .02), fontsize=8.5,
+                arrowprops=dict(arrowstyle="->", color="dimgray"))
+
+    ax = axes[1]; ax.axis("off")
+    rows = [
+        ["", "Sinh mẫu (Generative)", "Phân biệt (Discriminative)"],
+        ["Học cái gì", "$P(x, y)$ — toàn bộ thế giới", "$P(y \\mid x)$ — chỉ ranh giới"],
+        ["Ví dụ", "Naive Bayes, LDA, GMM, HMM", "Logistic Regression, SVM, cây, MLP"],
+        ["Tốc độ train", "Một lượt đếm — cực nhanh", "Phải tối ưu lặp"],
+        ["Ít dữ liệu", "Tốt hơn (bias giúp đỡ)", "Dễ overfit"],
+        ["Nhiều dữ liệu", "Bị chặn bởi giả định sai", "Tốt hơn — bias thấp"],
+        ["Sinh dữ liệu mới", "Có thể", "Không thể"],
+        ["Dữ liệu thiếu", "Xử lý tự nhiên", "Phải điền khuyết trước"],
+    ]
+    t = ax.table(cellText=rows[1:], colLabels=rows[0], loc="center", cellLoc="left")
+    t.auto_set_font_size(False); t.set_fontsize(8.4); t.scale(1, 1.55)
+    for j in range(3):
+        t[0, j].set_facecolor("#e5e7eb"); t[0, j].set_text_props(fontweight="bold")
+    ax.set_title("Hai trường phái mô hình hoá", fontsize=10.5, fontweight="bold")
+    fig.suptitle("Naive Bayes là mô hình SINH MẪU — hệ quả thực tế của điều đó",
+                 fontweight="bold")
+    fig.tight_layout()
+    save(fig, "07_sinh_mau_vs_phan_biet.png")
+
+
+# ---------------------------------------------------------------- 8
+def fig_correlation_hurts():
+    from sklearn.naive_bayes import GaussianNB
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.model_selection import cross_val_score
+    rng = np.random.default_rng(7)
+    n = 600
+    base = rng.normal(size=(n, 2))
+    y = (base[:, 0] + base[:, 1] > 0).astype(int)
+    X0 = base + rng.normal(0, .55, base.shape)
+
+    reps = [1, 2, 4, 8, 16]
+    nb, lr = [], []
+    for r in reps:
+        X = np.hstack([X0] + [X0[:, :1] + rng.normal(0, .02, (n, 1)) for _ in range(r - 1)])
+        nb.append(cross_val_score(GaussianNB(), X, y, cv=5).mean())
+        lr.append(cross_val_score(LogisticRegression(max_iter=2000), X, y, cv=5).mean())
+
+    fig, axes = plt.subplots(1, 2, figsize=(12.5, 4))
+    ax = axes[0]
+    ax.plot(reps, nb, "o-", color=C3, lw=2.2, label="Gaussian NB")
+    ax.plot(reps, lr, "s-", color=C1, lw=2.2, label="Logistic Regression")
+    ax.set_xscale("log", base=2)
+    ax.set_xlabel("số bản SAO của cùng một feature (thông tin không hề tăng)")
+    ax.set_ylabel("accuracy (CV 5-fold)"); ax.legend(fontsize=8.5)
+    ax.set_title("Nhân bản feature → NB tụt, Logistic gần như đứng yên", fontsize=10)
+
+    ax = axes[1]; ax.axis("off")
+    ax.text(0, .97, "Vì sao nhân bản feature lại giết Naive Bayes?", fontsize=11,
+            fontweight="bold", va="top")
+    ax.text(0, .80,
+            "Giả sử $x_1$ được sao thành $x_1, x_1', x_1''$ (giống hệt nhau).\n"
+            "Naive Bayes nhân likelihood ba lần:",
+            fontsize=9.5, va="top", color="#374151")
+    ax.text(0, .60, r"$P(x_1|y)\cdot P(x_1'|y)\cdot P(x_1''|y) = P(x_1|y)^3$",
+            fontsize=13, va="top")
+    ax.text(0, .44,
+            "→ MỘT bằng chứng bị TÍNH BA LẦN.\n"
+            "Model trở nên tự tin thái quá và lệch hẳn\n"
+            "về phía mà $x_1$ ủng hộ.\n\n"
+            "Logistic Regression thì chia đôi/chia ba trọng số\n"
+            "giữa các bản sao → tổng đóng góp không đổi.",
+            fontsize=9.5, va="top", color="#374151")
+    ax.text(0, .06,
+            "THỰC HÀNH: trước khi dùng NB, hãy bỏ bớt feature trùng lặp\n"
+            "(kiểm tra ma trận tương quan). Với text, dùng TF-IDF thay\n"
+            "raw count cũng giảm bớt hiện tượng đếm trùng.",
+            fontsize=9.2, va="bottom", color=C2, style="italic")
+    fig.suptitle("Điểm yếu chí mạng: feature TRÙNG LẶP bị đếm nhiều lần", fontweight="bold")
+    fig.tight_layout()
+    save(fig, "08_tuong_quan_pha_naive_bayes.png")
+
+
+# ---------------------------------------------------------------- 9
+def fig_text_pipeline():
+    docs = ["the course is great", "great teacher great course", "the course is bad"]
+    labels = ["positive", "positive", "negative"]
+    vocab = ["bad", "course", "great", "is", "teacher", "the"]
+    counts = np.array([[0, 1, 1, 1, 0, 1],
+                       [0, 1, 2, 0, 1, 0],
+                       [1, 1, 0, 1, 0, 1]])
+
+    fig, axes = plt.subplots(1, 3, figsize=(14.5, 3.9))
+    ax = axes[0]; ax.axis("off")
+    ax.text(0, .95, "1. Văn bản thô", fontsize=11, fontweight="bold", va="top")
+    for i, (d, l) in enumerate(zip(docs, labels)):
+        col = C3 if l == "positive" else C2
+        ax.text(0, .74 - i * .22, f'doc {i}: "{d}"', fontsize=9.6, va="top")
+        ax.text(0, .66 - i * .22, f"nhãn: {l}", fontsize=9, va="top", color=col)
+    ax.text(0, .06, "CountVectorizer tách từ, hạ chữ thường,\nbỏ stop-words, dựng từ điển.",
+            fontsize=8.8, va="bottom", color="dimgray")
+
+    ax = axes[1]
+    im = ax.imshow(counts, cmap="Blues", aspect="auto")
+    ax.set_xticks(range(len(vocab))); ax.set_xticklabels(vocab, rotation=35, ha="right")
+    ax.set_yticks(range(3)); ax.set_yticklabels([f"doc {i}" for i in range(3)])
+    ax.grid(False)
+    for i in range(3):
+        for j in range(len(vocab)):
+            ax.text(j, i, counts[i, j], ha="center", va="center", fontsize=10,
+                    color="white" if counts[i, j] > 1 else "black")
+    ax.set_title("2. Ma trận Bag-of-Words\n(hàng = văn bản, cột = từ)", fontsize=10)
+
+    ax = axes[2]; ax.axis("off")
+    ax.text(0, .97, "3. Naive Bayes đếm và tính", fontsize=11, fontweight="bold", va="top")
+    ax.text(0, .82, r"$P(y)=\dfrac{\text{số doc lớp } y}{\text{tổng doc}}$"
+                    "\n\n"
+                    r"$P(w \mid y)=\dfrac{\text{đếm}(w, y)+\alpha}{\sum_{w'}\text{đếm}(w',y)+\alpha V}$",
+            fontsize=11.5, va="top")
+    ax.text(0, .48,
+            "Dự đoán doc mới:\n"
+            r"$\hat{y}=\arg\max_y [\log P(y) + \sum_w n_w \log P(w\mid y)]$",
+            fontsize=10.5, va="top")
+    ax.text(0, .22,
+            "Toàn bộ \"huấn luyện\" chỉ là ĐẾM —\n"
+            "một lượt duyệt dữ liệu, không lặp,\n"
+            "không learning rate, không hội tụ.\n"
+            "Đó là lý do NB nhanh hơn mọi model khác\n"
+            "hàng trăm lần.",
+            fontsize=9.3, va="top", color="#374151")
+    ax.text(0, 0, "⚠️ fit_transform CHỈ trên train, transform trên test.",
+            fontsize=9, va="bottom", color=C2, fontweight="bold")
+    fig.suptitle("Đường ống phân loại văn bản với Naive Bayes", fontweight="bold")
+    fig.tight_layout()
+    save(fig, "09_duong_ong_van_ban.png")
+
+
+if __name__ == "__main__":
+    fig_bayes_theorem()
+    fig_naive_assumption()
+    fig_three_variants()
+    fig_gaussian_nb_boundary()
+    fig_laplace_smoothing()
+    fig_log_probabilities()
+    fig_generative_vs_discriminative()
+    fig_correlation_hurts()
+    fig_text_pipeline()
+    print("Xong.")
