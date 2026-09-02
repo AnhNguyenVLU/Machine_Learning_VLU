@@ -206,6 +206,7 @@ def fig_xor_hidden_space():
     dy = [.05, .05, .05, -.16]   # (1,1) trùng chỗ với (0,0) → đẩy nhãn xuống
     for (px, py), (ox, oy), d in zip(H, X, dy):
         ax.text(px + .05, py + d, f"({ox:.0f},{oy:.0f})", fontsize=9)
+    ax.set_xlim(hx[0], hx[-1] + .55)      # chừa chỗ cho nhãn của 2 điểm bên phải
     ax.set_xlabel("$h_1$"); ax.set_ylabel("$h_2$"); ax.grid(False)
     ax.set_title("(b) CÙNG 4 điểm đó, nhìn trong KHÔNG GIAN ẨN $(h_1,h_2)$\n"
                  "hai điểm lớp 0 bị ĐẨY TRÙNG nhau → giờ tách được bằng 1 đường thẳng",
@@ -221,10 +222,11 @@ def fig_xor_hidden_space():
     ax.scatter(X[y == 0, 0], X[y == 0, 1], s=260, color=C1, zorder=5, edgecolor="k")
     ax.scatter(X[y == 1, 0], X[y == 1, 1], s=260, marker="s", color=C2, zorder=5, edgecolor="k")
     ax.set_xlabel("$x_1$"); ax.set_ylabel("$x_2$"); ax.grid(False)
-    ax.text(.03, .03, "vùng xanh (lớp 0) là một DẢI\nkẹp giữa hai đường thẳng —\n"
-            "một perceptron đơn chỉ tạo được\nMỘT nửa mặt phẳng nên không\nbao giờ vẽ nổi dải này",
-            transform=ax.transAxes, fontsize=8.5, color="k",
-            bbox=dict(fc="white", ec="0.6", alpha=.92, boxstyle="round,pad=0.3"))
+    # góc trên-trái là vùng đỏ thuần, không có đường biên đi qua → đặt chú thích ở đó
+    ax.text(.03, .97, "vùng xanh (lớp 0) là một DẢI kẹp\ngiữa hai đường thẳng — perceptron\n"
+            "đơn chỉ tạo được MỘT nửa mặt phẳng\nnên không bao giờ vẽ nổi dải này",
+            transform=ax.transAxes, fontsize=8.5, color="k", va="top",
+            bbox=dict(fc="white", ec="0.6", alpha=.95, boxstyle="round,pad=0.3"))
     ax.set_title("(c) Đường thẳng ở (b) khi kéo ngược về không gian gốc\n"
                  "→ thành một DẢI: (0,0) và (1,1) ở trong, (0,1) và (1,0) ở ngoài", fontsize=9.5)
 
@@ -328,8 +330,9 @@ def fig_activations():
             ax.axvspan(-6, -2.5, color=C2, alpha=.10)
             ax.axvspan(2.5, 6, color=C2, alpha=.10)
     axes[1, 0].annotate("VÙNG BÃO HOÀ:\n$\\phi'\\approx 0$\n→ gradient tắt", xy=(-4.2, .02),
-                        xytext=(-5.8, .55), fontsize=8.5, color=C2,
-                        arrowprops=dict(arrowstyle="->", color=C2))
+                        xytext=(-5.85, .50), fontsize=8.5, color=C2, va="top",
+                        arrowprops=dict(arrowstyle="->", color=C2),
+                        bbox=dict(fc="white", ec="0.75", alpha=.9, boxstyle="round,pad=0.25"))
     fig.suptitle("Hàng trên: hàm kích hoạt.  Hàng dưới: ĐẠO HÀM của nó — thứ thực sự chạy trong backprop\n"
                  "Đạo hàm nhỏ ở đâu thì gradient chết ở đó",
                  fontweight="bold", fontsize=12)
@@ -358,13 +361,16 @@ def fig_vanishing_gradient():
     ax.set_yscale("log")
     ax.set_xlabel("tầng thứ $l$  (1 = gần INPUT nhất, 10 = gần OUTPUT nhất)")
     ax.set_ylabel(r"độ lớn gradient trung bình  $\overline{|\partial L/\partial W^{(l)}|}$  (log)")
-    ax.legend(fontsize=9)
+    lo, hi = ax.get_ylim()
+    ax.set_ylim(lo, hi * 300)                 # chừa dải trống phía trên cho legend
+    ax.legend(fontsize=9, loc="upper right", framealpha=.95)
     ax.set_title("Mạng 10 tầng ẩn — gradient đo ngay sau khi khởi tạo", fontsize=10.5)
     r = res["sigmoid"][0]
     ratio = f"{r[-1] / r[0]:,.0f}".replace(",", ".")
     ax.annotate(f"gradient ở tầng 1 nhỏ hơn tầng 10\nkhoảng {ratio} lần → tầng đầu\ngần như KHÔNG học được gì",
-                xy=(1, r[0]), xytext=(2.2, r[0] * 60), fontsize=9, color=C2,
-                arrowprops=dict(arrowstyle="->", color=C2))
+                xy=(1, r[0]), xytext=(2.15, r[0] * 350), fontsize=9, color=C2,
+                arrowprops=dict(arrowstyle="->", color=C2),
+                bbox=dict(fc="white", ec="0.8", alpha=.92, boxstyle="round,pad=0.3"))
 
     ax = axes[1]
     k = np.arange(1, 13)
@@ -375,7 +381,9 @@ def fig_vanishing_gradient():
     ax.set_yscale("log")
     ax.set_xlabel("số tầng phải đi ngược qua")
     ax.set_ylabel("hệ số nhân tích luỹ (log)")
-    ax.legend(fontsize=8.5)
+    lo, hi = ax.get_ylim()
+    ax.set_ylim(lo, hi * 200)                 # chừa dải trống phía trên cho legend
+    ax.legend(fontsize=8.5, loc="upper left", framealpha=.95)
     ax.set_title(r"Gốc rễ toán học: gradient là TÍCH $\prod_l \phi'(z^{(l)})\,W^{(l)}$"
                  "\nnhân nhiều số < 1 → về 0;  nhân nhiều số > 1 → bùng nổ", fontsize=10.5)
     fig.suptitle("VANISHING GRADIENT: vì sao mạng sâu dùng sigmoid gần như không học được tầng đầu",
@@ -456,8 +464,8 @@ def fig_backprop_graph():
 
     ax.set_xlim(-.4, 12.9); ax.set_ylim(-6.9, 6.4)
     ax.set_title("Backpropagation trên ĐỒ THỊ TÍNH TOÁN\n"
-                 "Backprop KHÔNG phải thuật toán học — nó chỉ là quy tắc chuỗi được sắp xếp "
-                 "để mỗi đạo hàm trung gian chỉ phải tính MỘT lần",
+                 "Backprop KHÔNG phải thuật toán học — nó chỉ là quy tắc chuỗi\n"
+                 "được sắp xếp để mỗi đạo hàm trung gian chỉ phải tính MỘT lần",
                  fontweight="bold", fontsize=13)
     save(fig, "05_backprop_do_thi.png")
 
@@ -481,10 +489,13 @@ def fig_boundary_epochs():
                       f"epoch {e}\nloss={hist[e]:.3f}  acc={tmp.acc(X, y) * 100:.1f}%")
     ax = axes[4]
     ax.plot(hist, color=C1, lw=2)
+    off = {0: (9, 1), 20: (-3, 13), 100: (11, 1), 1000: (-6, 13)}
     for e in snap_at:
         ax.scatter([e], [hist[e]], s=45, color=C2, zorder=5)
         ax.annotate(str(e), (e, hist[e]), textcoords="offset points",
-                    xytext=(6, 8), fontsize=8.5, color=C2)
+                    xytext=off[e], fontsize=8.5, color=C2, zorder=6,
+                    bbox=dict(fc="white", ec="none", alpha=.85, boxstyle="round,pad=0.15"))
+    ax.set_xlim(-len(hist) * .05, len(hist) * 1.10)
     ax.set_xlabel("epoch"); ax.set_ylabel("binary cross-entropy")
     ax.set_title("Đường loss tương ứng", fontsize=9.5)
     fig.suptitle("Ranh giới quyết định tiến hoá theo epoch (MLP 2–16–16–1, tanh, GD full-batch, numpy thuần)\n"
@@ -518,20 +529,21 @@ def fig_hidden_width():
         draw_boundary(ax, net, Xtr, ytr,
                       f"{h} neuron ẩn\ntrain acc={net.acc(Xtr, ytr) * 100:.0f}%  "
                       f"test acc={net.acc(Xte, yte) * 100:.0f}%")
-    axes[0].text(.03, .04, "UNDERFIT\nchỉ vẽ được\n1 đường thẳng", transform=axes[0].transAxes,
-                 fontsize=8.5, color="#7f1d1d", fontweight="bold",
-                 bbox=dict(fc="white", ec=C2, alpha=.9, boxstyle="round,pad=0.25"))
-    axes[3].text(.03, .04, "OVERFIT\nranh giới lượn theo\ntừng điểm nhiễu",
-                 transform=axes[3].transAxes, fontsize=8.5, color="#7f1d1d", fontweight="bold",
-                 bbox=dict(fc="white", ec=C2, alpha=.9, boxstyle="round,pad=0.25"))
+    # đặt nhãn chẩn đoán ngay dưới khung để không đè lên điểm dữ liệu
+    axes[0].set_xlabel("UNDERFIT — chỉ vẽ được 1 đường thẳng",
+                       fontsize=9, color="#7f1d1d", fontweight="bold")
+    axes[3].set_xlabel("OVERFIT — ranh giới lượn theo từng điểm nhiễu",
+                       fontsize=9, color="#7f1d1d", fontweight="bold")
     ax = axes[4]
     ax.plot(allw, tr_l, "o-", color=C1, label="train loss")
     ax.plot(allw, te_l, "s-", color=C2, label="test loss")
     ax.set_xscale("log", base=2)
     ax.set_xlabel("số neuron ẩn (log)"); ax.set_ylabel("cross-entropy")
     ax.axvline(allw[int(np.argmin(te_l))], color=C3, ls="--", lw=1.6)
-    ax.text(allw[int(np.argmin(te_l))] * 1.15, max(te_l) * .92, "điểm ngọt", color=C3, fontsize=9)
-    ax.legend(fontsize=8.5)
+    ax.set_ylim(0, max(te_l) * 1.52)          # chừa dải trống phía trên cho legend
+    ax.text(allw[int(np.argmin(te_l))] * 1.15, max(te_l) * .92, "điểm ngọt", color=C3, fontsize=9,
+            bbox=dict(fc="white", ec="none", alpha=.85, boxstyle="round,pad=0.2"))
+    ax.legend(fontsize=8.5, loc="upper right", framealpha=.95)
     ax.set_title("train loss giảm mãi,\ntest loss giảm rồi TĂNG", fontsize=9.5)
     fig.suptitle("Số neuron ẩn = sức chứa (capacity) của mạng: quá ít → underfit, quá nhiều → overfit\n"
                  "(dữ liệu moons nhiễu mạnh, chỉ 120 điểm train, KHÔNG regularization)",
@@ -558,7 +570,9 @@ def fig_learning_rate():
                      label=f"{lab} — {note}  [acc cuối {net.acc(X, y) * 100:.0f}%]")
     axes[0].set_yscale("log")
     axes[0].set_xlabel("epoch"); axes[0].set_ylabel("loss (thang log)")
-    axes[0].legend(fontsize=8.2)
+    lo, hi = axes[0].get_ylim()
+    axes[0].set_ylim(lo, hi * 60)             # chừa dải trống phía trên cho legend
+    axes[0].legend(fontsize=8.2, loc="upper center", framealpha=.95)
     axes[0].set_title("Cùng mạng (2–32–32–1, ReLU, He init), cùng khởi tạo,\nchỉ khác learning rate",
                       fontsize=10.5)
 
@@ -575,7 +589,8 @@ def fig_learning_rate():
             p.append(p[-1] - lr * 2 * p[-1])
         p = np.array(p)
         ax.plot(p, p ** 2, "o-", color=col, ms=5, lw=1.5, label=lab, alpha=.9)
-    ax.legend(fontsize=8.5)
+    ax.set_ylim(-.5, 14.5)                    # chừa dải trống phía trên cho legend
+    ax.legend(fontsize=8.5, loc="upper left", framealpha=.95)
     ax.set_xlabel("tham số $w$"); ax.set_ylabel("$L(w)=w^2$")
     ax.set_title(r"Vì sao: bước cập nhật là $w \leftarrow w - \eta\,\nabla L$" "\n"
                  r"$\eta$ quá lớn → vượt qua đáy sang bờ bên kia, còn cao hơn chỗ cũ",
@@ -606,14 +621,16 @@ def fig_overfitting_dropout():
     ax.axvline(best, color=C3, ls="--", lw=2)
     ax.scatter([best], [hva[best]], s=90, color=C3, zorder=6)
     ax.annotate(f"EARLY STOPPING\ndừng ở epoch {best}\nval loss nhỏ nhất = {hva[best]:.3f}",
-                xy=(best, hva[best]), xytext=(best + 380, hva[best] - .22),
-                fontsize=9.5, color=C3, fontweight="bold",
+                xy=(best, hva[best]), xytext=(best + 520, hva[best] - .02),
+                fontsize=9.5, color=C3, fontweight="bold", va="center",
                 arrowprops=dict(arrowstyle="->", color=C3),
-                bbox=dict(fc="white", ec=C3, alpha=.9, boxstyle="round,pad=0.3"))
+                bbox=dict(fc="white", ec=C3, alpha=.95, boxstyle="round,pad=0.3"))
     ax.axvspan(best, len(htr), color=C2, alpha=.07)
-    ax.text(best + (len(htr) - best) * .55, max(hva) * .93,
+    ax.set_ylim(0, max(hva) * 1.38)           # chừa dải trống phía trên cho chú thích
+    ax.text(best + (len(htr) - best) * .55, max(hva) * 1.34,
             "VÙNG OVERFIT\ntrain loss vẫn giảm về 0\nnhưng val loss TĂNG đều",
-            ha="center", va="top", fontsize=10, color=C2, fontweight="bold")
+            ha="center", va="top", fontsize=10, color=C2, fontweight="bold",
+            bbox=dict(fc="white", ec="none", alpha=.85, boxstyle="round,pad=0.25"))
     ax.set_xlabel("epoch"); ax.set_ylabel("binary cross-entropy")
     ax.legend(fontsize=9, loc="center right")
     ax.set_title("Dấu hiệu overfitting kinh điển: hai đường TÁCH NHAU", fontsize=10.5)

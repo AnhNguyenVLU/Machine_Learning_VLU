@@ -113,36 +113,47 @@ def fig_why_not_linear():
 # ---------------------------------------------------------------- 2
 def fig_sigmoid():
     z = np.linspace(-8, 8, 600)
-    s = sigmoid(z); ds = s * (1 - s)
-    fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+    sg = sigmoid(z); ds = sg * (1 - sg)
+    BOX = dict(boxstyle="round,pad=0.32", facecolor="white", alpha=.93, edgecolor="0.8")
+    fig, axes = plt.subplots(1, 2, figsize=(12.6, 4.4))
 
     ax = axes[0]
-    ax.plot(z, s, color=C1, lw=2.6, label=r"$\sigma(z)=\dfrac{1}{1+e^{-z}}$")
+    ax.axvspan(-8, -4, color=C2, alpha=.09); ax.axvspan(4, 8, color=C2, alpha=.09)
+    ax.plot(z, sg, color=C1, lw=2.8, zorder=4,
+            label=r"$\sigma(z)=\dfrac{1}{1+e^{-z}}$")
     ax.axhline(.5, color="gray", ls=":", lw=1.2); ax.axvline(0, color="gray", ls=":", lw=1.2)
-    ax.axhline(1, color="k", lw=.8, alpha=.4); ax.axhline(0, color="k", lw=.8, alpha=.4)
-    ax.axvspan(-8, -4, color=C2, alpha=.10); ax.axvspan(4, 8, color=C2, alpha=.10)
-    ax.text(-7.8, .72, "vùng BÃO HOÀ\n$\\sigma'\\approx 0$", color=C2, fontsize=8.5)
-    ax.text(4.2, .28, "vùng BÃO HOÀ\n$\\sigma'\\approx 0$", color=C2, fontsize=8.5)
-    ax.scatter([0], [.5], color=C4, s=70, zorder=5)
-    ax.annotate("$\\sigma(0)=0.5$\n(ngưỡng quyết định mặc định)", (0, .5),
-                xytext=(-7.6, .18), fontsize=8.5,
-                arrowprops=dict(arrowstyle="->", color=C4))
-    ax.set_ylim(-.08, 1.12); ax.set_xlabel("$z = w^Tx+b$ (logit)")
-    ax.set_ylabel("xác suất $\\hat{p}$"); ax.legend(fontsize=10, loc="lower right")
+    ax.axhline(1, color="k", lw=.8, alpha=.35); ax.axhline(0, color="k", lw=.8, alpha=.35)
+    ax.scatter([0], [.5], color=C4, s=80, zorder=6)
+    ax.text(-7.7, .80, "vùng BÃO HOÀ\n$\\sigma\' \\approx 0$", color=C2,
+            fontsize=8.8, va="top", bbox=BOX)
+    ax.text(7.7, .30, "vùng BÃO HOÀ\n$\\sigma\' \\approx 0$", color=C2,
+            fontsize=8.8, va="top", ha="right", bbox=BOX)
+    ax.annotate("$\\sigma(0)=0.5$\nngưỡng quyết định mặc định", xy=(0, .5),
+                xytext=(-7.7, .30), fontsize=8.8, color=C4, va="top",
+                arrowprops=dict(arrowstyle="->", color=C4, lw=1.4), bbox=BOX)
+    ax.set_ylim(-.14, 1.30)
+    ax.set_xlabel("$z = w^Tx+b$  (logit)"); ax.set_ylabel("xác suất $\\hat{p}$")
+    ax.legend(fontsize=10.5, loc="upper left", framealpha=.94)
     ax.set_title("Sigmoid ép mọi số thực về khoảng (0, 1)", fontsize=10.5)
 
     ax = axes[1]
-    ax.plot(z, s, color=C1, lw=1.6, alpha=.5, label=r"$\sigma(z)$")
-    ax.plot(z, ds, color=C2, lw=2.6, label=r"$\sigma'(z)=\sigma(z)\,(1-\sigma(z))$")
+    ax.plot(z, sg, color=C1, lw=1.6, alpha=.45, label=r"$\sigma(z)$")
+    ax.plot(z, ds, color=C2, lw=2.8, label=r"$\sigma'(z)=\sigma(z)\,(1-\sigma(z))$")
     ax.axhline(.25, color=C4, ls="--", lw=1.4)
-    ax.text(-7.8, .262, "đạo hàm cực đại = 0.25 tại z=0", color=C4, fontsize=8.5)
-    ax.annotate("z càng xa 0, gradient càng tắt\n→ gốc rễ của VANISHING GRADIENT\n(gặp lại ở bài MLP)",
-                (5, ds[np.argmin(abs(z - 5))]), xytext=(0.4, .155), fontsize=8.5,
-                arrowprops=dict(arrowstyle="->", color="dimgray"), color="dimgray")
-    ax.set_xlabel("z"); ax.set_ylabel("giá trị"); ax.legend(fontsize=9.5)
-    ax.set_title("Đạo hàm sigmoid — đẹp nhưng dễ tắt", fontsize=10.5)
+    ax.text(-7.7, .335, "đạo hàm cực đại = 0.25, đạt tại z = 0", color=C4,
+            fontsize=8.8, va="center", bbox=BOX)
+    ax.annotate("z càng xa 0 thì gradient càng tắt.\n"
+                "Đây là gốc rễ của VANISHING GRADIENT\n(gặp lại ở Lab 09 - MLP).",
+                xy=(5.0, float(ds[np.argmin(abs(z - 5.0))])),
+                xytext=(1.35, .80), fontsize=8.8, color="#374151", va="top",
+                arrowprops=dict(arrowstyle="->", color="dimgray", lw=1.4), bbox=BOX)
+    ax.set_ylim(-.06, 1.22)
+    ax.set_xlabel("z"); ax.set_ylabel("giá trị")
+    ax.legend(fontsize=9.5, loc="upper left", framealpha=.94)
+    ax.set_title("Đạo hàm sigmoid: đẹp nhưng rất dễ tắt", fontsize=10.5)
+
     fig.suptitle("Hàm sigmoid và đạo hàm của nó", fontweight="bold")
-    fig.tight_layout()
+    fig.tight_layout(rect=[0, 0, 1, .95])
     save(fig, "02_ham_sigmoid.png")
 
 
@@ -157,16 +168,21 @@ def fig_odds_logit():
     ax.axhline(1, color="gray", ls=":"); ax.axvline(.5, color="gray", ls=":")
     ax.set_ylim(0, 10); ax.set_xlabel("xác suất $p$"); ax.set_ylabel("odds $=p/(1-p)$")
     ax.set_title("Odds: $[0,1] \\rightarrow [0,\\infty)$", fontsize=10)
-    ax.text(.06, 8.2, "p = 0.5 → odds = 1 (hoà)\np = 0.9 → odds = 9 (9 ăn 1)", fontsize=8.5,
-            color="dimgray")
+    ax.text(.05, 9.4, "p = 0.5 → odds = 1  (hoà)\np = 0.9 → odds = 9  (9 ăn 1)", fontsize=8.7,
+            color="#374151", va="top",
+            bbox=dict(boxstyle="round,pad=0.32", facecolor="white", alpha=.93,
+                      edgecolor="0.8"))
 
     ax = axes[1]
     ax.plot(p, np.log(odds), color=C3, lw=2.4)
     ax.axhline(0, color="gray", ls=":"); ax.axvline(.5, color="gray", ls=":")
     ax.set_xlabel("xác suất $p$"); ax.set_ylabel("logit $=\\ln\\frac{p}{1-p}$")
+    ax.set_ylim(-7.5, 7.5)
     ax.set_title("Logit: $[0,1] \\rightarrow (-\\infty,\\infty)$\n(hàm ngược của sigmoid)", fontsize=10)
-    ax.text(.05, 4.2, "Logistic Regression thật ra là\nhồi quy TUYẾN TÍNH trên logit:\n"
-                      r"$\ln\frac{p}{1-p} = w^Tx+b$", fontsize=8.8, color="dimgray")
+    ax.text(.50, -2.2, "Logistic Regression thật ra là\nhồi quy TUYẾN TÍNH trên logit:\n"
+            r"$\ln\frac{p}{1-p} = w^Tx+b$", fontsize=8.7, color="#374151", va="top",
+            bbox=dict(boxstyle="round,pad=0.32", facecolor="white", alpha=.93,
+                      edgecolor="0.8"))
 
     ax = axes[2]
     ws = np.array([0.2, 0.5, 1.0, 2.0])
@@ -174,7 +190,8 @@ def fig_odds_logit():
         ax.plot(np.linspace(-8, 8, 400), sigmoid(w * np.linspace(-8, 8, 400)),
                 color=col, lw=2.1, label=f"$\\|w\\|$ = {w}  (OR = $e^w$ = {np.exp(w):.2f})")
     ax.axhline(.5, color="gray", ls=":")
-    ax.set_xlabel("x"); ax.set_ylabel("$\\hat{p}$"); ax.legend(fontsize=8)
+    ax.set_xlabel("x"); ax.set_ylabel("$\\hat{p}$"); ax.legend(fontsize=8, loc="upper left", framealpha=.94)
+    ax.set_ylim(-.06, 1.20)
     ax.set_title("$\\|w\\|$ lớn → đường dốc đứng\n→ model tự tin hơn", fontsize=10)
     fig.suptitle("Odds, logit và ý nghĩa của hệ số: $e^{w_j}$ là ODDS RATIO", fontweight="bold")
     fig.tight_layout()
@@ -224,43 +241,56 @@ def fig_bce_vs_mse():
 def fig_decision_boundary():
     from sklearn.linear_model import LogisticRegression
     from sklearn.datasets import make_classification
-    X, y = make_classification(n_samples=200, n_features=2, n_redundant=0,
-                               n_clusters_per_class=1, class_sep=1.3, random_state=4)
+    X, y = make_classification(n_samples=260, n_features=2, n_redundant=0,
+                               n_clusters_per_class=1, class_sep=1.05,
+                               flip_y=0.02, random_state=4)
     clf = LogisticRegression().fit(X, y)
-    xx, yy = np.meshgrid(np.linspace(X[:, 0].min() - 1, X[:, 0].max() + 1, 300),
-                         np.linspace(X[:, 1].min() - 1, X[:, 1].max() + 1, 300))
+    pad = 1.0
+    xx, yy = np.meshgrid(np.linspace(X[:, 0].min() - pad, X[:, 0].max() + pad, 320),
+                         np.linspace(X[:, 1].min() - pad, X[:, 1].max() + pad, 320))
     P = clf.predict_proba(np.c_[xx.ravel(), yy.ravel()])[:, 1].reshape(xx.shape)
+    BOX = dict(boxstyle="round,pad=0.32", facecolor="white", alpha=.93, edgecolor="0.8")
 
-    fig, axes = plt.subplots(1, 2, figsize=(12.5, 4.6))
+    fig, axes = plt.subplots(1, 2, figsize=(13, 4.9))
     ax = axes[0]
-    cf = ax.contourf(xx, yy, P, levels=np.linspace(0, 1, 21), cmap="RdBu_r", alpha=.75)
-    cs = ax.contour(xx, yy, P, levels=[.1, .25, .5, .75, .9], colors="k",
-                    linewidths=[.8, .8, 2.4, .8, .8])
-    ax.clabel(cs, fmt="%.2f", fontsize=7.5)
-    ax.scatter(X[:, 0], X[:, 1], c=y, cmap="RdBu_r", s=24, edgecolor="k", linewidth=.4)
-    ax.set_title("Ranh giới quyết định là ĐƯỜNG THẲNG $w^Tx+b=0$\n"
-                 "(nơi $\\hat{p}=0.5$); các đường khác là đường đồng mức xác suất", fontsize=10)
-    ax.set_xlabel("$x_1$"); ax.set_ylabel("$x_2$")
-    plt.colorbar(cf, ax=ax, label="$\\hat{p}(y=1\\,|\\,x)$")
-    w = clf.coef_[0]
-    ax.arrow(0, -clf.intercept_[0] / w[1], w[0] * .55, w[1] * .55, width=.06,
-             color="lime", ec="k", zorder=6, length_includes_head=True)
-    ax.text(w[0] * .6, -clf.intercept_[0] / w[1] + w[1] * .62, " $w$", color="k",
-            fontsize=11, fontweight="bold")
+    cf = ax.contourf(xx, yy, P, levels=np.linspace(0, 1, 21), cmap="RdBu_r", alpha=.7)
+    ax.contour(xx, yy, P, levels=[.25, .75], colors="k", linewidths=.9, linestyles=":")
+    ax.contour(xx, yy, P, levels=[.5], colors="k", linewidths=2.6)
+    ax.scatter(X[:, 0], X[:, 1], c=y, cmap="RdBu_r", s=24, edgecolor="k", linewidth=.45)
 
-    # lát cắt theo hướng w
+    # vector w vẽ ở góc trống, không đè lên dữ liệu
+    w = clf.coef_[0]; wn = w / np.linalg.norm(w)
+    x0 = np.array([xx.min() + 1.15, yy.max() - 1.25])
+    ax.arrow(x0[0], x0[1], wn[0] * 1.15, wn[1] * 1.15, width=.055,
+             color="#16a34a", ec="k", lw=.5, zorder=7, length_includes_head=True)
+    ax.text(x0[0] + wn[0] * 1.15 + .12, x0[1] + wn[1] * 1.15,
+            "$w$ vuông góc với ranh giới\nvà trỏ về phía lớp 1", fontsize=8.6,
+            color="#166534", va="center", zorder=8, bbox=BOX)
+    ax.text(.03, .04, "nét liền đậm: $\\hat{p}=0.5$ (ranh giới)\n"
+                      "nét chấm: $\\hat{p}=0.25$ và $0.75$",
+            transform=ax.transAxes, fontsize=8.4, va="bottom", bbox=BOX)
+    ax.set_xlabel("$x_1$"); ax.set_ylabel("$x_2$")
+    ax.set_title("Ranh giới quyết định LUÔN là đường thẳng $w^Tx+b=0$\n"
+                 "các đường quanh nó là đường đồng mức xác suất", fontsize=10)
+    plt.colorbar(cf, ax=ax, label="$\\hat{p}(y=1\\,|\\,x)$")
+
     t = (X @ w + clf.intercept_[0]) / np.linalg.norm(w)
     ts = np.linspace(t.min() - .6, t.max() + .6, 400)
     ax = axes[1]
-    ax.plot(ts, sigmoid(np.linalg.norm(w) * ts), color=C1, lw=2.6)
-    ax.scatter(t, y, c=y, cmap="RdBu_r", s=26, edgecolor="k", linewidth=.4, zorder=4)
-    ax.axhline(.5, color="gray", ls=":"); ax.axvline(0, color="k", ls="--", lw=1.6)
-    ax.text(.1, .06, "ranh giới\nquyết định", fontsize=8.5)
-    ax.set_xlabel("khoảng cách có dấu tới ranh giới")
-    ax.set_ylabel("$\\hat{p}$"); ax.set_ylim(-.12, 1.12)
-    ax.set_title("Chiếu dữ liệu lên hướng $w$:\nbài toán trở về đúng đường sigmoid 1 chiều", fontsize=10)
+    ax.plot(ts, sigmoid(np.linalg.norm(w) * ts), color=C1, lw=2.8, zorder=3)
+    jitter = np.random.default_rng(0).uniform(-.035, .035, len(t))
+    ax.scatter(t, y + jitter, c=y, cmap="RdBu_r", s=26, edgecolor="k",
+               linewidth=.4, zorder=4, alpha=.85)
+    ax.axhline(.5, color="gray", ls=":", lw=1.2)
+    ax.axvline(0, color="k", ls="--", lw=1.8)
+    ax.text(1.35, .34, "ranh giới\nquyết định", fontsize=8.6, va="center", bbox=BOX)
+    ax.set_ylim(-.22, 1.22)
+    ax.set_xlabel("khoảng cách CÓ DẤU tới ranh giới")
+    ax.set_ylabel("$\\hat{p}$")
+    ax.set_title("Chiếu dữ liệu lên hướng $w$: bài toán thu về\n"
+                 "đúng một đường sigmoid 1 chiều", fontsize=10)
     fig.suptitle("Hình học của Logistic Regression", fontweight="bold")
-    fig.tight_layout()
+    fig.tight_layout(rect=[0, 0, 1, .95])
     save(fig, "05_bien_quyet_dinh.png")
 
 
@@ -310,25 +340,35 @@ def fig_regularization_C():
 def fig_polynomial_logistic():
     from sklearn.linear_model import LogisticRegression
     from sklearn.datasets import make_moons
+    from sklearn.model_selection import train_test_split
     from sklearn.pipeline import make_pipeline
     from sklearn.preprocessing import PolynomialFeatures, StandardScaler
-    X, y = make_moons(n_samples=250, noise=.22, random_state=42)
-    xx, yy = np.meshgrid(np.linspace(-2, 3, 300), np.linspace(-1.6, 2, 300))
-    fig, axes = plt.subplots(1, 4, figsize=(16.5, 3.9))
-    for ax, d in zip(axes, [1, 2, 3, 12]):
+
+    X, y = make_moons(n_samples=400, noise=.30, random_state=42)
+    Xtr, Xte, ytr, yte = train_test_split(X, y, test_size=.5, random_state=0, stratify=y)
+    xx, yy = np.meshgrid(np.linspace(-2.2, 3.2, 300), np.linspace(-1.8, 2.2, 300))
+    BOX = dict(boxstyle="round,pad=0.3", facecolor="white", alpha=.93, edgecolor="0.8")
+
+    fig, axes = plt.subplots(1, 4, figsize=(16.5, 4.2))
+    for ax, d in zip(axes, [1, 3, 6, 20]):
         m = make_pipeline(PolynomialFeatures(d), StandardScaler(),
-                          LogisticRegression(max_iter=5000)).fit(X, y)
+                          LogisticRegression(C=1e6, max_iter=20000)).fit(Xtr, ytr)
         P = m.predict_proba(np.c_[xx.ravel(), yy.ravel()])[:, 1].reshape(xx.shape)
-        ax.contourf(xx, yy, P, levels=np.linspace(0, 1, 21), cmap="RdBu_r", alpha=.75)
-        ax.contour(xx, yy, P, levels=[.5], colors="k", linewidths=2)
-        ax.scatter(X[:, 0], X[:, 1], c=y, cmap="RdBu_r", s=20, edgecolor="k", linewidth=.4)
-        note = {1: "thẳng — underfit", 2: "cong nhẹ", 3: "vừa đẹp",
-                12: "uốn éo — overfit"}[d]
-        ax.set_title(f"degree = {d}  ({note})\ntrain acc = {m.score(X, y)*100:.1f}%", fontsize=10)
+        ax.contourf(xx, yy, P, levels=np.linspace(0, 1, 21), cmap="RdBu_r", alpha=.72)
+        ax.contour(xx, yy, P, levels=[.5], colors="k", linewidths=2.2)
+        ax.scatter(Xtr[:, 0], Xtr[:, 1], c=ytr, cmap="RdBu_r", s=20,
+                   edgecolor="k", linewidth=.35)
+        tr_a, te_a = m.score(Xtr, ytr) * 100, m.score(Xte, yte) * 100
+        note = {1: "thẳng, underfit", 3: "cong vừa", 6: "bám sát hai vành trăng",
+                20: "uốn éo, OVERFIT"}[d]
+        ax.set_title(f"degree = {d}  ({note})", fontsize=10)
+        ax.text(.03, .04, f"train acc = {tr_a:.1f}%\ntest  acc = {te_a:.1f}%",
+                transform=ax.transAxes, fontsize=8.8, va="bottom",
+                fontweight="bold" if d == 20 else "normal", bbox=BOX)
         ax.set_xlabel("$x_1$"); ax.set_ylabel("$x_2$")
-    fig.suptitle("Logistic Regression vẫn học được ranh giới CONG — nhờ polynomial features",
-                 fontweight="bold")
-    fig.tight_layout()
+    fig.suptitle("Logistic Regression vẫn học được ranh giới CONG nhờ polynomial features "
+                 "(chấm hiển thị là tập train)", fontweight="bold")
+    fig.tight_layout(rect=[0, 0, 1, .94])
     save(fig, "07_polynomial_logistic.png")
 
 
@@ -341,12 +381,13 @@ def fig_softmax():
                          np.linspace(X[:, 1].min() - 1.5, X[:, 1].max() + 1.5, 320))
     grid = np.c_[xx.ravel(), yy.ravel()]
 
+    PT_COLORS = ["#1d4ed8", "#15803d", "#b91c1c"]
     fig, axes = plt.subplots(1, 3, figsize=(14.5, 4.2))
     z = np.linspace(-3, 3, 400)
     ax = axes[0]
     logits = np.vstack([1.4 * z, .2 * z + .6, -1.1 * z + .2])
     e = np.exp(logits - logits.max(0)); sm = e / e.sum(0)
-    for i, col in enumerate([C1, C3, C2]):
+    for i, col in enumerate(PT_COLORS):
         ax.plot(z, sm[i], color=col, lw=2.3, label=f"$\\hat{{p}}$(lớp {i})")
     ax.set_xlabel("một lát cắt của không gian đặc trưng"); ax.set_ylabel("xác suất")
     ax.legend(fontsize=8.5)
@@ -363,9 +404,14 @@ def fig_softmax():
     for ax, (est, ttl) in zip(axes[1:], models):
         clf = est.fit(X, y)
         Z = clf.predict(grid).reshape(xx.shape)
-        ax.contourf(xx, yy, Z, levels=[-.5, .5, 1.5, 2.5], colors=["#bfdbfe", "#bbf7d0", "#fecaca"])
-        ax.contour(xx, yy, Z, levels=[.5, 1.5], colors="k", linewidths=1.6)
-        ax.scatter(X[:, 0], X[:, 1], c=y, cmap="brg", s=20, edgecolor="k", linewidth=.35)
+        ax.contourf(xx, yy, Z, levels=[-.5, .5, 1.5, 2.5],
+                    colors=["#bfdbfe", "#bbf7d0", "#fecaca"])
+        ax.contour(xx, yy, Z, levels=[.5, 1.5], colors="k", linewidths=1.8)
+        # màu điểm PHẢI khớp màu vùng: lớp 0 xanh dương, lớp 1 xanh lá, lớp 2 đỏ
+        for c, col in zip([0, 1, 2], PT_COLORS):
+            ax.scatter(X[y == c, 0], X[y == c, 1], color=col, s=22,
+                       edgecolor="k", linewidth=.35, label=f"lớp {c}")
+        ax.legend(fontsize=7.8, loc="upper right", framealpha=.94)
         ax.set_title(f"{ttl}\nacc = {clf.score(X, y)*100:.1f}%", fontsize=9.5)
         ax.set_xlabel("$x_1$"); ax.set_ylabel("$x_2$")
     fig.suptitle("Mở rộng lên nhiều lớp: Softmax Regression", fontweight="bold")
@@ -389,11 +435,14 @@ def fig_threshold():
     ax = axes[0]
     ax.hist(pr[yte == 0], bins=40, alpha=.65, color=C1, label="lớp thật = 0")
     ax.hist(pr[yte == 1], bins=40, alpha=.65, color=C2, label="lớp thật = 1")
+    ymax = ax.get_ylim()[1]
+    ax.set_ylim(0, ymax * 1.26)
     for t, col in [(.3, C3), (.5, "k"), (.7, C4)]:
         ax.axvline(t, color=col, ls="--", lw=1.9)
-        ax.text(t, ax.get_ylim()[1] * .93, f" {t}", color=col, fontsize=9)
+        ax.text(t, ymax * 1.13, f" {t}", color=col, fontsize=9, fontweight="bold")
     ax.set_xlabel("$\\hat{p}$ model xuất ra"); ax.set_ylabel("số mẫu")
-    ax.legend(fontsize=8.5); ax.set_title("Ngưỡng chỉ là một đường kẻ dọc\ntrên phân phối điểm số", fontsize=10)
+    ax.legend(fontsize=8.5, loc="center right", framealpha=.94)
+    ax.set_title("Ngưỡng chỉ là một đường kẻ dọc\ntrên phân phối điểm số", fontsize=10)
 
     ts = np.linspace(.02, .98, 120)
     P = [precision_score(yte, pr >= t, zero_division=0) for t in ts]
@@ -406,8 +455,15 @@ def fig_threshold():
     tb = ts[int(np.argmax(F))]
     ax.axvline(tb, color=C3, ls="--", lw=1.6)
     ax.axvline(.5, color="gray", ls=":", lw=1.6)
-    ax.text(tb + .015, .08, f"F1 max tại\nngưỡng {tb:.2f}", color=C3, fontsize=8.5)
-    ax.set_xlabel("ngưỡng"); ax.set_ylabel("giá trị"); ax.legend(fontsize=8.5)
+    ax.annotate(f"F1 đạt cực đại tại ngưỡng {tb:.2f},\nkhông phải tại 0.5",
+                xy=(tb, max(F)), xytext=(.10, 1.30), fontsize=8.5, color=C3,
+                fontweight="bold", va="top",
+                arrowprops=dict(arrowstyle="->", color=C3, lw=1.4),
+                bbox=dict(boxstyle="round,pad=0.32", facecolor="white",
+                          alpha=.93, edgecolor="0.8"))
+    ax.set_xlabel("ngưỡng"); ax.set_ylabel("giá trị")
+    ax.set_ylim(-.04, 1.34)
+    ax.legend(fontsize=8.5, loc="lower left", framealpha=.94)
     ax.set_title("0.5 KHÔNG phải lúc nào cũng tốt nhất", fontsize=10)
 
     fpr, tpr, thr = roc_curve(yte, pr)
