@@ -68,20 +68,20 @@ def fig_lloyd_steps():
 
     frames = []          # (tiêu đề, labels, centers, inertia)
     lab, _ = assign(X, centers)
-    frames.append(("Bước 0 — KHỞI TẠO\n3 tâm đặt tuỳ tiện, chưa gán nhãn",
+    frames.append(("Bước 0: khởi tạo 3 tâm, chưa gán nhãn",
                    None, centers.copy(), inertia_of(X, centers, lab)))
     for it in range(1, 3):
         lab, _ = assign(X, centers)
-        frames.append((f"Vòng {it} — ASSIGN\ngán mỗi điểm về tâm gần nhất",
+        frames.append((f"Vòng {it}, bước Assign: gán về tâm gần nhất",
                        lab.copy(), centers.copy(), inertia_of(X, centers, lab)))
         centers = update(X, centers, lab)
-        ttl = (f"Vòng {it} — UPDATE\ntâm = trung bình các điểm trong cụm")
+        ttl = (f"Vòng {it}, bước Update: tâm = trung bình cụm")
         frames.append((ttl, lab.copy(), centers.copy(), inertia_of(X, centers, lab)))
     # chạy tiếp tới khi hội tụ để làm panel cuối
     for _ in range(50):
         lab, _ = assign(X, centers)
         centers = update(X, centers, lab)
-    frames.append(("HỘI TỤ — tâm không còn dịch chuyển\nnhãn ổn định, inertia chạm đáy ĐỊA PHƯƠNG",
+    frames.append(("Hội tụ: tâm và nhãn không còn đổi",
                    lab.copy(), centers.copy(), inertia_of(X, centers, lab)))
 
     fig, axes = plt.subplots(2, 3, figsize=(13.5, 8.0))
@@ -92,8 +92,11 @@ def fig_lloyd_steps():
                 fontsize=9.5, fontweight="bold", color="k",
                 bbox=dict(fc="white", ec="0.7", alpha=.9, boxstyle="round,pad=0.3"))
         ax.set_xticks([]); ax.set_yticks([])
-    fig.suptitle("Thuật toán Lloyd: lặp ASSIGN ↔ UPDATE — mỗi nửa bước đều làm inertia GIẢM",
+    fig.suptitle("Thuật toán Lloyd: các bước Assign và Update",
                  fontweight="bold", fontsize=12)
+    fig.text(.5, -.01, "Mỗi nửa bước đều làm inertia giảm; thuật toán dừng khi các tâm "
+             "không còn dịch chuyển (một cực tiểu địa phương).",
+             ha="center", va="top", fontsize=10, color="0.25")
     fig.tight_layout()
     save(fig, "01_lloyd_tung_buoc.png")
 
@@ -125,11 +128,15 @@ def fig_inertia_monotone():
     ax.scatter([], [], color=C1, marker="o", s=70, label="sau bước ASSIGN (tối ưu theo NHÃN, giữ tâm)")
     ax.scatter([], [], color=C3, marker="s", s=70, label="sau bước UPDATE (tối ưu theo TÂM, giữ nhãn)")
     ax.set_xlabel("nửa bước của thuật toán →")
+    ax.text(.14, .62, "Inertia giảm đơn điệu và bị chặn dưới bởi 0,\n"
+            "nên thuật toán chắc chắn hội tụ. Nhưng chỉ hội tụ về\n"
+            "cực tiểu ĐỊA PHƯƠNG, không hứa hẹn cực tiểu toàn cục.",
+            transform=ax.transAxes, fontsize=8.5, va="top",
+            bbox=dict(fc="white", ec="0.75", alpha=.92, boxstyle="round,pad=0.3"))
     ax.set_ylabel("inertia $L=\\sum_k\\sum_{x\\in C_k}\\|x-\\mu_k\\|^2$")
     ax.legend(fontsize=8.5)
-    ax.set_title("Inertia GIẢM ĐƠN ĐIỆU và bị chặn dưới bởi 0 → thuật toán chắc chắn hội tụ\n"
-                 "(hội tụ về cực tiểu ĐỊA PHƯƠNG, không hứa hẹn cực tiểu toàn cục)", fontsize=10.5)
-    ax.annotate("phẳng = hội tụ", xy=(xs[-1], ys[-1]),
+    ax.set_title("Inertia sau từng nửa bước của thuật toán Lloyd", fontsize=10.5)
+    ax.annotate("phẳng = đã hội tụ\n(cực tiểu địa phương)", xy=(xs[-1], ys[-1]),
                 xytext=(xs[-1] - 3.4, ys[-1] + (max(ys) - min(ys)) * .28),
                 arrowprops=dict(arrowstyle="->", color="0.35"), fontsize=9.5, color="0.15",
                 bbox=dict(boxstyle="round,pad=0.3", fc="white", alpha=.9, ec="0.75"))
@@ -164,14 +171,16 @@ def fig_elbow():
                         bbox=dict(boxstyle="round,pad=0.3", fc="white", alpha=.92, ec=C2))
             ax.set_title("Elbow rõ ràng", fontsize=10)
         else:
-            ax.set_title("KHÔNG có khuỷu tay — đường cong trơn", fontsize=10)
+            ax.set_title("Đường cong trơn, không có elbow", fontsize=10)
             ax.text(.32, .55, "Không có chỗ gãy!\nMọi K đều 'hợp lý như nhau'.\n"
                               "Ép chọn K ở đây là tự lừa mình:\ndữ liệu vốn không có cụm.",
                     transform=ax.transAxes, fontsize=9, color=C2,
                     bbox=dict(fc="#fff5f5", ec=C2, alpha=.9, boxstyle="round,pad=0.4"))
-    fig.suptitle("Elbow method: hữu ích nhưng KHÔNG phải lúc nào cũng có khuỷu tay\n"
-                 "Lưu ý: inertia LUÔN giảm khi K tăng (K=n thì inertia=0) → không dùng inertia thô để so K",
-                 fontweight="bold", fontsize=11)
+    fig.suptitle("Phương pháp elbow trên hai bộ dữ liệu", fontweight="bold", fontsize=11)
+    fig.text(.5, -.01, "Elbow hữu ích nhưng không phải lúc nào cũng có khuỷu tay. "
+             "Inertia LUÔN giảm khi K tăng (K=n thì inertia=0),\n"
+             "nên không được dùng inertia thô để so sánh các giá trị K.",
+             ha="center", va="top", fontsize=10, color="0.25")
     fig.tight_layout()
     save(fig, "03_elbow_ro_va_mo_ho.png")
 
@@ -193,7 +202,13 @@ def fig_silhouette():
     best = Ks[int(np.argmax(sc))]
     ax.axvline(best, color=C2, ls="--", lw=1.6)
     ax.set_xlabel("K"); ax.set_ylabel("silhouette trung bình")
-    ax.set_title(f"(a) Silhouette theo K — đỉnh tại K={best}\ncó ĐỈNH rõ, dễ đọc hơn elbow", fontsize=9.5)
+    ax.set_title("(a) Silhouette trung bình theo K", fontsize=9.5)
+    lo, hi = ax.get_ylim()
+    ax.set_ylim(lo, hi + (hi - lo) * .22)
+    ax.annotate(f"đỉnh tại K={best}\n(rõ hơn khuỷu tay của elbow)", xy=(best, max(sc)),
+                xytext=(best + 0.8, max(sc) + (hi - lo) * .16), fontsize=8.5, color=C2,
+                arrowprops=dict(arrowstyle="->", color=C2),
+                bbox=dict(fc="white", ec="0.75", alpha=.92, boxstyle="round,pad=0.25"))
 
     for j, k in enumerate([4, 7]):
         lab = KMeans(n_clusters=k, n_init=10, random_state=0).fit_predict(X)
@@ -210,16 +225,19 @@ def fig_silhouette():
         ax.set_xlim(-0.35, 1)
         ax.set_yticks([])
         ax.set_xlabel("$s(i)$")
-        good = "TỐT" if k == 4 else "XẤU"
-        note = ("mọi cụm đều dày, vượt đường trung bình,\nrất ít $s(i)<0$"
+        note = ("K này TỐT: mọi cụm đều dày, vượt đường\ntrung bình, rất ít $s(i)<0$"
                 if k == 4 else
-                "có cụm mỏng dính và nhiều $s(i)$ thấp/âm\n→ K này cắt vụn cụm thật")
-        ax.set_title(f"({'b' if k == 4 else 'c'}) K={k} — {good}   $\\bar{{s}}$={s.mean():.3f}\n{note}",
-                     fontsize=9.5)
-    fig.suptitle(r"Silhouette: $s(i)=\dfrac{b_i-a_i}{\max(a_i,b_i)}\in[-1,1]$   "
-                 r"($a_i$: k/c trung bình tới CÙNG cụm — độ chặt;  "
-                 r"$b_i$: k/c trung bình tới cụm KHÁC gần nhất — độ tách)",
+                "K này XẤU: có cụm mỏng dính và nhiều\n$s(i)$ thấp hoặc âm, cụm thật bị cắt vụn")
+        ax.set_ylim(0, y0 * 1.30)
+        ax.text(.03, .97, note, transform=ax.transAxes, fontsize=8.5, va="top",
+                color="#065f46" if k == 4 else "#7f1d1d",
+                bbox=dict(fc="white", ec="0.75", alpha=.95, boxstyle="round,pad=0.3"))
+        ax.set_title(f"({'b' if k == 4 else 'c'}) K={k},  $\\bar{{s}}$={s.mean():.3f}", fontsize=9.5)
+    fig.suptitle(r"Chỉ số silhouette $s(i)=\dfrac{b_i-a_i}{\max(a_i,b_i)}\in[-1,1]$",
                  fontweight="bold", fontsize=10.5)
+    fig.text(.5, -.02, r"$a_i$: khoảng cách trung bình tới các điểm CÙNG cụm (độ chặt);   "
+             r"$b_i$: khoảng cách trung bình tới cụm KHÁC gần nhất (độ tách)",
+             ha="center", va="top", fontsize=10, color="0.25")
     fig.tight_layout()
     save(fig, "04_silhouette.png")
 
@@ -263,10 +281,17 @@ def fig_bad_init():
     ax.hist(ip, bins=bins, color=C3, alpha=.6, label=f"k-means++  ({pp:.0f}% chạm nghiệm tốt)")
     ax.set_xscale("log")
     ax.set_xlabel("inertia sau 1 lần chạy (thang log)"); ax.set_ylabel("số lần / 120 seed")
-    ax.legend(fontsize=8)
-    ax.set_title("(c) 120 seed, mỗi seed chỉ chạy 1 lần\nk-means++ dồn về đáy, random hay mắc kẹt", fontsize=9.5)
-    fig.suptitle("Khởi tạo quyết định nghiệm — vì sao sklearn để mặc định init='k-means++' và n_init>1",
-                 fontweight="bold", fontsize=11)
+    ax.legend(fontsize=8, loc="upper right")
+    lo, hi = ax.get_ylim()
+    ax.set_ylim(lo, hi * 1.35)
+    ax.set_title("(c) Inertia của 120 lần chạy đơn lẻ", fontsize=9.5)
+    ax.text(.20, .52, "k-means++ dồn về đáy,\nrandom hay mắc kẹt", transform=ax.transAxes,
+            fontsize=8.5, va="top", color="0.2",
+            bbox=dict(fc="white", ec="0.75", alpha=.92, boxstyle="round,pad=0.25"))
+    fig.suptitle("Ảnh hưởng của cách khởi tạo tâm tới nghiệm", fontweight="bold", fontsize=11)
+    fig.text(.5, -.01, "Đây là lý do sklearn để mặc định init='k-means++' và n_init>1: "
+             "chạy nhiều lần rồi giữ lại nghiệm có inertia nhỏ nhất.",
+             ha="center", va="top", fontsize=10, color="0.25")
     fig.tight_layout()
     save(fig, "05_khoi_tao_kem.png")
 
@@ -301,11 +326,12 @@ def fig_kmeanspp_prob():
             # chọn tâm tiếp theo = điểm dữ liệu có D^2 lớn nhất (minh hoạ; thật thì bốc thăm)
             d2 = ((X[:, None, :] - C[None, :, :]) ** 2).sum(2).min(1)
             chosen.append(X[int(np.argmax(d2))])
-    fig.suptitle("Cơ chế k-means++: tâm tiếp theo được BỐC THĂM trong các điểm dữ liệu với "
-                 r"$p(x)=D(x)^2/\sum_{x'}D(x')^2$" "\n"
-                 "(nền = trường $D(x)^2$ trên mặt phẳng; điểm càng SÁNG = càng xa mọi tâm đã có = càng dễ được chọn)\n"
-                 "→ các tâm khởi tạo tự động trải ra khắp dữ liệu thay vì chụm một chỗ như init='random'",
-                 fontweight="bold", fontsize=10.5)
+    fig.suptitle("Cơ chế chọn tâm khởi tạo của k-means++", fontweight="bold", fontsize=11.5)
+    fig.text(.5, -.02, "Tâm tiếp theo được BỐC THĂM trong chính các điểm dữ liệu với "
+             r"$p(x)=D(x)^2/\sum_{x'}D(x')^2$." "\n"
+             "Nền là trường $D(x)^2$ trên mặt phẳng: điểm càng sáng thì càng xa mọi tâm đã có, càng dễ được chọn.\n"
+             "Nhờ vậy các tâm khởi tạo tự trải ra khắp dữ liệu, thay vì chụm một chỗ như init='random'.",
+             ha="center", va="top", fontsize=10, color="0.25")
     fig.tight_layout()
     save(fig, "06_kmeanspp_xac_suat.png")
 
@@ -317,23 +343,23 @@ def fig_failure_modes():
     rng = np.random.default_rng(0)
 
     Xm, _ = make_moons(n_samples=400, noise=0.06, random_state=0)
-    cases = [(Xm, 2, "Cụm CONG (moons)",
+    cases = [(Xm, 2, "Cụm cong (moons)",
               "K-Means chỉ cắt được bằng đường thẳng\n→ xẻ ngang hai trăng lưỡi liềm.\nDùng DBSCAN / Spectral.")]
 
     Xv = np.vstack([rng.normal([0, 0], 0.4, (200, 2)),
                     rng.normal([4, 0], 1.9, (200, 2))])
-    cases.append((Xv, 2, "Phương sai RẤT KHÁC nhau",
+    cases.append((Xv, 2, "Phương sai rất khác nhau",
                   "Inertia phạt theo khoảng cách nên cụm rộng\nbị 'cắn' mất rìa, cụm hẹp phình ra.\nDùng GMM (covariance tự do)."))
 
     Xa, _ = make_blobs(n_samples=400, centers=3, cluster_std=0.6, random_state=170)
     Xa = Xa @ np.array([[0.6, -0.63], [-0.4, 0.85]])
-    cases.append((Xa, 3, "Cụm bị KÉO DÀI / XIÊN (anisotropic)",
+    cases.append((Xa, 3, "Cụm kéo dài và xiên (anisotropic)",
                   "Ranh giới K-Means luôn vuông góc với đoạn\nnối 2 tâm → không ôm được cụm elip xiên.\nDùng GMM full covariance."))
 
     Xs = np.vstack([rng.normal([0, 0], 0.9, (600, 2)),
                     rng.normal([4.0, 0], 0.25, (25, 2)),
                     rng.normal([5.4, 0], 0.25, (25, 2))])
-    cases.append((Xs, 3, "Kích thước cụm RẤT CHÊNH LỆCH (600 / 25 / 25 điểm)",
+    cases.append((Xs, 3, "Kích thước cụm chênh lệch (600/25/25 điểm)",
                   "Inertia là TỔNG nên cụm 600 điểm đóng góp lớn hơn nhiều:\nthuật toán thà XẺ ĐÔI cụm to còn hơn tách 2 cụm nhỏ\n→ 2 cụm nhỏ thật bị GỘP làm một."))
 
     fig, axes = plt.subplots(2, 2, figsize=(12.4, 9.0))
@@ -348,9 +374,10 @@ def fig_failure_modes():
         ax.text(.02, .02, "VÌ SAO HỎNG: " + why, transform=ax.transAxes, fontsize=8.5,
                 color="#7f1d1d", va="bottom",
                 bbox=dict(fc="#fff5f5", ec=C2, alpha=.95, boxstyle="round,pad=0.35"))
-    fig.suptitle("Bốn kiểu dữ liệu khiến K-Means thất bại\n"
-                 "Gốc rễ: K-Means giả định cụm CẦU, kích thước và mật độ tương đương, và gán CỨNG",
-                 fontweight="bold", fontsize=12)
+    fig.suptitle("Bốn kiểu dữ liệu khiến K-Means thất bại", fontweight="bold", fontsize=12)
+    fig.text(.5, -.01, "Gốc rễ chung: K-Means giả định các cụm hình CẦU, kích thước và mật độ "
+             "tương đương nhau, và gán nhãn CỨNG.",
+             ha="center", va="top", fontsize=10.5, color="0.25")
     fig.tight_layout()
     save(fig, "07_kmeans_that_bai.png")
 
@@ -383,15 +410,19 @@ def fig_voronoi():
         ax.scatter(C[:, 0], C[:, 1], marker="*", s=340,
                    c=[PALETTE[k] for k in range(5)], edgecolor="k", linewidth=1.2, zorder=6)
         ax.set_xticks([]); ax.set_yticks([]); ax.grid(False)
-    axes[0].set_title("Ranh giới do K-Means sinh ra = sơ đồ VORONOI của các tâm\n"
-                      "mỗi ô là giao của các nửa mặt phẳng → ĐA GIÁC LỒI", fontsize=10)
-    axes[1].set_title("Hệ quả: mọi cụm K-Means tìm được đều LỒI và nối liền\n"
-                      "→ cụm hình chữ C, hình xoắn ốc là bất khả thi", fontsize=10)
-    axes[0].text(.02, .02, r"biên giữa 2 tâm $\mu_i,\mu_j$ là đường TRUNG TRỰC:"
-                 "\n" r"$\|x-\mu_i\|=\|x-\mu_j\|$ — một đường thẳng",
-                 transform=axes[0].transAxes, fontsize=9,
+    axes[0].set_title("(a) Sơ đồ Voronoi của các tâm", fontsize=10)
+    axes[1].set_title("(b) Các cụm K-Means trên cùng dữ liệu", fontsize=10)
+    axes[0].text(.98, .02, r"Biên giữa 2 tâm $\mu_i,\mu_j$ là đường TRUNG TRỰC"
+                 "\n" r"$\|x-\mu_i\|=\|x-\mu_j\|$: một đường thẳng."
+                 "\nMỗi ô là giao của các nửa mặt phẳng nên"
+                 "\nluôn là một ĐA GIÁC LỒI.",
+                 transform=axes[0].transAxes, fontsize=9, va="bottom", ha="right",
                  bbox=dict(fc="white", ec="0.6", alpha=.92, boxstyle="round,pad=0.35"))
-    fig.suptitle("Vì sao K-Means chỉ tạo được cụm lồi", fontweight="bold", fontsize=11.5)
+    fig.suptitle("Ranh giới Voronoi và tính lồi của cụm K-Means",
+                 fontweight="bold", fontsize=11.5)
+    fig.text(.5, -.01, "Hệ quả: mọi cụm mà K-Means tìm được đều LỒI và nối liền, "
+             "nên cụm hình chữ C hay hình xoắn ốc là bất khả thi.",
+             ha="center", va="top", fontsize=10, color="0.25")
     fig.tight_layout()
     save(fig, "08_voronoi_cum_loi.png")
 
@@ -415,15 +446,15 @@ def fig_need_scaling():
 
     from sklearn.metrics import adjusted_rand_score as ari
     fig, axes = plt.subplots(1, 3, figsize=(14.5, 4.4))
-    sets = [(truth, "(a) 3 nhóm THẬT", None),
-            (lab_raw, "(b) K-Means trên dữ liệu THÔ", ari(truth, lab_raw)),
+    sets = [(truth, "(a) 3 nhóm thật", None),
+            (lab_raw, "(b) K-Means trên dữ liệu thô", ari(truth, lab_raw)),
             (lab_sc, "(c) K-Means sau StandardScaler", ari(truth, lab_sc))]
     for ax, (lb, ttl, a) in zip(axes, sets):
         for k in range(3):
             m = lb == k
             ax.scatter(age[m], inc[m] / 1e6, s=16, color=PALETTE[k], alpha=.8)
-        ax.set_xlabel("tuổi (năm)  —  biên độ ≈ 40")
-        ax.set_ylabel("thu nhập (triệu VNĐ)  —  biên độ ≈ 25")
+        ax.set_xlabel("tuổi (năm), biên độ ≈ 40")
+        ax.set_ylabel("thu nhập (triệu VNĐ), biên độ ≈ 25")
         ax.set_title(ttl + (f"\nARI = {a:.2f}" if a is not None else "\n(nhãn tham chiếu)"), fontsize=10)
     # nới trần cả 3 panel (giữ cùng thang) để có dải trống đặt chú thích
     for a in axes:
@@ -435,8 +466,11 @@ def fig_need_scaling():
                            "GỘP, nhóm thu nhập cao bị XẺ ĐÔI",
                  transform=axes[1].transAxes, fontsize=8, color="#7f1d1d", va="top",
                  bbox=dict(fc="#fff5f5", ec=C2, alpha=.95, boxstyle="round,pad=0.3"))
-    fig.suptitle("K-Means dùng khoảng cách Euclid → feature có ĐƠN VỊ LỚN sẽ lấn át. LUÔN scale trước!",
+    fig.suptitle("Ảnh hưởng của thang đo tới kết quả K-Means",
                  fontweight="bold", fontsize=11)
+    fig.text(.5, -.01, "K-Means dùng khoảng cách Euclid, nên feature có ĐƠN VỊ LỚN sẽ lấn át "
+             "mọi feature khác. Hãy scale dữ liệu trước khi phân cụm.",
+             ha="center", va="top", fontsize=10, color="0.25")
     fig.tight_layout()
     save(fig, "09_vi_sao_phai_scale.png")
 
@@ -480,9 +514,12 @@ def fig_compare_algos():
     # đặt ngoài khung để không đè lên điểm dữ liệu
     axes[2, 3].text(.99, -.02, "xám ✕ = nhiễu (nhãn −1)", transform=axes[2, 3].transAxes,
                     ha="right", va="top", fontsize=9.5, color="0.25")
-    fig.suptitle("Cùng dữ liệu, bốn thuật toán: chọn thuật toán = chọn GIẢ ĐỊNH về hình dạng cụm\n"
-                 "K-Means/Ward thích cụm cầu; GMM ôm được elip; DBSCAN bám mật độ nên xử lý được cụm cong",
+    fig.suptitle("Bốn thuật toán phân cụm trên cùng ba bộ dữ liệu",
                  fontweight="bold", fontsize=11.5)
+    fig.text(.5, -.005, "Chọn thuật toán chính là chọn GIẢ ĐỊNH về hình dạng cụm. "
+             "K-Means và Ward thích cụm cầu; GMM ôm được cụm elip;\n"
+             "DBSCAN bám theo mật độ nên xử lý được cả cụm cong.",
+             ha="center", va="top", fontsize=10.5, color="0.25")
     fig.tight_layout()
     save(fig, "10_so_sanh_thuat_toan.png")
 
