@@ -92,7 +92,8 @@ def anim_threshold_roc(n_frames=44, n_hold=8):
         ax.plot([f, f], [0, r], color=C3, lw=1, ls=":")
         ax.plot([0, f], [r, r], color=C3, lw=1, ls=":")
         ax.scatter([f], [r], s=150, color=C2, edgecolor="k", linewidth=.9, zorder=6)
-        ax.text(.985, .035,
+        # hộp số liệu đặt ở giữa mép phải (trên legend), dưới đường chéo và cách xa đường ROC
+        ax.text(.985, .24,
                 f"ngưỡng   = {t:.2f}\n"
                 f"TPR      = {r:.3f}\n"
                 f"FPR      = {f:.3f}\n"
@@ -105,7 +106,8 @@ def anim_threshold_roc(n_frames=44, n_hold=8):
         ax.set_xlim(-.02, 1.02); ax.set_ylim(-.02, 1.05)
         ax.set_xlabel("FPR = FP/(FP+TN)")
         ax.set_ylabel("TPR = TP/(TP+FN) = Recall")
-        ax.legend(fontsize=8.5, loc="upper left", framealpha=.95)
+        # legend ở góc dưới phải: góc trên trái là chỗ đường ROC đi sát TPR = 1
+        ax.legend(fontsize=8.5, loc="lower right", framealpha=.95)
         ax.set_title("Chấm tương ứng chạy trên đường ROC", fontsize=10.5)
 
         fig.suptitle("Từ ngưỡng tới đường ROC", fontweight="bold", fontsize=12)

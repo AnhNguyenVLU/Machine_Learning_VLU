@@ -59,7 +59,7 @@ def fig_why_not_linear():
     ax.axhline(.5, color="gray", ls=":", lw=1.4)
     ax.axvline(cut0, color=C2, ls="--", lw=1.8)
     ax.text(cut0 + .6, -.42, f"ngưỡng x={cut0:.1f}", color=C2, fontsize=9)
-    ax.text(-.5, 1.42, "vùng tô đỏ: dự đoán $>1$ hoặc $<0$\n→ KHÔNG đọc được là xác suất",
+    ax.text(12, 1.42, "vùng tô đỏ: dự đoán $>1$ hoặc $<0$,\nkhông đọc được là xác suất",
             color=C2, fontsize=8.8)
     ax.set_title("Linear Regression trên nhãn 0/1\n(chưa có outlier: sai 0/40)", fontsize=10)
 
@@ -78,11 +78,11 @@ def fig_why_not_linear():
     ax.axvline(cut, color=C2, ls="--", lw=1.9)
     ax.annotate("", xy=(cut, -.30), xytext=(cut0, -.30),
                 arrowprops=dict(arrowstyle="->", color=C2, lw=1.8))
-    ax.text(cut + .8, -.50, f"ngưỡng trôi\n{cut0:.1f} → {cut:.1f}",
+    ax.text(cut + .8, -.50, f"ngưỡng trôi\ntừ {cut0:.1f} sang {cut:.1f}",
             color=C2, fontsize=9)
-    ax.text(20, .16, "✗ = điểm bị phân loại SAI\ndù dữ liệu của nó không đổi",
+    ax.text(20, .16, "dấu x: điểm bị phân loại sai\ndù dữ liệu của nó không đổi",
             fontsize=8.8)
-    ax.set_title(f"…thêm 5 điểm lớp 1 ở xa\n→ sai {wrong.sum()}/40 điểm ban đầu", fontsize=10)
+    ax.set_title(f"Thêm 5 điểm lớp 1 ở xa:\nsai {wrong.sum()}/40 điểm ban đầu", fontsize=10)
 
     # (c) logistic trên CÙNG dữ liệu có outlier
     log0 = LogisticRegression().fit(x.reshape(-1, 1), y)
@@ -96,11 +96,11 @@ def fig_why_not_linear():
     ax.axhline(.5, color="gray", ls=":", lw=1.4)
     ax.axvline(lcut, color=C3, ls="--", lw=1.9)
     ax.text(lcut + .6, -.42, f"ngưỡng x={lcut:.1f}", color=C3, fontsize=9)
-    ax.text(9, 1.30, f"ngưỡng khi CHƯA có outlier: {lcut0:.2f}\n"
-                     f"ngưỡng khi CÓ outlier:      {lcut:.2f}\n→ không xê dịch",
+    ax.text(9, 1.30, f"ngưỡng khi chưa có outlier: {lcut0:.2f}\n"
+                     f"ngưỡng khi có outlier:      {lcut:.2f}\n(gần như không xê dịch)",
             color=C3, fontsize=8.8)
-    ax.set_title(f"Logistic Regression, cùng dữ liệu có outlier\n"
-                 f"→ sai {lwrong.sum()}/40 điểm ban đầu", fontsize=10)
+    ax.set_title(f"Logistic Regression, cùng dữ liệu có outlier:\n"
+                 f"sai {lwrong.sum()}/40 điểm ban đầu", fontsize=10)
 
     for ax in axes:
         ax.set_ylim(-.62, 1.62); ax.set_xlim(-2, 45)
@@ -124,10 +124,10 @@ def fig_sigmoid():
     ax.axhline(.5, color="gray", ls=":", lw=1.2); ax.axvline(0, color="gray", ls=":", lw=1.2)
     ax.axhline(1, color="k", lw=.8, alpha=.35); ax.axhline(0, color="k", lw=.8, alpha=.35)
     ax.scatter([0], [.5], color=C4, s=80, zorder=6)
-    ax.text(-7.7, .80, "vùng BÃO HOÀ\n$\\sigma\' \\approx 0$", color=C2,
-            fontsize=8.8, va="top", bbox=BOX)
-    ax.text(7.7, .30, "vùng BÃO HOÀ\n$\\sigma\' \\approx 0$", color=C2,
-            fontsize=8.8, va="top", ha="right", bbox=BOX)
+    ax.text(-7.7, .80, "vùng bão hoà\n$\\sigma\' \\approx 0$", color=C2,
+            fontsize=8.8, va="top")
+    ax.text(7.7, .30, "vùng bão hoà\n$\\sigma\' \\approx 0$", color=C2,
+            fontsize=8.8, va="top", ha="right")
     ax.annotate("$\\sigma(0)=0.5$\nngưỡng quyết định mặc định", xy=(0, .5),
                 xytext=(-7.7, .30), fontsize=8.8, color=C4, va="top",
                 arrowprops=dict(arrowstyle="->", color=C4, lw=1.4), bbox=BOX)
@@ -139,13 +139,13 @@ def fig_sigmoid():
     ax = axes[1]
     ax.plot(z, sg, color=C1, lw=1.6, alpha=.45, label=r"$\sigma(z)$")
     ax.plot(z, ds, color=C2, lw=2.8, label=r"$\sigma'(z)=\sigma(z)\,(1-\sigma(z))$")
-    ax.axhline(.25, color=C4, ls="--", lw=1.4)
-    ax.text(-7.7, .335, "đạo hàm cực đại = 0.25, đạt tại z = 0", color=C4,
-            fontsize=8.8, va="center", bbox=BOX)
+    ax.plot([-8.2, 1.2], [.25, .25], color=C4, ls="--", lw=1.4)
+    ax.text(-7.7, .36, "đạo hàm cực đại = 0.25,\nđạt tại z = 0", color=C4,
+            fontsize=8.8, va="center", bbox=BOX)  # hai dòng, ngắn để không đè đường sigma(z)
     ax.annotate("z càng xa 0 thì gradient càng tắt.\n"
-                "Đây là gốc rễ của VANISHING GRADIENT\n(gặp lại ở Lab 09 - MLP).",
+                "Đây là nguồn gốc của vanishing gradient\n(gặp lại ở Lab 09 - MLP).",
                 xy=(5.0, float(ds[np.argmin(abs(z - 5.0))])),
-                xytext=(1.35, .80), fontsize=8.8, color="#374151", va="top",
+                xytext=(1.6, .70), fontsize=8.8, color="#374151", va="top",
                 arrowprops=dict(arrowstyle="->", color="dimgray", lw=1.4), bbox=BOX)
     ax.set_ylim(-.06, 1.22)
     ax.set_xlabel("z"); ax.set_ylabel("giá trị")
@@ -168,7 +168,7 @@ def fig_odds_logit():
     ax.axhline(1, color="gray", ls=":"); ax.axvline(.5, color="gray", ls=":")
     ax.set_ylim(0, 10); ax.set_xlabel("xác suất $p$"); ax.set_ylabel("odds $=p/(1-p)$")
     ax.set_title("Odds: $[0,1] \\rightarrow [0,\\infty)$", fontsize=10)
-    ax.text(.05, 9.4, "p = 0.5 → odds = 1  (hoà)\np = 0.9 → odds = 9  (9 ăn 1)", fontsize=8.7,
+    ax.text(.05, 9.4, "p = 0.5 cho odds = 1 (hoà)\np = 0.9 cho odds = 9 (9 ăn 1)", fontsize=8.7,
             color="#374151", va="top",
             bbox=dict(boxstyle="round,pad=0.32", facecolor="white", alpha=.93,
                       edgecolor="0.8"))
@@ -180,7 +180,7 @@ def fig_odds_logit():
     ax.set_ylim(-7.5, 7.5)
     ax.set_title("Logit: $[0,1] \\rightarrow (-\\infty,\\infty)$", fontsize=10)
     ax.text(.50, -2.2, "Logit là hàm ngược của sigmoid.\n"
-            "Logistic Regression thật ra là\nhồi quy TUYẾN TÍNH trên logit:\n"
+            "Logistic Regression thật ra là\nhồi quy tuyến tính trên logit:\n"
             r"$\ln\frac{p}{1-p} = w^Tx+b$", fontsize=8.7, color="#374151", va="top",
             bbox=dict(boxstyle="round,pad=0.32", facecolor="white", alpha=.93,
                       edgecolor="0.8"))
@@ -209,7 +209,7 @@ def fig_bce_vs_mse():
     ax.plot(ph, -np.log(1 - ph), color=C2, lw=2.4, label="nhãn thật $y=0$:  $-\\log(1-\\hat{p})$")
     ax.set_ylim(0, 6); ax.set_xlabel("$\\hat{p}$ model dự đoán"); ax.set_ylabel("mất mát")
     ax.legend(fontsize=8.5); ax.set_title("Mất mát BCE theo xác suất dự đoán", fontsize=10)
-    ax.annotate("y=1 mà model nói $\\hat{p}$=0.01\n→ loss = 4.6 (rất đau)", (.01, 4.6),
+    ax.annotate("y=1 mà model nói $\\hat{p}$=0.01\nthì loss = 4.6", (.01, 4.6),
                 xytext=(.22, 4.9), fontsize=8.3, arrowprops=dict(arrowstyle="->", color="dimgray"))
 
     # loss landscape 1 tham số: BCE lồi, MSE+sigmoid không lồi
@@ -225,8 +225,8 @@ def fig_bce_vs_mse():
     ax.scatter([ws[int(np.argmin(bce))]], [min(bce)], color=C3, s=70, zorder=5)
     ax.set_xlabel("tham số w"); ax.set_ylabel("BCE")
     ax.set_title("BCE + sigmoid: hàm lồi", fontsize=10)
-    ax.text(.03, .96, "chỉ một cực tiểu,\nGD luôn tìm được", transform=ax.transAxes,
-            fontsize=8.3, va="top", color="#374151",
+    ax.text(.97, .96, "chỉ một cực tiểu,\nGD luôn tìm được", transform=ax.transAxes,
+            fontsize=8.3, va="top", ha="right", color="#374151",
             bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=.93,
                       edgecolor="0.8"))
     ax = axes[2]
@@ -271,12 +271,11 @@ def fig_decision_boundary():
     ax.text(x0[0] - .35, x0[1] + .45,
             "$w$ vuông góc với ranh giới\nvà trỏ về phía lớp 1", fontsize=8.6,
             color="#166534", va="bottom", ha="left", zorder=8, bbox=BOX)
-    ax.text(.03, .04, "ranh giới luôn là một đường thẳng\n"
-                      "nét liền đậm: $\\hat{p}=0.5$ (ranh giới)\n"
-                      "nét chấm: $\\hat{p}=0.25$ và $0.75$",
-            transform=ax.transAxes, fontsize=8.4, va="bottom", bbox=BOX)
     ax.set_xlabel("$x_1$"); ax.set_ylabel("$x_2$")
-    ax.set_title("Ranh giới quyết định $w^Tx+b=0$", fontsize=10)
+    # giải thích nét vẽ đưa lên tiêu đề để không che dữ liệu
+    ax.set_title("Ranh giới quyết định $w^Tx+b=0$ luôn là một đường thẳng\n"
+                 "nét liền đậm: $\\hat{p}=0.5$;  nét chấm: $\\hat{p}=0.25$ và $0.75$",
+                 fontsize=9.5)
     plt.colorbar(cf, ax=ax, label="$\\hat{p}(y=1\\,|\\,x)$")
 
     t = (X @ w + clf.intercept_[0]) / np.linalg.norm(w)
@@ -289,8 +288,8 @@ def fig_decision_boundary():
     ax.axhline(.5, color="gray", ls=":", lw=1.2)
     ax.axvline(0, color="k", ls="--", lw=1.8)
     ax.text(1.35, .34, "ranh giới\nquyết định", fontsize=8.6, va="center", bbox=BOX)
-    ax.set_ylim(-.22, 1.22)
-    ax.set_xlabel("khoảng cách CÓ DẤU tới ranh giới")
+    ax.set_ylim(-.22, 1.34)  # chừa chỗ cho hộp chữ phía trên các điểm y = 1
+    ax.set_xlabel("khoảng cách có dấu tới ranh giới")
     ax.set_ylabel("$\\hat{p}$")
     ax.text(.03, .96, "bài toán thu về đúng\nmột đường sigmoid 1 chiều",
             transform=ax.transAxes, fontsize=8.5, va="top", bbox=BOX)
@@ -316,21 +315,21 @@ def fig_regularization_C():
         ax.contourf(xx, yy, P, levels=np.linspace(0, 1, 21), cmap="RdBu_r", alpha=.8)
         ax.contour(xx, yy, P, levels=[.5], colors="k", linewidths=2)
         ax.scatter(Xa[:, 0], Xa[:, 1], c=ya, cmap="RdBu_r", s=22, edgecolor="k", linewidth=.4)
-        ax.set_title(f"C = {C}   →   $\\|w\\|$ = {np.linalg.norm(clf.coef_):.2f}", fontsize=10)
+        ax.set_title(f"C = {C},   $\\|w\\|$ = {np.linalg.norm(clf.coef_):.2f}", fontsize=10)
         ax.set_xlabel("$x_1$"); ax.set_ylabel("$x_2$")
     BOXW = dict(boxstyle="round,pad=0.3", facecolor="white", alpha=.92, edgecolor="0.8")
-    axes[0].text(-3.9, 2.35, "phạt MẠNH:\nchuyển tiếp rất mờ", fontsize=8.3, color="k", va="top", bbox=BOXW)
-    axes[2].text(-3.9, 2.35, "phạt YẾU:\nchuyển tiếp gắt như bậc thang", fontsize=8.3, color="k", va="top", bbox=BOXW)
+    axes[0].text(-3.9, 2.35, "phạt mạnh:\nchuyển tiếp rất mờ", fontsize=8.3, color="k", va="top", bbox=BOXW)
+    axes[2].text(-3.9, 2.35, "phạt yếu:\nchuyển tiếp gắt\nnhư bậc thang", fontsize=8.3, color="k", va="top", bbox=BOXW)  # ba dòng để không che ranh giới
 
     Cgrid = np.geomspace(1e-4, 1e10, 36)
-    # tol chặt: để mặc định (1e-4) thì solver dừng sớm và đường cong PHẲNG giả tạo
+    # tol chặt: để mặc định (1e-4) thì solver dừng sớm và đường cong phẳng giả tạo
     norms = [np.linalg.norm(
         LogisticRegression(C=c, max_iter=200000, tol=1e-12).fit(Xa, ya).coef_)
         for c in Cgrid]
     ax = axes[3]
     ax.plot(Cgrid, norms, "o-", color=C2, ms=3.8)
-    ax.set_xscale("log")          # trục y TUYẾN TÍNH: đường thẳng đi lên = tăng theo log(C)
-    ax.set_xlabel("C  (= $1/\\alpha$, càng lớn càng ÍT phạt)")
+    ax.set_xscale("log")          # trục y tuyến tính: đường thẳng đi lên = tăng theo log(C)
+    ax.set_xlabel("C  (= $1/\\alpha$, càng lớn càng ít phạt)")
     ax.set_ylabel("$\\|w\\|$")
     ax.set_title("Chuẩn $\\|w\\|$ theo tham số C", fontsize=10)
     ax.text(.03, .97,
@@ -370,10 +369,9 @@ def fig_polynomial_logistic():
         tr_a, te_a = m.score(Xtr, ytr) * 100, m.score(Xte, yte) * 100
         note = {1: "thẳng, underfit", 3: "cong vừa", 6: "bám sát hai vành trăng",
                 20: "uốn éo, overfit"}[d]
-        ax.set_title(f"degree = {d}  ({note})", fontsize=10)
-        ax.text(.03, .04, f"train acc = {tr_a:.1f}%\ntest  acc = {te_a:.1f}%",
-                transform=ax.transAxes, fontsize=8.8, va="bottom",
-                fontweight="bold" if d == 20 else "normal", bbox=BOX)
+        # accuracy đưa lên tiêu đề để không có hộp nào che dữ liệu hay ranh giới
+        ax.set_title(f"degree = {d}  ({note})\n"
+                     f"train acc = {tr_a:.1f}%,  test acc = {te_a:.1f}%", fontsize=9.5)
         ax.set_xlabel("$x_1$"); ax.set_ylabel("$x_2$")
     fig.suptitle("Ranh giới cong nhờ polynomial features", fontweight="bold", y=.995)
     fig.text(.5, .925, "các chấm hiển thị là tập train", ha="center", va="top",
@@ -417,15 +415,13 @@ def fig_softmax():
         ax.contourf(xx, yy, Z, levels=[-.5, .5, 1.5, 2.5],
                     colors=["#bfdbfe", "#bbf7d0", "#fecaca"])
         ax.contour(xx, yy, Z, levels=[.5, 1.5], colors="k", linewidths=1.8)
-        # màu điểm PHẢI khớp màu vùng: lớp 0 xanh dương, lớp 1 xanh lá, lớp 2 đỏ
+        # màu điểm cần khớp màu vùng: lớp 0 xanh dương, lớp 1 xanh lá, lớp 2 đỏ
         for c, col in zip([0, 1, 2], PT_COLORS):
             ax.scatter(X[y == c, 0], X[y == c, 1], color=col, s=22,
                        edgecolor="k", linewidth=.35, label=f"lớp {c}")
         ax.legend(fontsize=7.8, loc="upper right", framealpha=.94)
-        ax.set_title(f"{ttl}   acc = {clf.score(X, y)*100:.1f}%", fontsize=9.5)
-        ax.text(.03, .03, note, transform=ax.transAxes, fontsize=8.2, va="bottom",
-                bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=.93,
-                          edgecolor="0.8"))
+        # ghi chú đưa lên tiêu đề để không che đường ranh giới ở đáy hình
+        ax.set_title(f"{ttl}   acc = {clf.score(X, y)*100:.1f}%\n{note}", fontsize=9.5)
         ax.set_xlabel("$x_1$"); ax.set_ylabel("$x_2$")
     fig.suptitle("Mở rộng lên nhiều lớp: Softmax Regression", fontweight="bold")
     fig.tight_layout()
@@ -482,7 +478,7 @@ def fig_threshold():
     fpr, tpr, thr = roc_curve(yte, pr)
     ax = axes[2]
     ax.plot(fpr, tpr, color=C1, lw=2.4, label=f"ROC (AUC = {auc(fpr, tpr):.3f})")
-    ax.plot([0, 1], [0, 1], "--", color="gray", label="đoán mò")
+    ax.plot([0, 1], [0, 1], "--", color="gray", label="ngẫu nhiên")
     for t, col in [(.3, C3), (.5, "k"), (.7, C4)]:
         i = int(np.argmin(np.abs(thr - t)))
         ax.scatter([fpr[i]], [tpr[i]], color=col, s=75, zorder=5)

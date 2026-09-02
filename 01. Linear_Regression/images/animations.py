@@ -61,7 +61,9 @@ def anim_gradient_descent():
     a1.set_title("Đường hồi quy đang được học", fontsize=10.5)
     a1.set_ylim(y.min() - 6, y.max() + 6)
     a1.set_xlim(xr.min() - .4, xr.max() + .4)
-    info = a1.text(.03, .96, "", transform=a1.transAxes, va="top", fontsize=9.5, bbox=BOX)
+    # đặt ở góc dưới phải: vùng này không bao giờ bị đường hồi quy hay dữ liệu đi qua
+    info = a1.text(.97, .04, "", transform=a1.transAxes, ha="right", va="bottom",
+                   fontsize=9.5, bbox=BOX)
 
     a2.contour(W, B, Z, levels=np.geomspace(Z.min() + 1, Z.max(), 14),
                colors="0.6", linewidths=.8)

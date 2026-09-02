@@ -51,7 +51,7 @@ def fig_bayes_theorem():
     ax.set_xticks([]); ax.set_yticks([]); ax.grid(False)
     ax.set_title("10.000 người đi xét nghiệm", fontsize=10)
     handles = [Rectangle((0, 0), 1, 1, color=c) for c in ["#e5e7eb", "#fca5a5", "#fde68a", "#dc2626"]]
-    ax.legend(handles, [f"khoẻ, âm tính ({tn})", f"khoẻ, DƯƠNG TÍNH GIẢ ({fp})",
+    ax.legend(handles, [f"khoẻ, âm tính ({tn})", f"khoẻ, dương tính giả ({fp})",
                         f"bệnh, âm tính giả ({fn})", f"bệnh, dương tính đúng ({tp})"],
               fontsize=7.2, loc="upper center", bbox_to_anchor=(.5, -.02), ncol=2)
 
@@ -63,10 +63,10 @@ def fig_bayes_theorem():
     ax.set_title(f"Trong {fp + tp} người có kết quả dương tính", fontsize=10)
     for i, v in enumerate([fp, tp]):
         ax.text(i, v + 12, str(v), ha="center", fontweight="bold")
-    ax.text(.5, fp * .62, f"chỉ {tp/(tp+fp)*100:.1f}% thật sự có bệnh!",
-            ha="center", fontsize=11, color=C2, fontweight="bold",
+    ax.text(1.0, fp * .55, f"chỉ {tp/(tp+fp)*100:.1f}% thật sự có bệnh",
+            ha="center", fontsize=10.5, color="#374151",
             bbox=dict(boxstyle="round,pad=0.35", facecolor="white", alpha=.94,
-                      edgecolor=C2, linewidth=1.2))
+                      edgecolor="0.8"))
     ax.set_ylim(0, fp * 1.25)
 
     # (c) công thức
@@ -79,14 +79,14 @@ def fig_bayes_theorem():
             "$=\\dfrac{0.99 \\times 0.01}"
             "{0.99\\times 0.01 + 0.05\\times 0.99} = 0.167$", fontsize=13, va="top")
     ax.text(0, .36,
-            "Xét nghiệm chính xác 99% NHƯNG bệnh chỉ\n"
-            "gặp ở 1% dân số → prior $P(\\mathrm{bệnh})$ quá nhỏ\n"
+            "Xét nghiệm chính xác 99% nhưng bệnh chỉ\n"
+            "gặp ở 1% dân số, nên prior $P(\\mathrm{bệnh})$ quá nhỏ\n"
             "khiến posterior vẫn thấp.\n\n"
-            "Đây chính là lý do Naive Bayes LUÔN nhân\n"
-            "likelihood với PRIOR, bỏ prior đi là sai\n"
-            "hoàn toàn ở các bài mất cân bằng.",
+            "Vì vậy Naive Bayes luôn nhân likelihood\n"
+            "với prior; bỏ prior đi sẽ sai đáng kể\n"
+            "ở các bài mất cân bằng.",
             fontsize=9.3, va="top", color="#374151")
-    fig.suptitle("Định lý Bayes: prior × likelihood → posterior", fontweight="bold")
+    fig.suptitle("Định lý Bayes: posterior tỉ lệ với prior nhân likelihood", fontweight="bold")
     fig.tight_layout()
     save(fig, "01_dinh_ly_bayes.png")
 
@@ -120,23 +120,23 @@ def fig_naive_assumption():
     ax.text(0, .92, "$P(x_1,\\dots,x_n\\mid y)=\\prod_{i=1}^{n} P(x_i\\mid y)$",
             fontsize=12.5, va="top")
     ax.text(0, .72,
-            "MẤT: toàn bộ thông tin về tương quan giữa\ncác feature (hình giữa méo hẳn so với trái).",
+            "Mất: toàn bộ thông tin về tương quan giữa\ncác feature (hình giữa khác hẳn hình trái).",
             fontsize=9.2, va="top", color="#374151")
     ax.text(0, .57,
-            "ĐƯỢC: số tham số phải ước lượng giảm từ\nhàm MŨ xuống hàm TUYẾN TÍNH.",
+            "Được: số tham số phải ước lượng giảm từ\nhàm mũ xuống hàm tuyến tính.",
             fontsize=9.2, va="top", color="#374151")
     ax.text(0, .42, "Với $n$ feature nhị phân, mỗi lớp cần:", fontsize=9.4,
             va="top", fontweight="bold")
     ax.text(0, .34,
             "• Phân phối liên kết đầy đủ: $2^n-1$ tham số\n"
-            "    $n=30$ → hơn 1 TỶ tham số\n"
+            "    $n=30$: hơn 1 tỷ tham số\n"
             "• Naive Bayes: chỉ $n$ tham số\n"
-            "    $n=30$ → đúng 30",
+            "    $n=30$: đúng 30",
             fontsize=9.2, va="top", color="#374151")
     ax.text(0, .08,
             "Sai giả định nhưng vẫn dùng được, vì phân loại\n"
             "chỉ cần argmax đúng, không cần xác suất đúng.",
-            fontsize=9.0, va="top", color=C2, style="italic")
+            fontsize=9.0, va="top", color="#374151", style="italic")
     fig.suptitle("Giả định độc lập có điều kiện của Naive Bayes",
                  fontweight="bold")
     fig.tight_layout()
@@ -153,11 +153,11 @@ def fig_three_variants():
     ax.bar([1 + w/2, 2 + w/2], [.80, .20], width=w, color=C3, label="lớp ham")
     ax.set_xticks([1, 2]); ax.set_xticklabels(["$x_i=0$\n(không có từ)", "$x_i=1$\n(có từ)"])
     ax.set_ylabel("$P(x_i\\,|\\,y)$")
-    ax.legend(fontsize=8.5, loc="center", bbox_to_anchor=(.5, .42), framealpha=.94)
+    ax.legend(fontsize=8.5, loc="upper right", framealpha=.94)   # trên đỉnh cột cao nhất (0.8)
     ax.set_title("BernoulliNB: feature nhị phân\n"
                  "$P(x_i|y)=p^{x_i}(1-p)^{1-x_i}$", fontsize=10)
     ax.set_ylim(0, 1.18)
-    ax.text(.02, .97, "Chú ý: với Bernoulli, việc từ KHÔNG xuất hiện\ncũng được tính là bằng chứng",
+    ax.text(.02, .97, "với Bernoulli, việc từ không xuất hiện\ncũng được tính là bằng chứng",
             transform=ax.transAxes, fontsize=8.4, color="#374151", va="top",
             bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=.93,
                       edgecolor="0.8"))
@@ -173,7 +173,7 @@ def fig_three_variants():
     ax.set_title("MultinomialNB: feature đếm\n"
                  "$P(x|y)\\propto\\prod_i p_{i,y}^{x_i}$", fontsize=10)
     ax.set_ylim(0, ax.get_ylim()[1] * 1.30)
-    ax.text(.98, .97, "Chỉ đếm những từ CÓ mặt;\ntừ vắng mặt không đóng góp gì",
+    ax.text(.98, .97, "chỉ đếm những từ có mặt;\ntừ vắng mặt không đóng góp gì",
             transform=ax.transAxes, fontsize=8.4, color="#374151", va="top", ha="right",
             bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=.93,
                       edgecolor="0.8"))
@@ -220,14 +220,14 @@ def fig_gaussian_nb_boundary():
                                  angle=ang, fill=False, edgecolor=color, lw=1.8,
                                  ls="--", zorder=6))
 
-    fig, axes = plt.subplots(1, 3, figsize=(15, 4.6))
+    fig, axes = plt.subplots(1, 3, figsize=(15, 5.0))
     specs = [
         (GaussianNB(), "GaussianNB",
-         "giả định 2 feature ĐỘC LẬP → hiệp phương sai\nbị ép về dạng đường chéo → ellipse SONG SONG TRỤC"),
+         "giả định 2 feature độc lập nên hiệp phương sai\nlà ma trận đường chéo, ellipse song song trục"),
         (QuadraticDiscriminantAnalysis(store_covariance=True), "QDA",
-         "hiệp phương sai ĐẦY ĐỦ, mỗi lớp một ma trận\n→ ellipse NGHIÊNG theo đúng dáng dữ liệu"),
+         "hiệp phương sai đầy đủ, mỗi lớp một ma trận,\nnên ellipse nghiêng theo đúng dáng dữ liệu"),
         (LinearDiscriminantAnalysis(store_covariance=True), "LDA",
-         "hiệp phương sai đầy đủ nhưng CHUNG cho mọi lớp\n→ hai ellipse giống hệt nhau, ranh giới THẲNG"),
+         "hiệp phương sai đầy đủ nhưng chung cho mọi lớp,\nnên hai ellipse giống hệt nhau, ranh giới thẳng"),
     ]
     for ax, (mdl, name, sub) in zip(axes, specs):
         m = mdl.fit(X, y)
@@ -250,9 +250,9 @@ def fig_gaussian_nb_boundary():
         ax.set_title(f"{name}   acc = {m.score(X, y) * 100:.1f}%",
                      fontsize=10.5, fontweight="bold")
         ax.set_xlabel("$x_1$"); ax.set_ylabel("$x_2$")
-        ax.text(.02, .03, sub, transform=ax.transAxes, fontsize=8.3, va="bottom",
-                bbox=dict(boxstyle="round,pad=0.32", facecolor="white",
-                          alpha=.94, edgecolor="0.8"))
+        # chú thích đặt dưới nhãn trục x để không che dữ liệu hay ranh giới
+        ax.text(.5, -.26, sub, transform=ax.transAxes, fontsize=8.5, ha="center",
+                va="top", color="#374151")
     fig.suptitle("Ranh giới của GaussianNB, QDA và LDA", fontweight="bold", y=.995)
     fig.text(.5, .935, "nét đứt là ellipse Gaussian mà mỗi model khớp vào dữ liệu, "
              "ở mức 1σ và 2σ", ha="center", va="top", fontsize=9, color="#374151")
@@ -276,8 +276,7 @@ def fig_laplace_smoothing():
     ax.set_xticks(range(V)); ax.set_xticklabels(words, rotation=25, ha="right")
     ax.set_ylabel("$P(\\mathrm{từ}\\,|\\,\\mathrm{lớp\\ positive})$"); ax.legend(fontsize=8)
     ax.set_title("Xác suất của từng từ theo $\\alpha$", fontsize=10)
-    ax.annotate("$P=0$ !", (3, 0), xytext=(3.1, .18), color=C2, fontsize=10,
-                arrowprops=dict(arrowstyle="->", color=C2))
+    ax.text(3 - 1.5 * w, .012, "$P=0$", color=C2, fontsize=9, ha="center", va="bottom")
 
     ax = axes[1]
     ags = np.geomspace(1e-3, 1e3, 200)
@@ -287,7 +286,8 @@ def fig_laplace_smoothing():
     ax.axhline(1 / V, color="k", ls="--", lw=1.4)
     ax.text(1.5e-3, 1 / V * 1.08, "$1/V$: phân phối đều", fontsize=8.3)
     ax.set_xscale("log"); ax.set_xlabel(r"$\alpha$"); ax.set_ylabel("xác suất ước lượng")
-    ax.legend(fontsize=7, ncol=2)
+    ax.set_ylim(0, .70)
+    ax.legend(fontsize=7, ncol=2, loc="upper right", framealpha=.94)
     ax.set_title("Ảnh hưởng của $\\alpha$ lên ước lượng", fontsize=10)
 
     ax = axes[2]; ax.axis("off")
@@ -304,8 +304,8 @@ def fig_laplace_smoothing():
     ax.text(0, .42,
             "• $\\alpha=1$: Laplace (add-one), mặc định sklearn\n"
             "• $0<\\alpha<1$: Lidstone, thường tốt hơn cho text\n"
-            "• $\\alpha\\to\\infty$: mọi từ như nhau → model vô dụng\n"
-            "• $\\alpha=0$: từ chưa từng thấy → $P=0$ → sập",
+            "• $\\alpha\\to\\infty$: mọi từ như nhau, model hết phân biệt\n"
+            "• $\\alpha=0$: từ chưa từng thấy có $P=0$, tích bằng 0",
             fontsize=9.0, va="top", color="#374151")
     ax.text(0, .13,
             "Cách đọc theo Bayes: $\\alpha$ chính là prior\nDirichlet trên phân phối từ.",
@@ -326,14 +326,14 @@ def fig_log_probabilities():
     ax = axes[0]
     ax.plot(prod, color=C2, lw=2.2)
     ax.axhline(np.finfo(float).tiny, color="k", ls="--", lw=1.4)
-    ax.text(210, np.finfo(float).tiny * 60,
+    ax.text(210, np.finfo(float).tiny * 3e3,  # nâng hộp lên để không che đường gạch ngang
             "giới hạn dưới của float64\n($\\approx 2.2\\times10^{-308}$)",
             fontsize=8.4, va="bottom",
             bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=.93,
                       edgecolor="0.8"))
     z = np.argmax(prod == 0) if (prod == 0).any() else len(prod)
     ax.axvline(z, color=C2, ls=":", lw=1.8)
-    ax.text(z + 12, 1e-120, f"về ĐÚNG 0 sau {z} từ\n→ mọi lớp đều bằng 0\n→ không so sánh được",
+    ax.text(z + 12, 1e-120, f"về đúng 0 sau {z} từ,\nmọi lớp đều bằng 0\nnên không so sánh được",
             color=C2, fontsize=8.6, va="top",
             bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=.93,
                       edgecolor="0.8"))
@@ -390,9 +390,9 @@ def fig_generative_vs_discriminative():
     fig = plt.figure(figsize=(15, 4.5))
     panels = [
         (0.0, "Thế giới A: giả định độc lập đúng\n(feature độc lập có điều kiện)",
-         "NB đúng mô hình → hội tụ sớm (từ ~100 mẫu)\nvà về đích CAO HƠN Logistic"),
+         "NB đúng mô hình nên hội tụ sớm (từ ~100 mẫu)\nvà về đích cao hơn Logistic"),
         (0.55, "Thế giới B: giả định độc lập sai\n(các feature chia sẻ một yếu tố chung)",
-         "NB bị CHẶN bởi giả định sai;\nLogistic vượt lên và giữ khoảng cách"),
+         "NB bị chặn bởi giả định sai;\nLogistic vượt lên và giữ khoảng cách"),
     ]
     for k, (rho, ttl, note) in enumerate(panels):
         sizes, nb, lr = curve(rho)
@@ -456,12 +456,12 @@ def fig_correlation_hurts():
     ax.plot(reps, nb, "o-", color=C3, lw=2.2, label="Gaussian NB")
     ax.plot(reps, lr, "s-", color=C1, lw=2.2, label="Logistic Regression")
     ax.set_xscale("log", base=2)
-    ax.set_xlabel("số bản SAO của cùng một feature (thông tin không hề tăng)")
+    ax.set_xlabel("số bản sao của cùng một feature (thông tin không tăng)")
     ax.set_ylabel("accuracy (CV 5-fold)"); ax.legend(fontsize=8.5)
     ax.set_title("Accuracy khi nhân bản một feature", fontsize=10)
 
     ax = axes[1]; ax.axis("off")
-    ax.text(0, 1.00, "Vì sao nhân bản feature lại giết Naive Bayes?", fontsize=11,
+    ax.text(0, 1.00, "Vì sao nhân bản feature làm hại Naive Bayes?", fontsize=11,
             fontweight="bold", va="top")
     ax.text(0, .88,
             "Giả sử $x_1$ được sao thành $x_1, x_1', x_1''$ (giống hệt nhau).\n"
@@ -470,18 +470,18 @@ def fig_correlation_hurts():
     ax.text(0, .70, r"$P(x_1|y)\cdot P(x_1'|y)\cdot P(x_1''|y) = P(x_1|y)^3$",
             fontsize=12.5, va="top")
     ax.text(0, .56,
-            "→ MỘT bằng chứng bị TÍNH BA LẦN. Model trở nên\n"
+            "Một bằng chứng bị tính ba lần. Model trở nên\n"
             "tự tin thái quá và lệch hẳn về phía $x_1$ ủng hộ.",
             fontsize=9.3, va="top", color="#374151")
     ax.text(0, .40,
             "Logistic Regression thì chia trọng số giữa các bản\n"
-            "sao → tổng đóng góp không đổi.",
+            "sao nên tổng đóng góp không đổi.",
             fontsize=9.3, va="top", color="#374151")
     ax.text(0, .22,
-            "THỰC HÀNH: trước khi dùng NB, hãy bỏ bớt feature\n"
+            "Trong thực hành: trước khi dùng NB, nên bỏ bớt feature\n"
             "trùng lặp (kiểm tra ma trận tương quan). Với text,\n"
             "dùng TF-IDF thay raw count cũng giảm đếm trùng.",
-            fontsize=9.0, va="top", color=C2, style="italic")
+            fontsize=9.0, va="top", color="#374151")
     fig.suptitle("Feature trùng lặp bị Naive Bayes đếm nhiều lần", fontweight="bold")
     fig.tight_layout()
     save(fig, "08_tuong_quan_pha_naive_bayes.png")
@@ -523,17 +523,17 @@ def fig_text_pipeline():
     ax.text(0, .68,
             r"$P(w \mid y)=\dfrac{\text{đếm}(w,y)+\alpha}"
             r"{\sum_{w'}\text{đếm}(w',y)+\alpha V}$", fontsize=12, va="top")
-    ax.text(0, .44, "Dự đoán doc mới:", fontsize=9.4, va="top", fontweight="bold")
-    ax.text(0, .36,
+    ax.text(0, .39, "Dự đoán doc mới:", fontsize=9.4, va="top", fontweight="bold")
+    ax.text(0, .31,
             r"$\hat{y}=\arg\max_y [\log P(y) + \sum_w n_w \log P(w\mid y)]$",
             fontsize=10, va="top")
-    ax.text(0, .21,
-            "Toàn bộ \"huấn luyện\" chỉ là ĐẾM: một lượt duyệt\n"
-            "dữ liệu, không lặp, không learning rate. Đó là lý do\n"
-            "NB nhanh hơn mọi model khác hàng trăm lần.",
+    ax.text(0, .18,
+            "Toàn bộ \"huấn luyện\" chỉ là đếm: một lượt duyệt\n"
+            "dữ liệu, không lặp, không learning rate. Vì vậy\n"
+            "NB train nhanh hơn hẳn các model tối ưu lặp.",
             fontsize=8.9, va="top", color="#374151")
-    ax.text(0, .01, "⚠️ fit_transform CHỈ trên train, transform trên test.",
-            fontsize=8.9, va="top", color=C2, fontweight="bold")
+    ax.text(0, -.04, "fit_transform chỉ trên train, transform trên test.",
+            fontsize=8.9, va="top", color="#374151")
     fig.suptitle("Đường ống phân loại văn bản với Naive Bayes", fontweight="bold")
     fig.tight_layout()
     save(fig, "09_duong_ong_van_ban.png")
