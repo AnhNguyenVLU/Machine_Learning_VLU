@@ -38,7 +38,7 @@ def fig_regression_vs_classification():
     y = 50 + 0.3 * x + rng.normal(0, 6, 60)
     ax[0].scatter(x, y, s=22, color=C1, alpha=.75)
     ax[0].plot(x, 50 + .3 * x, color=C2, lw=2)
-    ax[0].set_title("HỒI QUY: output là số thực liên tục")
+    ax[0].set_title("Hồi quy: output là số thực liên tục")
     ax[0].set_xlabel("Diện tích (m²)"); ax[0].set_ylabel("Giá (triệu)")
     ax[0].set_ylim(y.min() - 6, y.max() + 14)
     ax[0].annotate("mỗi diện tích cho ra\nMỘT con số (98.0 triệu)", xy=(160, 50 + .3 * 160),
@@ -54,7 +54,7 @@ def fig_regression_vs_classification():
     ax[1].set_ylim(.3, 7.0)
     xx = np.linspace(.6, 5.8, 10)
     ax[1].plot(xx, 6.6 - xx, "k--", lw=1.8)
-    ax[1].set_title("PHÂN LOẠI: output là nhãn rời rạc")
+    ax[1].set_title("Phân loại: output là nhãn rời rạc")
     ax[1].set_xlabel("feature 1"); ax[1].set_ylabel("feature 2")
     ax[1].legend(fontsize=8, loc="lower left", framealpha=.92)
     fig.suptitle("Hai họ bài toán học có giám sát", fontweight="bold")
@@ -90,9 +90,12 @@ def fig_residuals_geometry():
     ax.set_ylim(y.min() - 1.4, y.max() + 2.6)
     ax.set_xlabel("x"); ax.set_ylabel("y")
     ax.legend(fontsize=8.4, loc="upper left", framealpha=.95)
-    ax.set_title("MSE = trung bình DIỆN TÍCH các hình vuông sai số\n"
-                 "điểm xa gấp đôi → ô vuông rộng gấp 4 → bị phạt gấp 4",
-                 fontsize=10.5)
+    ax.text(.98, .04, "điểm xa gấp đôi thì ô vuông rộng gấp 4,\n"
+            "nên bị phạt nặng gấp 4",
+            transform=ax.transAxes, fontsize=8.6, ha="right", va="bottom",
+            bbox=dict(boxstyle="round,pad=0.32", facecolor="white",
+                      alpha=.93, edgecolor="0.8"))
+    ax.set_title("Diện tích các hình vuông sai số trong MSE", fontsize=10.5)
     save(fig, "02_mse_hinh_vuong_sai_so.png")
 
 
@@ -131,8 +134,7 @@ def fig_loss_surface_gd():
     ax1.set_xlabel("w", labelpad=-1); ax1.set_ylabel("b", labelpad=-1)
     ax1.set_zlabel("MSE", labelpad=6)
     ax1.tick_params(labelsize=7.5, pad=1)
-    ax1.set_title("Mặt mất mát MSE(w, b): một cái bát LỒI\n"
-                  "thả bi từ đâu cũng lăn về đúng một đáy", fontsize=10, pad=-4)
+    ax1.set_title("Mặt mất mát MSE(w, b)", fontsize=10, pad=-4)
     ax1.view_init(elev=34, azim=-128)
 
     ax2 = fig.add_subplot(1, 2, 2)
@@ -156,9 +158,13 @@ def fig_loss_surface_gd():
     ax2.set_xlim(-1, 7); ax2.set_ylim(-6, 16)
     ax2.set_xlabel("w"); ax2.set_ylabel("b")
     ax2.legend(fontsize=7.8, loc="lower left", framealpha=.94)
-    ax2.set_title("Nhìn từ trên xuống: GD luôn đi vuông góc với đường đồng mức",
-                  fontsize=10)
-    fig.suptitle("MSE của hồi quy tuyến tính là hàm LỒI: chỉ có MỘT cực tiểu toàn cục",
+    ax2.text(.98, .03, "hàm lồi nên chỉ có một cực tiểu toàn cục;\n"
+             "mỗi bước GD đi vuông góc với đường đồng mức",
+             transform=ax2.transAxes, fontsize=8.2, ha="right", va="bottom",
+             bbox=dict(boxstyle="round,pad=0.3", facecolor="white",
+                       alpha=.93, edgecolor="0.8"))
+    ax2.set_title("Đường đi của GD nhìn từ trên xuống", fontsize=10)
+    fig.suptitle("Mặt mất mát MSE và đường đi của Gradient Descent",
                  fontweight="bold")
     fig.tight_layout(rect=[0, 0, 1, .94])
     save(fig, "03_mat_mat_mat_va_duong_di_gd.png")
@@ -192,9 +198,9 @@ def fig_learning_rate():
     W, B = np.meshgrid(np.linspace(-14, 30, 300), np.linspace(-6, 46, 300))
     Z = np.mean((W[None] * x[:, None, None] + B[None] - y[:, None, None]) ** 2, axis=0)
 
-    cfg = [(0.02, "lr QUÁ NHỎ  (0.02)", "40 bước vẫn chưa tới đích\nĐúng hướng, nhưng phí thời gian", C1),
-           (0.35, "lr VỪA  (0.35)", "Hội tụ đúng tâm sau ~15 bước", C3),
-           (1.02, "lr QUÁ LỚN  (1.02)", "Vượt ngưỡng 1.0 → văng ra xa dần\nLoss tăng vọt rồi thành inf", C2)]
+    cfg = [(0.02, "lr quá nhỏ (0.02)", "40 bước vẫn chưa tới đích\nĐúng hướng, nhưng phí thời gian", C1),
+           (0.35, "lr vừa (0.35)", "Hội tụ đúng tâm sau ~15 bước", C3),
+           (1.02, "lr quá lớn (1.02)", "Vượt ngưỡng 1.0 → văng ra xa dần\nLoss tăng vọt rồi thành inf", C2)]
 
     fig, axes = plt.subplots(2, 3, figsize=(13.5, 7.4),
                              gridspec_kw={"height_ratios": [1.45, 1]})
@@ -229,10 +235,12 @@ def fig_learning_rate():
                 fontsize=8.8, ha="right", va="top", color=col, fontweight="bold",
                 bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=.92,
                           edgecolor="0.8"))
-    fig.suptitle("Learning rate quyết định số phận của Gradient Descent  "
-                 r"(ở đây feature đã chuẩn hoá nên ngưỡng phân kỳ đúng bằng $2/\lambda_{max}=1.0$)",
-                 fontweight="bold", fontsize=11.5)
-    fig.tight_layout(rect=[0, 0, 1, .96])
+    fig.suptitle("Ba chế độ của learning rate", fontweight="bold", fontsize=12,
+                 y=.995)
+    fig.text(.5, .958,
+             r"feature đã chuẩn hoá nên ngưỡng phân kỳ đúng bằng $2/\lambda_{max}=1.0$",
+             ha="center", fontsize=9.2, color="#374151")
+    fig.tight_layout(rect=[0, 0, 1, .942])
     save(fig, "04_anh_huong_learning_rate.png")
 
 
@@ -279,10 +287,14 @@ def fig_normal_equation_projection():
     ax.set_xlim(-2.2, 2.2); ax.set_ylim(-2.2, 2.2); ax.set_zlim(-.35, 1.6)
     ax.set_xticks([]); ax.set_yticks([]); ax.set_zticks([])
     ax.set_box_aspect((1, 1, .62))
-    ax.set_title("Ý nghĩa hình học của Normal Equation\n"
-                 r"$\hat{y}$ là HÌNH CHIẾU VUÔNG GÓC của $y$ xuống không gian cột của $X$"
-                 "\n" r"$X^T(y-X\theta)=0 \;\Rightarrow\; \hat{\theta}=(X^TX)^{-1}X^Ty$",
-                 fontsize=10.5, pad=2)
+    ax.text2D(.5, .015,
+              r"$\hat{y}$ là hình chiếu vuông góc của $y$ xuống không gian cột của $X$"
+              "\n"
+              r"$X^T(y-X\theta)=0 \;\Rightarrow\; \hat{\theta}=(X^TX)^{-1}X^Ty$",
+              transform=ax.transAxes, fontsize=9.2, ha="center", va="bottom",
+              bbox=dict(boxstyle="round,pad=0.32", facecolor="white",
+                        alpha=.93, edgecolor="0.8"))
+    ax.set_title("Ý nghĩa hình học của Normal Equation", fontsize=10.5, pad=2)
     ax.view_init(elev=17, azim=-62)
     save(fig, "05_normal_equation_hinh_chieu.png")
 
@@ -293,12 +305,18 @@ def fig_residual_diagnostics():
     n = 120
     x = np.linspace(0, 10, n)
     cases = [
-        ("ĐẠT: phần dư ngẫu nhiên quanh 0", 2 * x + 3 + rng.normal(0, 1.2, n), C3),
-        ("LỖI: quan hệ phi tuyến còn sót\n→ thêm $x^2$ hoặc đổi model", 0.32 * x ** 2 + rng.normal(0, 1.2, n), C4),
-        ("LỖI: phương sai tăng dần (heteroscedasticity)\n→ log-transform y hoặc dùng WLS", 2 * x + 3 + rng.normal(0, .25 + .45 * x, n), C2),
+        ("Đạt: phần dư ngẫu nhiên quanh 0",
+         "không còn dạng nào sót lại,\nmô hình tuyến tính là đủ",
+         2 * x + 3 + rng.normal(0, 1.2, n), C3),
+        ("Lỗi: quan hệ phi tuyến còn sót",
+         "phần dư uốn thành hình chữ U,\ncần thêm $x^2$ hoặc đổi model",
+         0.32 * x ** 2 + rng.normal(0, 1.2, n), C4),
+        ("Lỗi: phương sai tăng dần",
+         "hiện tượng heteroscedasticity,\nnên log-transform y hoặc dùng WLS",
+         2 * x + 3 + rng.normal(0, .25 + .45 * x, n), C2),
     ]
     fig, axes = plt.subplots(1, 3, figsize=(13, 3.7))
-    for ax, (title, y, col) in zip(axes, cases):
+    for ax, (title, note, y, col) in zip(axes, cases):
         w, b = np.polyfit(x, y, 1)
         r = y - (w * x + b)
         ax.axhline(0, color="k", lw=1.2)
@@ -306,8 +324,11 @@ def fig_residual_diagnostics():
         ax.set_title(title, fontsize=9.5)
         ax.set_xlabel("giá trị dự đoán $\\hat{y}$"); ax.set_ylabel("phần dư $y-\\hat{y}$")
         lo, hi = r.min(), r.max()
-        ax.set_ylim(lo - (hi - lo) * .10, hi + (hi - lo) * .18)
-    fig.suptitle("Residual plot — công cụ chẩn đoán số 1 của hồi quy tuyến tính",
+        ax.set_ylim(lo - (hi - lo) * .10, hi + (hi - lo) * .34)
+        ax.text(.03, .97, note, transform=ax.transAxes, fontsize=8.2, va="top",
+                bbox=dict(boxstyle="round,pad=0.3", facecolor="white",
+                          alpha=.93, edgecolor="0.8"))
+    fig.suptitle("Residual plot: ba dạng phần dư thường gặp",
                  fontweight="bold")
     fig.tight_layout()
     save(fig, "06_chan_doan_phan_du.png")
@@ -333,9 +354,9 @@ def fig_bias_variance():
     xx = np.linspace(0, 2 * np.pi, 500).reshape(-1, 1)
 
     fig, axes = plt.subplots(1, 4, figsize=(16.5, 3.9))
-    for ax, (d, lab, col) in zip(axes[:3], [(1, "degree 1 — UNDERFIT (bias cao)", C1),
-                                            (6, "degree 6 — VỪA ĐẸP", C3),
-                                            (17, "degree 17 — OVERFIT (variance cao)", C2)]):
+    for ax, (d, lab, col) in zip(axes[:3], [(1, "degree 1: underfit (bias cao)", C1),
+                                            (6, "degree 6: vừa đẹp", C3),
+                                            (17, "degree 17: overfit (variance cao)", C2)]):
         m = poly(d).fit(xt.reshape(-1, 1), yt)
         ax.plot(xx, np.sin(xx), "--", color="gray", lw=1.6, label="hàm thật sin(x)")
         ax.plot(xx, m.predict(xx), color=col, lw=2.3, label=f"model bậc {d}")
@@ -364,9 +385,13 @@ def fig_bias_variance():
                 bbox=dict(boxstyle="round,pad=0.3", facecolor="white",
                           alpha=.93, edgecolor="0.8"))
     ax.set_xlabel("bậc đa thức (độ phức tạp)"); ax.set_ylabel("RMSE (thang log)")
-    ax.set_title("Đường cong bias–variance", fontsize=10)
+    ax.set_title("Đường cong bias-variance", fontsize=10)
     ax.legend(fontsize=8, loc="upper left", framealpha=.92)
-    fig.suptitle("Train RMSE giảm rồi nằm phẳng, Test RMSE giảm rồi TĂNG — đó là overfitting",
+    ax.text(.97, .03, "test RMSE quay đầu đi lên\nchính là overfitting",
+            transform=ax.transAxes, fontsize=8.0, ha="right", va="bottom",
+            bbox=dict(boxstyle="round,pad=0.3", facecolor="white",
+                      alpha=.93, edgecolor="0.8"))
+    fig.suptitle("Đánh đổi bias và variance theo bậc đa thức",
                  fontweight="bold")
     fig.tight_layout(rect=[0, 0, 1, .95])
     save(fig, "07_bias_variance_tradeoff.png")
@@ -450,11 +475,15 @@ def fig_ridge_lasso():
                 alpha=1.0 if real else .55,
                 label=("$w_%d$ (thật)" % i) if real else ("$w_%d$ (nhiễu)" % i if i == 1 else None))
     ax.set_xscale("log"); ax.axhline(0, color="k", lw=1)
-    ax.set_xlabel(r"$\alpha$ (mức phạt) — tăng dần $\rightarrow$")
+    ax.set_xlabel(r"$\alpha$ (mức phạt) tăng dần $\rightarrow$")
     ax.set_ylabel("giá trị hệ số")
-    ax.set_title("Lasso path: hệ số lần lượt bị ép về ĐÚNG 0\n→ tự động chọn feature", fontsize=10.5)
+    ax.set_title("Lasso path của các hệ số", fontsize=10.5)
     ax.legend(fontsize=7.5, ncol=1, loc="center right", bbox_to_anchor=(1.0, 0.62))  # vùng α>3 trống
-    fig.suptitle("Vì sao Lasso chọn được feature còn Ridge thì không", fontweight="bold")
+    ax.text(.03, .04, "hệ số lần lượt bị ép về đúng 0,\ntức là tự động chọn feature",
+            transform=ax.transAxes, fontsize=8.2, va="bottom",
+            bbox=dict(boxstyle="round,pad=0.3", facecolor="white",
+                      alpha=.93, edgecolor="0.85"))
+    fig.suptitle("Ridge và Lasso: hình học của vùng ràng buộc", fontweight="bold")
     fig.tight_layout()
     save(fig, "08_ridge_vs_lasso.png")
 
@@ -468,8 +497,8 @@ def fig_outlier_robustness():
     xo = np.r_[x, [2., 3., 4.]]; yo = np.r_[y, [70., 75., 72.]]
 
     fig, axes = plt.subplots(1, 3, figsize=(13.5, 3.9))
-    for ax, (xa, ya, ttl) in zip(axes[:2], [(x, y, "Không có outlier"),
-                                            (xo, yo, "Thêm 3 outlier ở y≈72")]):
+    for k, (ax, (xa, ya, ttl)) in enumerate(zip(axes[:2], [(x, y, "Không có outlier"),
+                                                           (xo, yo, "Thêm 3 outlier ở y≈72")])):
         ols = LinearRegression().fit(xa.reshape(-1, 1), ya)
         hub = HuberRegressor().fit(xa.reshape(-1, 1), ya)
         ax.scatter(xa, ya, s=22, color=C1, alpha=.7)
@@ -479,7 +508,14 @@ def fig_outlier_robustness():
                 label=f"OLS/MSE: w={ols.coef_[0]:.2f}")
         ax.plot(xs, hub.predict(xs), color=C3, lw=2,
                 label=f"Huber: w={hub.coef_[0]:.2f}")
-        ax.set_title(ttl, fontsize=10); ax.legend(fontsize=8); ax.set_xlabel("x"); ax.set_ylabel("y")
+        ax.set_title(ttl, fontsize=10)
+        ax.legend(fontsize=8, loc="lower right", framealpha=.94)
+        ax.set_xlabel("x"); ax.set_ylabel("y")
+        if k == 1:
+            ax.text(.97, .60, "OLS bị outlier kéo lệch,\nHuber gần như giữ nguyên",
+                    transform=ax.transAxes, fontsize=8.3, ha="right", va="top",
+                    bbox=dict(boxstyle="round,pad=0.3", facecolor="white",
+                              alpha=.93, edgecolor="0.8"))
 
     e = np.linspace(-4, 4, 400)
     delta = 1.35
@@ -489,8 +525,8 @@ def fig_outlier_robustness():
     ax.plot(e, np.abs(e), color=C1, lw=2, label="MAE: $|e|$")
     ax.plot(e, hub_l, color=C3, lw=2.4, ls="--", label=r"Huber ($\delta$=1.35)")
     ax.set_xlabel("sai số e"); ax.set_ylabel("mất mát"); ax.legend(fontsize=8)
-    ax.set_title("Ba hàm mất mát: MSE phạt outlier nặng nhất", fontsize=10)
-    fig.suptitle("Một vài outlier đủ kéo lệch cả đường hồi quy khi dùng MSE", fontweight="bold")
+    ax.set_title("Ba hàm mất mát: MSE, MAE, Huber", fontsize=10)
+    fig.suptitle("Ảnh hưởng của outlier lên OLS và Huber", fontweight="bold")
     fig.tight_layout()
     save(fig, "09_outlier_mse_vs_huber.png")
 
