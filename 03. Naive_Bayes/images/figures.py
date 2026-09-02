@@ -64,7 +64,9 @@ def fig_bayes_theorem():
     for i, v in enumerate([fp, tp]):
         ax.text(i, v + 12, str(v), ha="center", fontweight="bold")
     ax.text(.5, fp * .62, f"chỉ {tp/(tp+fp)*100:.1f}% thật sự có bệnh!",
-            ha="center", fontsize=11, color=C2, fontweight="bold")
+            ha="center", fontsize=11, color=C2, fontweight="bold",
+            bbox=dict(boxstyle="round,pad=0.35", facecolor="white", alpha=.94,
+                      edgecolor=C2, linewidth=1.2))
     ax.set_ylim(0, fp * 1.25)
 
     # (c) công thức
