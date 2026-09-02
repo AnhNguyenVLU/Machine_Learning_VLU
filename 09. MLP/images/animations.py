@@ -112,7 +112,7 @@ def anim_mlp_hoc():
         return lline, itxt
 
     ani = FuncAnimation(fig, draw, frames=frames, blit=False)
-    fig.suptitle("MLP học ranh giới cong trên dữ liệu hai vành trăng", fontweight="bold")
+    fig.suptitle("MLP 2-16-16-1 trên dữ liệu hai vành trăng", fontweight="bold")
     fig.tight_layout(rect=[0, 0, 1, .94])
     save_gif(ani, "anim_mlp_hoc.gif", fps=3)
 
