@@ -313,8 +313,8 @@ def fig_regularization_C():
         ax.set_title(f"C = {C}   →   $\\|w\\|$ = {np.linalg.norm(clf.coef_):.2f}", fontsize=10)
         ax.set_xlabel("$x_1$"); ax.set_ylabel("$x_2$")
     BOXW = dict(boxstyle="round,pad=0.3", facecolor="white", alpha=.92, edgecolor="0.8")
-    axes[0].text(-3.9, 2.1, "phạt MẠNH:\nchuyển tiếp rất mờ", fontsize=8.3, color="k", bbox=BOXW)
-    axes[2].text(-3.9, 2.1, "phạt YẾU:\nchuyển tiếp gắt như bậc thang", fontsize=8.3, color="k", bbox=BOXW)
+    axes[0].text(-3.9, 2.35, "phạt MẠNH:\nchuyển tiếp rất mờ", fontsize=8.3, color="k", va="top", bbox=BOXW)
+    axes[2].text(-3.9, 2.35, "phạt YẾU:\nchuyển tiếp gắt như bậc thang", fontsize=8.3, color="k", va="top", bbox=BOXW)
 
     Cgrid = np.geomspace(1e-4, 1e10, 36)
     # tol chặt: để mặc định (1e-4) thì solver dừng sớm và đường cong PHẲNG giả tạo

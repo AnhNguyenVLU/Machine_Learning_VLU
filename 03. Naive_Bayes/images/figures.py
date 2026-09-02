@@ -119,21 +119,21 @@ def fig_naive_assumption():
             fontweight="bold", va="top")
     ax.text(0, .92, "$P(x_1,\\dots,x_n\\mid y)=\\prod_{i=1}^{n} P(x_i\\mid y)$",
             fontsize=12.5, va="top")
-    ax.text(0, .71,
+    ax.text(0, .72,
             "MẤT: toàn bộ thông tin về tương quan giữa\ncác feature (hình giữa méo hẳn so với trái).",
             fontsize=9.2, va="top", color="#374151")
-    ax.text(0, .60,
+    ax.text(0, .57,
             "ĐƯỢC: số tham số phải ước lượng giảm từ\nhàm MŨ xuống hàm TUYẾN TÍNH.",
             fontsize=9.2, va="top", color="#374151")
-    ax.text(0, .44, "Với $n$ feature nhị phân, mỗi lớp cần:", fontsize=9.4,
+    ax.text(0, .42, "Với $n$ feature nhị phân, mỗi lớp cần:", fontsize=9.4,
             va="top", fontweight="bold")
-    ax.text(0, .35,
+    ax.text(0, .34,
             "• Phân phối liên kết đầy đủ: $2^n-1$ tham số\n"
             "    $n=30$ → hơn 1 TỶ tham số\n"
             "• Naive Bayes: chỉ $n$ tham số\n"
             "    $n=30$ → đúng 30",
             fontsize=9.2, va="top", color="#374151")
-    ax.text(0, .10,
+    ax.text(0, .08,
             "Sai giả định nhưng vẫn dùng được, vì phân loại\n"
             "chỉ cần argmax đúng — không cần xác suất đúng.",
             fontsize=9.0, va="top", color=C2, style="italic")
