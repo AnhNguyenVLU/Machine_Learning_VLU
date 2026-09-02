@@ -68,7 +68,7 @@ def fig_confusion_anatomy():
             ax.text(j + .5, i + .18, names[i][j], ha="center", va="center",
                     fontsize=11.5, fontweight="bold")
             ax.text(j + .5, i + .44, f"= {cm[i, j]} mẫu", ha="center", va="center",
-                    fontsize=10.5, color="dimgray")
+                    fontsize=10.5, color="#555555")
             ax.text(j + .5, i + .74, plain[i][j], ha="center", va="center",
                     fontsize=9.2)
     ax.set_xticks([.5, 1.5]); ax.set_yticks([.5, 1.5])
@@ -85,7 +85,7 @@ def fig_confusion_anatomy():
     ax.text(1.0, 2.30, "Mẹo đọc tên: chữ thứ hai là ĐIỀU MODEL NÓI, "
                        "chữ thứ nhất là MODEL NÓI ĐÚNG HAY SAI.\n"
                        "\"False Negative\" = model nói Negative, và nó SAI.",
-            ha="center", fontsize=9.5, color="dimgray",
+            ha="center", fontsize=9.5, color="#444444",
             bbox=dict(boxstyle="round,pad=.45", fc="#f8f8f8", ec="lightgray"))
     ax.text(1.0, 2.58, "cm = confusion_matrix(y_true, y_pred)   →   "
                        "TN=cm[0,0]  FP=cm[0,1]  FN=cm[1,0]  TP=cm[1,1]",
@@ -132,7 +132,7 @@ def fig_two_distributions():
         ax.set_xlabel("điểm số model chấm cho mẫu (score)")
         ax.set_xlim(0, 1); ax.set_ylim(0, 4.4)
         ax.text(.5, -.31, note, transform=ax.transAxes, ha="center", va="top",
-                fontsize=8.8, color="dimgray")
+                fontsize=9, color="#444444")
     axes[0].set_ylabel("mật độ mẫu")
     axes[0].plot([], [], color=C1, lw=6, alpha=.6, label="lớp ÂM thật sự")
     axes[0].plot([], [], color=C2, lw=6, alpha=.6, label="lớp DƯƠNG thật sự")
@@ -173,19 +173,25 @@ def fig_threshold_to_roc():
     ax.plot(fpr, tpr, color=C1, lw=2.6, label=f"ROC (AUC = {auc:.3f})")
     ax.fill_between(fpr, 0, tpr, color=C1, alpha=.12)
     ax.plot([0, 1], [0, 1], "k--", lw=1.4, label="đoán mò (AUC = 0.5)")
+    rows = []
     for t, mk in zip(THRESHOLDS, ["A", "B", "C"]):
         TP, FP, TN, FN = _counts(t)
         f, r = FP / (FP + TN), TP / (TP + FN)
         ax.scatter([f], [r], s=110, color=C2, zorder=5, edgecolor="k", linewidth=.8)
-        ax.annotate(f"{mk} (t={t})\nFPR={f:.2f}, TPR={r:.2f}",
-                    xy=(f, r), xytext=(f + .10, r - .16), fontsize=9,
-                    arrowprops=dict(arrowstyle="->", color="dimgray"),
-                    bbox=dict(boxstyle="round,pad=.3", fc="white", ec="lightgray"))
+        # chỉ dán nhãn NGẮN cạnh điểm; số liệu gom vào một bảng ở vùng trống
+        ax.text(f + .035, r - .055, mk, color=C2, fontsize=11.5, fontweight="bold",
+                va="center", ha="left", zorder=6,
+                bbox=dict(boxstyle="round,pad=.15", fc="white", ec="none", alpha=.85))
+        rows.append(f"{mk} (t={t}):  FPR={f:.2f},  TPR={r:.2f}")
+    ax.text(.52, .42, "\n".join(rows), fontsize=9, va="top", ha="left",
+            bbox=dict(boxstyle="round,pad=.35", fc="white", ec="lightgray"))
     ax.scatter([0], [1], marker="*", s=280, color=C3, zorder=6, edgecolor="k", linewidth=.6)
-    ax.text(.03, .955, "model hoàn hảo", color=C3, fontsize=9, fontweight="bold")
+    ax.text(.045, 1.02, "model hoàn hảo", color=C3, fontsize=9, fontweight="bold",
+            va="center", ha="left",
+            bbox=dict(boxstyle="round,pad=.2", fc="white", ec="none", alpha=.9))
     ax.set_xlabel("FPR = FP/(FP+TN) = 1 − Specificity")
     ax.set_ylabel("TPR = TP/(TP+FN) = Recall")
-    ax.set_xlim(-.02, 1.02); ax.set_ylim(-.02, 1.05)
+    ax.set_xlim(-.02, 1.02); ax.set_ylim(-.02, 1.09)
     ax.legend(fontsize=9, loc="lower right")
     ax.set_title("Bước 2: MỖI ngưỡng cho một điểm (FPR, TPR)\n"
                  "Nối tất cả các điểm lại → đường ROC", fontsize=10.5)
@@ -215,28 +221,32 @@ def fig_pr_tradeoff():
     i5 = int(np.argmin(np.abs(ts - .5)))
 
     fig, ax = plt.subplots(figsize=(9.8, 5.6))
-    ax.plot(ts, P, color=C1, lw=2.4, label="Precision — 'báo động của tôi có đáng tin không?'")
-    ax.plot(ts, R, color=C2, lw=2.4, label="Recall — 'tôi có bỏ sót ca nào không?'")
-    ax.plot(ts, F, color=C3, lw=2.8, label="F1 (trung bình điều hoà của hai đường trên)")
-    ax.axvline(ts[best], color=C3, ls="--", lw=1.6)
+    ax.plot(ts, P, color=C1, lw=2.4, label="Precision — 'báo động có đáng tin?'")
+    ax.plot(ts, R, color=C2, lw=2.4, label="Recall — 'có bỏ sót ca nào không?'")
+    ax.plot(ts, F, color=C3, lw=2.8, label="F1 (trung bình điều hoà)")
+    # đường dóng chỉ vẽ trong vùng có đường cong, không chạy vào dải chú thích
+    ax.plot([ts[best]] * 2, [0, 1.02], color=C3, ls="--", lw=1.6)
     ax.scatter([ts[best]], [F[best]], s=120, color=C3, zorder=5, edgecolor="k", linewidth=.7)
     ax.annotate(f"F1 LỚN NHẤT = {F[best]:.3f}\ntại ngưỡng {ts[best]:.2f}",
-                xy=(ts[best], F[best]), xytext=(ts[best] + .10, F[best] + .17),
-                fontsize=9.5, arrowprops=dict(arrowstyle="->", color=C3),
+                xy=(ts[best], F[best]), xytext=(.60, 1.31),
+                fontsize=9.5, va="top", ha="left",
+                arrowprops=dict(arrowstyle="->", color=C3),
                 bbox=dict(boxstyle="round,pad=.35", fc="#ecfdf5", ec=C3))
-    ax.axvline(.5, color="gray", ls=":", lw=1.8)
+    ax.plot([.5, .5], [0, 1.02], color="gray", ls=":", lw=1.8)
     ax.scatter([.5], [F[i5]], s=100, color="gray", zorder=5, edgecolor="k", linewidth=.7)
     ax.annotate(f"ngưỡng mặc định 0.5\nF1 chỉ = {F[i5]:.3f}\n(kém hơn {100*(F[best]-F[i5]):.1f} điểm)",
-                xy=(.5, F[i5]), xytext=(.12, .30), fontsize=9.5,
+                xy=(.5, F[i5]), xytext=(.025, .045), fontsize=9.5,
+                va="top", ha="left",
                 arrowprops=dict(arrowstyle="->", color="gray"),
                 bbox=dict(boxstyle="round,pad=.35", fc="#f8f8f8", ec="lightgray"))
     ax.set_xlabel("ngưỡng quyết định"); ax.set_ylabel("giá trị chỉ số")
-    ax.set_ylim(0, 1.08); ax.legend(fontsize=9, loc="upper left")
+    ax.set_ylim(-.17, 1.36)
+    ax.legend(fontsize=9, loc="upper left", framealpha=.95)
     ax.set_title("Precision và Recall là hai đầu của một cái bập bênh\n"
                  "(dữ liệu ~11% lớp dương)\n"
                  "0.5 chỉ là mặc định của thư viện, KHÔNG phải ngưỡng tối ưu",
                  fontweight="bold", fontsize=11)
-    ax.text(.99, .02, "Chọn ngưỡng là một QUYẾT ĐỊNH KINH DOANH,\nkhông phải mặc định của thư viện",
+    ax.text(.985, .015, "Chọn ngưỡng là một QUYẾT ĐỊNH KINH DOANH,\nkhông phải mặc định của thư viện",
             transform=ax.transAxes, ha="right", va="bottom", fontsize=9, color=C2,
             bbox=dict(boxstyle="round,pad=.35", fc="#fef2f2", ec=C2))
     save(fig, "04_precision_recall_theo_nguong.png")
@@ -266,8 +276,12 @@ def fig_roc_vs_pr():
         axes[1].plot(r, p, lw=2.4, color=col,
                      label=f"{name.splitlines()[0]} — AP = {ap:.3f}")
         axes[1].axhline(y.mean(), color=col, ls=":", lw=1.6)
-        axes[1].text(.02, y.mean() + .02, f"baseline = tỷ lệ lớp dương = {y.mean():.2f}",
-                     color=col, fontsize=8.5)
+        # baseline cao thì dán nhãn sát mép PHẢI, baseline thấp thì mép TRÁI
+        base = y.mean()
+        ha, xt = ("right", .985) if base > .2 else ("left", .015)
+        axes[1].text(xt, base + .035, f"baseline = tỷ lệ lớp dương = {base:.2f}",
+                     color=col, fontsize=8.8, ha=ha, va="bottom",
+                     bbox=dict(boxstyle="round,pad=.2", fc="white", ec="none", alpha=.9))
 
     axes[0].plot([0, 1], [0, 1], "k--", lw=1.2)
     axes[0].set_xlabel("FPR"); axes[0].set_ylabel("TPR (Recall)")
@@ -275,7 +289,8 @@ def fig_roc_vs_pr():
     axes[0].set_title("ROC gần như KHÔNG ĐỔI\n"
                       "vì FPR có mẫu số TN rất lớn → FP tăng cũng không thấy", fontsize=10.5)
     axes[1].set_xlabel("Recall"); axes[1].set_ylabel("Precision")
-    axes[1].set_ylim(0, 1.22); axes[1].legend(fontsize=8.8, loc="upper right")
+    axes[1].set_ylim(0, 1.24)
+    axes[1].legend(fontsize=8.8, loc="upper right", framealpha=.95)
     axes[1].set_title("PR curve SỤP ĐỔ\nvì precision có mẫu số (TP+FP) — FP dìm chết nó ngay", fontsize=10.5)
 
     fig.suptitle("Cùng một 'chất lượng model', mất cân bằng làm ROC nói dối còn PR nói thật\n"
@@ -318,15 +333,18 @@ def fig_accuracy_lies():
     ax.set_xticks(xpos); ax.set_xticklabels(names, fontsize=9.5)
     ax.axhline(0, color="k", lw=1)
     ax.set_ylim(-.08, 1.20); ax.set_ylabel("giá trị chỉ số")
-    ax.legend(fontsize=9.5, loc="upper right")
+    ax.legend(fontsize=9.5, loc="upper right", framealpha=.95)
+    # hai hộp chú thích đặt ở khoảng trống phía trên các cột thấp (F1/Kappa/MCC)
     ax.annotate("Model NGỐC có accuracy CAO HƠN model tốt\n"
                 "(0.950 > 0.943) — dù nó bỏ sót 100% ca hiếm!",
-                xy=(-.2, .95), xytext=(.72, .66), fontsize=9.5, color=C2,
+                xy=(-.2, .96), xytext=(1.55, .99), fontsize=9.5, color=C2,
+                va="top", ha="left",
                 arrowprops=dict(arrowstyle="->", color=C2),
                 bbox=dict(boxstyle="round,pad=.35", fc="#fef2f2", ec=C2))
     ax.annotate("F1 / Kappa / MCC = 0 → lột mặt nạ ngay.\n"
                 "Balanced accuracy = 0.5 = đúng bằng tung đồng xu.",
-                xy=(3.8, .02), xytext=(1.35, .17), fontsize=9.5, color="dimgray",
+                xy=(1.8, .045), xytext=(1.55, .82), fontsize=9.5, color="#444444",
+                va="top", ha="left",
                 arrowprops=dict(arrowstyle="->", color="dimgray"),
                 bbox=dict(boxstyle="round,pad=.35", fc="#f8f8f8", ec="lightgray"))
     ax.set_title("Dữ liệu 95% lớp 0 / 5% lớp 1 — vì sao KHÔNG BAO GIỜ chỉ báo cáo accuracy",
@@ -366,7 +384,7 @@ def fig_macro_micro_weighted():
                 fontweight="bold", color=C3)
     ax.set_xticks(xpos); ax.set_xticklabels(labels, fontsize=9.5)
     ax.set_ylim(0, 1.12); ax.set_ylabel("giá trị")
-    ax.legend(fontsize=9)
+    ax.legend(fontsize=9, loc="upper right", framealpha=.95)
     ax.set_title("Chỉ số TỪNG LỚP: model làm tốt lớp A (nhiều mẫu),\n"
                  "tệ hẳn ở lớp C (chỉ 30 mẫu)", fontsize=10.5)
 
@@ -383,9 +401,11 @@ def fig_macro_micro_weighted():
     ax.set_ylim(0, 1.12); ax.set_ylabel("F1 tổng hợp")
     ax.set_title("Ba cách GỘP cho ba con số rất khác nhau\n"
                  "trên CÙNG một model, CÙNG một dự đoán", fontsize=10.5)
-    ax.text(0, .80, "Chênh nhau\n%.0f điểm phần trăm!" % ((micro - macro) * 100),
-            ha="center", va="center", fontsize=10, color=C2, fontweight="bold",
-            bbox=dict(boxstyle="round,pad=.35", fc="#fef2f2", ec=C2))
+    ax.annotate("Chênh nhau\n%.0f điểm phần trăm!" % ((micro - macro) * 100),
+                xy=(.10, .71), xytext=(0, .99), ha="center", va="top",
+                fontsize=10, color=C2, fontweight="bold",
+                arrowprops=dict(arrowstyle="->", color=C2),
+                bbox=dict(boxstyle="round,pad=.35", fc="#fef2f2", ec=C2))
 
     fig.suptitle("Macro trừng phạt việc bỏ rơi lớp hiếm — Micro/Weighted thì che giấu nó\n"
                  "Báo cáo chỉ số đa lớp mà không nói rõ 'average' nào là báo cáo vô nghĩa",
@@ -427,7 +447,7 @@ def fig_calibration():
     ax.set_xlim(0, 1); ax.set_ylim(0, 1)
     ax.set_title("Reliability diagram (đường hiệu chỉnh)\n"
                  "Đường THOẢI hơn đường chéo = QUÁ TỰ TIN; DỐC hơn = THIẾU tự tin", fontsize=10.5)
-    ax.text(.50, .10, "Ở vùng xác suất cao, đường đỏ nằm\nDƯỚI đường chéo: model nói 90%\n"
+    ax.text(.45, .10, "Ở vùng xác suất cao, đường đỏ nằm\nDƯỚI đường chéo: model nói 90%\n"
             "nhưng thực tế chỉ ~72% đúng → NÓI QUÁ",
             fontsize=8.8, color=C2,
             bbox=dict(boxstyle="round,pad=.35", fc="#fef2f2", ec=C2))
@@ -438,7 +458,9 @@ def fig_calibration():
                 label=name.splitlines()[0])
     ax.set_xlabel("xác suất model dự đoán")
     ax.set_ylabel("mật độ")
-    ax.legend(fontsize=8.6)
+    lo, hi = ax.get_ylim()
+    ax.set_ylim(lo, hi * 1.28)          # chừa chỗ cho legend, tránh đè đỉnh cột
+    ax.legend(fontsize=8.6, loc="upper right", framealpha=.95)
     ax.set_title("Phân bố xác suất đầu ra\n"
                  "Model quá tự tin dồn về hai đầu, thiếu tự tin dồn về giữa", fontsize=10.5)
 
@@ -484,12 +506,12 @@ def fig_cross_validation():
                     color="white", fontweight="bold" if is_val else "normal")
         ax.text(-.015, yb + .39, f"Vòng {i+1}", ha="right", va="center", fontsize=9.5)
         ax.text(1.02, yb + .39, f"→ score$_{i+1}$", va="center", fontsize=9.5, color="dimgray")
-    ax.set_xlim(-.16, 1.35); ax.set_ylim(-.25, k + .05); ax.axis("off")
+    ax.set_xlim(-.16, 1.35); ax.set_ylim(-.62, k + .05); ax.axis("off")
     ax.set_title("Cách 2: k-fold cross-validation (k = 5) — mỗi mẫu được dùng làm validation ĐÚNG một lần",
                  fontsize=11, fontweight="bold", loc="left")
-    ax.text(.5, -.18, r"Kết quả báo cáo = trung bình $\pm$ độ lệch chuẩn của 5 score "
+    ax.text(.5, -.30, r"Kết quả báo cáo = trung bình $\pm$ độ lệch chuẩn của 5 score "
                       "→ vừa có ước lượng, vừa có mức DAO ĐỘNG",
-            ha="center", fontsize=9.8, color=C3, fontweight="bold")
+            ha="center", va="top", fontsize=9.8, color=C3, fontweight="bold")
 
     # (c) stratified
     ax = axes[2]
@@ -501,10 +523,10 @@ def fig_cross_validation():
     strat = np.concatenate([rng.permutation(np.r_[np.zeros(9), np.ones(1)]) for _ in range(5)])
     for row, arr, yb in [(0, plain, 1.05), (1, strat, .15)]:
         for j, v in enumerate(arr):
-            ax.add_patch(Rectangle((j * .02, yb), .019, .6,
+            ax.add_patch(Rectangle((j * .02, yb), .0145, .6,
                                    color=C2 if v == 1 else "#cbd5e1"))
-        for f in range(1, 5):
-            ax.plot([f * .2, f * .2], [yb - .05, yb + .65], color="k", lw=1.4)
+        for f in range(1, 5):   # vạch chia fold nằm gọn trong khe giữa hai ô
+            ax.plot([f * .2 - .0028] * 2, [yb - .05, yb + .65], color="k", lw=1.4)
     cnt = [int(plain[f * 10:(f + 1) * 10].sum()) for f in range(5)]
     fmax, fmin = int(np.argmax(cnt)) + 1, int(np.argmin(cnt)) + 1
     ax.text(1.02, 1.35, f"fold {fmax} có {max(cnt)} mẫu hiếm, fold {fmin} có {min(cnt)} "

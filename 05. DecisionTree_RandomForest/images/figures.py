@@ -74,29 +74,34 @@ def fig_impurity_criteria():
     ax.plot(p, H, color=C1, lw=2.4, label="Entropy  $-p\\log_2 p-(1-p)\\log_2(1-p)$")
     ax.plot(p, G, color=C3, lw=2.4, label="Gini  $2p(1-p)$")
     ax.plot(p, E, color=C2, lw=2.4, label="Misclassification  $\\min(p, 1-p)$")
-    ax.axvline(.5, color="gray", ls=":", lw=1.4)
+    ax.vlines(.5, -.05, 1.06, color="gray", ls=":", lw=1.4)
     ax.scatter([.5, .5, .5], [1, .5, .5], s=45, color="k", zorder=5)
     ax.annotate("cực đại tại p = 0.5\n(nút hỗn loạn nhất)", xy=(.5, 1.0),
-                xytext=(.54, 1.22), fontsize=9, color="dimgray",
+                xytext=(.60, 1.20), fontsize=9, color="#334155", va="center",
+                bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="none", alpha=.85),
                 arrowprops=dict(arrowstyle="->", color="gray"))
     ax.annotate("= 0 tại p = 0 và p = 1  (nút THUẦN → dừng chia)", xy=(0, 0),
-                xytext=(.13, .07), fontsize=8.8, color="dimgray",
+                xytext=(.19, .045), fontsize=8.8, color="#334155", va="center",
+                bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="none", alpha=.85),
                 arrowprops=dict(arrowstyle="->", color="gray"))
     ax.set_xlabel("p = tỷ lệ lớp dương trong nút")
     ax.set_ylabel("độ vẩn đục (impurity)")
-    ax.set_ylim(-.03, 1.62); ax.legend(fontsize=8.4, loc="upper center")
+    # nới trần trục y: dành hẳn dải trên cho legend, chữ nằm ở dải giữa
+    ax.set_ylim(-.05, 1.92)
+    ax.legend(fontsize=8.2, loc="upper left", framealpha=.95)
     ax.set_title("Ba tiêu chí impurity cho bài toán 2 lớp", fontsize=10.5)
 
     ax = axes[1]
-    ax.plot(p, H / 2, color=C1, lw=2.6, label="Entropy / 2 (chuẩn hoá về cùng đỉnh)")
+    ax.plot(p, H / 2, color=C1, lw=2.6, label="Entropy / 2 (chuẩn hoá)")
     ax.plot(p, G, color=C3, lw=2.6, ls="--", label="Gini")
     ax.plot(p, E, color=C2, lw=2.0, ls=":", label="Misclassification")
     ax.fill_between(p, H / 2, G, color=C4, alpha=.25)
     ax.set_xlabel("p"); ax.set_ylabel("impurity (đã chuẩn hoá)")
-    ax.set_ylim(-.03, .98); ax.legend(fontsize=8.4, loc="lower center")
+    ax.set_ylim(-.05, 1.16)
+    ax.legend(fontsize=8.4, loc="lower center", framealpha=.95)
     ax.set_title("Entropy và Gini gần như TRÙNG NHAU\n"
                  "→ đổi `criterion` hiếm khi đổi kết quả", fontsize=10.5)
-    ax.text(.045, .95,
+    ax.text(.045, 1.13,
             "Entropy & Gini LÕM CHẶT (strictly concave)\n"
             "→ mọi phép chia không tầm thường đều cho gain > 0.\n"
             "Misclassification chỉ tuyến tính từng khúc\n"
@@ -140,13 +145,15 @@ def fig_one_split():
                s=48, color=C1, alpha=.85, label="lớp 0")
     ax.scatter(x[y == 1], np.zeros((y == 1).sum()) + .06 * rng.normal(0, 1, (y == 1).sum()),
                s=48, color=C2, marker="s", alpha=.85, label="lớp 1")
-    for t in thr[::4]:
-        ax.axvline(t, color="gray", lw=.6, alpha=.5)
+    # chỉ vẽ trong dải dữ liệu để legend phía trên không cắt ngang các đường này
+    ax.vlines(thr[::4], -.28, .28, color="gray", lw=.6, alpha=.5)
     ax.axvline(best, color=C3, lw=2.6)
-    ax.text(best + .15, .30, f"ngưỡng tốt nhất\nx = {best:.2f}", color=C3, fontsize=9.5)
+    ax.text(best + .18, .34, f"ngưỡng tốt nhất\nx = {best:.2f}", color=C3,
+            fontsize=9.5, va="top",
+            bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="none", alpha=.85))
     ax.set_yticks([]); ax.set_ylim(-.45, .45)
     ax.set_xlabel("giá trị feature x")
-    ax.legend(fontsize=8.5, loc="lower left")
+    ax.legend(fontsize=8.5, loc="upper left", framealpha=.95)
     ax.set_title("Bước 1: liệt kê MỌI ngưỡng ứng viên\n(trung điểm giữa 2 giá trị liền kề)",
                  fontsize=10)
 
@@ -155,11 +162,14 @@ def fig_one_split():
     ax.plot(thr, gg, color=C3, lw=2.2, ls="--", label="Gini gain")
     ax.axvline(best, color=C3, lw=1.8, ls=":")
     ax.scatter([best], [ig.max()], s=90, color=C2, zorder=5)
+    ax.set_ylim(-.02, ig.max() * 1.34)     # chừa dải trống trên cùng cho chữ
     ax.annotate(f"max IG = {ig.max():.3f}\ntại x = {best:.2f}", xy=(best, ig.max()),
-                xytext=(best - 4.4, ig.max() * .72), fontsize=9,
+                xytext=(best + 1.0, ig.max() * 1.20), fontsize=9, color="#334155",
+                ha="left", va="center",
+                bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="none", alpha=.85),
                 arrowprops=dict(arrowstyle="->", color="gray"))
     ax.set_xlabel("ngưỡng t"); ax.set_ylabel("mức giảm impurity")
-    ax.legend(fontsize=8.5, loc="upper right")
+    ax.legend(fontsize=8.5, loc="upper left", framealpha=.95)
     ax.set_title("Bước 2: chấm điểm từng ngưỡng\n→ chọn ngưỡng cho gain LỚN NHẤT", fontsize=10)
 
     ax = fig.add_subplot(1, 3, 3)
@@ -179,8 +189,10 @@ def fig_one_split():
             color=C3, fontweight="bold")
     ax.plot([5, 2.3], [7.4, 5.3], color="#475569", lw=1.4)
     ax.plot([5, 7.7], [7.4, 5.3], color="#475569", lw=1.4)
-    ax.text(2.55, 5.92, "Đúng", fontsize=9, color="#475569")
-    ax.text(7.20, 5.92, "Sai", fontsize=9, color="#475569")
+    ax.text(2.42, 5.98, "Đúng", fontsize=9, color="#475569", ha="right",
+            bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="none", alpha=.9))
+    ax.text(7.55, 5.98, "Sai", fontsize=9, color="#475569", ha="left",
+            bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="none", alpha=.9))
     box(2.3, 4.0, 4.3, 2.2,
         f"CON TRÁI: N = {len(L)}\n[{int((L == 0).sum())} lớp 0, {int((L == 1).sum())} lớp 1]\n"
         f"entropy = {_entropy(L.mean()):.3f}", "#dbeafe", C1)
@@ -233,7 +245,9 @@ def fig_axis_aligned():
     axes[2].set_title("Cùng dữ liệu, Logistic Regression\nchỉ cần ĐÚNG 1 đường thẳng", fontsize=9.8)
 
     fig.suptitle("Điểm yếu cố hữu của Decision Tree: mọi phép chia đều SONG SONG TRỤC "
-                 "(axis-aligned)", fontweight="bold")
+                 "(axis-aligned)\n"
+                 "đường cam đứt nét = ranh giới THẬT của dữ liệu",
+                 fontweight="bold", fontsize=11)
     fig.tight_layout()
     save(fig, "03_ranh_gioi_bac_thang.png")
 
@@ -246,13 +260,14 @@ def fig_max_depth():
     X, y = make_moons(n_samples=500, noise=0.30, random_state=1)
     Xtr, Xte, ytr, yte = train_test_split(X, y, test_size=.4, random_state=0, stratify=y)
 
-    fig = plt.figure(figsize=(16.5, 3.9))
+    fig, sub_axes = plt.subplots(1, 5, figsize=(17.4, 4.0),
+                                 gridspec_kw=dict(width_ratios=[1, 1, 1, 1, 1.35]))
     cfg = [(1, "max_depth = 1 (decision stump)\n1 nhát cắt — UNDERFIT nặng"),
            (3, "max_depth = 3\nbắt được hình dạng chính"),
            (6, "max_depth = 6\nbắt đầu mọc thêm ô nhỏ"),
            (None, "max_depth = None\nmỗi ô nhiễu một hộp — OVERFIT")]
     for i, (d, ttl) in enumerate(cfg):
-        ax = fig.add_subplot(1, 5, i + 1)
+        ax = sub_axes[i]
         m = DecisionTreeClassifier(max_depth=d, random_state=0).fit(Xtr, ytr)
         _boundary(ax, m, Xtr, ytr)
         ax.set_title(f"{ttl}\ntrain {m.score(Xtr, ytr)*100:.0f}% / test "
@@ -263,16 +278,19 @@ def fig_max_depth():
           for d in depths]
     te = [DecisionTreeClassifier(max_depth=d, random_state=0).fit(Xtr, ytr).score(Xte, yte)
           for d in depths]
-    ax = fig.add_subplot(1, 5, 5)
+    ax = sub_axes[4]
     ax.plot(depths, np.array(tr) * 100, "o-", color=C1, ms=3.5, label="Train")
     ax.plot(depths, np.array(te) * 100, "s-", color=C2, ms=3.5, label="Test")
     b = depths[int(np.argmax(te))]
     ax.axvline(b, color=C3, ls="--", lw=1.6)
-    ax.text(b + .5, 74, f"depth tốt nhất = {b}", color=C3, fontsize=8.4)
     ax.fill_between(depths, np.array(te) * 100, np.array(tr) * 100,
                     color="#94a3b8", alpha=.20)
+    ax.set_ylim(66, 103)
+    ax.text(b + .8, 70.5, f"depth tốt nhất = {b}", color=C3, fontsize=8.4,
+            va="center",
+            bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="none", alpha=.85))
     ax.set_xlabel("max_depth"); ax.set_ylabel("Accuracy (%)")
-    ax.legend(fontsize=8); ax.set_ylim(70, 102)
+    ax.legend(fontsize=8, loc="lower right", framealpha=.95)
     ax.set_title("Train leo mãi lên 100%,\ntest quay đầu → OVERFIT", fontsize=9)
     fig.suptitle("`max_depth` là nút vặn quan trọng nhất của Decision Tree",
                  fontweight="bold")
@@ -304,13 +322,17 @@ def fig_ccp_pruning():
     ax.plot(alphas, np.array(tr) * 100, "o-", color=C1, ms=3.5, label="Train accuracy")
     ax.plot(alphas, np.array(te) * 100, "s-", color=C2, ms=3.5, label="Test accuracy")
     ax.axvline(alphas[ibest], color=C3, ls="--", lw=1.8)
+    ax.set_ylim(88.6, 101.2)
     ax.annotate(f"ccp_alpha tốt nhất ≈ {alphas[ibest]:.4f}\n"
                 f"test = {te[ibest]*100:.1f}%  ({leaves[ibest]} lá thay vì {leaves[0]})",
-                xy=(alphas[ibest], te[ibest] * 100), xytext=(alphas[ibest] * 2.1, 95.2),
-                fontsize=9, color="#334155",
+                xy=(alphas[ibest], te[ibest] * 100),
+                xytext=(alphas[ibest] * 2.2, 94.6),
+                fontsize=9, color="#334155", va="top", ha="left",
+                bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="none", alpha=.9),
                 arrowprops=dict(arrowstyle="->", color="gray"))
     ax.set_xlabel(r"$\alpha$ (ccp_alpha) — phạt càng nặng, cây càng nhỏ  →")
-    ax.set_ylabel("Accuracy (%)"); ax.legend(fontsize=9, loc="lower left")
+    ax.set_ylabel("Accuracy (%)")
+    ax.legend(fontsize=9, loc="upper right", framealpha=.95)
     ax.set_title("Cắt tỉa vừa đủ làm TEST accuracy TĂNG\n"
                  "(cây đầy đủ train 100% nhưng test kém hơn)", fontsize=10)
 
@@ -356,8 +378,9 @@ def fig_bagging_oob():
             if c == 0:
                 fc, ec, txt, tc = "#ffffff", "#dc2626", "OOB", C2
             else:
-                fc, ec, txt, tc = ["#dbeafe", "#93c5fd", "#3b82f6"][min(c - 1, 2)], \
-                                  "#1d4ed8", f"×{c}", "#111827"
+                fc, ec, txt, tc = ["#dbeafe", "#93c5fd", "#2563eb"][min(c - 1, 2)], \
+                                  "#1d4ed8", f"×{c}", ("#ffffff" if c >= 3
+                                                       else "#111827")
             ax.add_patch(Rectangle((b + .05, yv + .1), .9, .8, fc=fc, ec=ec,
                                    lw=1.5 if c == 0 else 1.0,
                                    ls="--" if c == 0 else "-"))
@@ -380,7 +403,8 @@ def fig_bagging_oob():
     ax.plot(Ns[::8], np.array(emp) * 100, "o", color=C4, ms=4.5, alpha=.85,
             label="mô phỏng thực tế")
     ax.axhline(100 / np.e, color=C2, ls="--", lw=1.8)
-    ax.text(78, 100 / np.e + 1.1, r"$1/e \approx 36.8\%$", color=C2, fontsize=11)
+    ax.text(78, 100 / np.e + 1.2, r"$1/e \approx 36.8\%$", color=C2, fontsize=11,
+            bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="none", alpha=.85))
     ax.set_xlabel("N (số mẫu trong tập train)")
     ax.set_ylabel("tỷ lệ mẫu KHÔNG được cây này nhìn thấy (%)")
     ax.set_ylim(22, 44); ax.legend(fontsize=9, loc="lower right")
@@ -441,11 +465,14 @@ def fig_n_estimators():
                 label="OOB score (validation miễn phí)")
     ax.axhline(dt.score(Xte, yte) * 100, color="#7c3aed", ls=":", lw=2,
                label=f"1 Decision Tree không giới hạn: {dt.score(Xte, yte)*100:.1f}%")
-    ax.annotate("tăng rất nhanh\nở 20 cây đầu", xy=(8, te[4] * 100), xytext=(1.35, 90),
-                fontsize=9, color="dimgray", arrowprops=dict(arrowstyle="->", color="gray"))
+    ax.annotate("tăng rất nhanh\nở 20 cây đầu", xy=(8, te[4] * 100), xytext=(1.35, 89),
+                fontsize=9, color="#334155", va="center",
+                bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="none", alpha=.85),
+                arrowprops=dict(arrowstyle="->", color="gray"))
     ax.annotate("bão hoà: thêm cây KHÔNG làm test tệ đi\n"
                 "(RF không overfit theo số cây)", xy=(320, te[-2] * 100),
-                xytext=(18, 95.4), fontsize=9, color="dimgray",
+                xytext=(18, 95.4), fontsize=9, color="#334155",
+                bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="none", alpha=.85),
                 arrowprops=dict(arrowstyle="->", color="gray"))
     ax.set_xlabel("n_estimators (số cây) — thang log")
     ax.set_ylabel("Accuracy (%)"); ax.set_ylim(66, 103)
@@ -491,8 +518,9 @@ def fig_importance_bias():
     axes[0].invert_yaxis(); axes[0].set_xlabel("feature_importances_ (impurity-based)")
     axes[0].set_title("BỊ THIÊN VỊ: feature nhiễu có NHIỀU giá trị\n"
                       "vẫn được chấm điểm cao", fontsize=10)
+    axes[0].set_xlim(0, imp.max() * 1.20)
     for i, v in enumerate(imp):
-        axes[0].text(v + .004, i, f"{v:.3f}", va="center", fontsize=8.4)
+        axes[0].text(v + imp.max() * .022, i, f"{v:.3f}", va="center", fontsize=8.4)
 
     axes[1].barh(ypos, perm.importances_mean, xerr=perm.importances_std,
                  color=cols, alpha=.85, error_kw=dict(lw=1, ecolor="#475569"))
@@ -502,8 +530,12 @@ def fig_importance_bias():
     axes[1].set_xlabel("permutation_importance (đo trên tập TEST)")
     axes[1].set_title("TRUNG THỰC: feature nhiễu tụt về ~0\n"
                       "vì xáo trộn chúng không làm accuracy giảm", fontsize=10)
-    for i, v in enumerate(perm.importances_mean):
-        axes[1].text(v + .004, i, f"{v:.3f}", va="center", fontsize=8.4)
+    # đẩy nhãn số ra SAU đầu mút thanh sai số để không đè lên nó
+    pm, ps = perm.importances_mean, perm.importances_std
+    right = float((pm + ps).max())
+    axes[1].set_xlim(-right * .04, right * 1.22)
+    for i, (v, e) in enumerate(zip(pm, ps)):
+        axes[1].text(v + e + right * .022, i, f"{v:.3f}", va="center", fontsize=8.4)
 
     fig.suptitle("Xanh = feature THẬT SỰ hữu ích, Đỏ = feature NHIỄU thuần tuý  —  "
                  "hai cách đo cho hai câu trả lời rất khác nhau", fontweight="bold")
