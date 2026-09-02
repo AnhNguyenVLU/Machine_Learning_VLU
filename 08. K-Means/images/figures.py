@@ -19,7 +19,7 @@ plt.rcParams.update({
     "figure.facecolor": "white", "axes.facecolor": "white",
 })
 C1, C2, C3, C4 = "#2563eb", "#dc2626", "#059669", "#d97706"
-PALETTE = [C1, C2, C3, C4, "#7c3aed", "#0891b2"]
+PALETTE = [C1, C2, C3, C4, "#7c3aed", "#0891b2", "#db2777"]
 
 
 def save(fig, name):
@@ -129,8 +129,10 @@ def fig_inertia_monotone():
     ax.legend(fontsize=8.5)
     ax.set_title("Inertia GIẢM ĐƠN ĐIỆU và bị chặn dưới bởi 0 → thuật toán chắc chắn hội tụ\n"
                  "(hội tụ về cực tiểu ĐỊA PHƯƠNG, không hứa hẹn cực tiểu toàn cục)", fontsize=10.5)
-    ax.annotate("phẳng = hội tụ", xy=(xs[-1], ys[-1]), xytext=(xs[-1] - 3.2, ys[-1] + (max(ys) - min(ys)) * .25),
-                arrowprops=dict(arrowstyle="->", color="dimgray"), fontsize=9, color="dimgray")
+    ax.annotate("phẳng = hội tụ", xy=(xs[-1], ys[-1]),
+                xytext=(xs[-1] - 3.4, ys[-1] + (max(ys) - min(ys)) * .28),
+                arrowprops=dict(arrowstyle="->", color="0.35"), fontsize=9.5, color="0.15",
+                bbox=dict(boxstyle="round,pad=0.3", fc="white", alpha=.9, ec="0.75"))
     save(fig, "02_inertia_giam_don_dieu.png")
 
 
@@ -157,8 +159,9 @@ def fig_elbow():
         if col == 0:
             ax.axvline(4, color=C2, ls="--", lw=1.8)
             ax.annotate("KHUỶU TAY rõ ở K=4\n→ chọn K=4", xy=(4, inert[3]),
-                        xytext=(5.2, inert[1] * .85),
-                        arrowprops=dict(arrowstyle="->", color=C2), fontsize=9.5, color=C2)
+                        xytext=(5.4, inert[1] * .90),
+                        arrowprops=dict(arrowstyle="->", color=C2), fontsize=9.5, color=C2,
+                        bbox=dict(boxstyle="round,pad=0.3", fc="white", alpha=.92, ec=C2))
             ax.set_title("Elbow rõ ràng", fontsize=10)
         else:
             ax.set_title("KHÔNG có khuỷu tay — đường cong trơn", fontsize=10)
@@ -236,12 +239,17 @@ def fig_bad_init():
         ax.set_xticks([]); ax.set_yticks([])
         ax.set_title(f"{ttl}\ninertia = {km.inertia_:.1f}", fontsize=10)
     axes = fig.axes
+    # nới đáy hai panel tán xạ để có dải trống đặt chú thích, không đè lên điểm dữ liệu
+    for a in axes[:2]:
+        lo, hi = a.get_ylim()
+        a.set_ylim(lo - (hi - lo) * .40, hi)
     axes[0].text(.03, .03, "nghiệm TỐT", transform=axes[0].transAxes, fontsize=9.5,
-                 color=C3, fontweight="bold",
+                 color=C3, fontweight="bold", va="bottom",
                  bbox=dict(fc="white", ec=C3, boxstyle="round,pad=0.3"))
-    axes[1].text(.26, .58, "CỰC TIỂU ĐỊA PHƯƠNG:\nmột cụm thật bị XẺ ĐÔI,\nhai cụm thật bị GỘP làm một\n→ inertia gấp ~6.5 lần nghiệm tốt",
-                 transform=axes[1].transAxes, fontsize=8.5, color=C2, fontweight="bold", va="top",
-                 bbox=dict(fc="white", ec=C2, boxstyle="round,pad=0.3"))
+    axes[1].text(.03, .03, "CỰC TIỂU ĐỊA PHƯƠNG: một cụm thật bị XẺ ĐÔI,\n"
+                 "hai cụm thật bị GỘP làm một\n→ inertia gấp ~6.5 lần nghiệm tốt",
+                 transform=axes[1].transAxes, fontsize=8.5, color=C2, fontweight="bold", va="bottom",
+                 bbox=dict(fc="white", ec=C2, alpha=.95, boxstyle="round,pad=0.3"))
 
     ir, ip = [], []
     for sd in range(120):
@@ -334,9 +342,12 @@ def fig_failure_modes():
         draw_clusters(ax, X, km.labels_, km.cluster_centers_, k)
         ax.set_title(ttl, fontsize=10.5, fontweight="bold")
         ax.set_xticks([]); ax.set_yticks([])
+        # nới đáy để hộp giải thích nằm trong dải trống, không đè lên điểm dữ liệu
+        lo, hi = ax.get_ylim()
+        ax.set_ylim(lo - (hi - lo) * .34, hi)
         ax.text(.02, .02, "VÌ SAO HỎNG: " + why, transform=ax.transAxes, fontsize=8.5,
                 color="#7f1d1d", va="bottom",
-                bbox=dict(fc="#fff5f5", ec=C2, alpha=.92, boxstyle="round,pad=0.35"))
+                bbox=dict(fc="#fff5f5", ec=C2, alpha=.95, boxstyle="round,pad=0.35"))
     fig.suptitle("Bốn kiểu dữ liệu khiến K-Means thất bại\n"
                  "Gốc rễ: K-Means giả định cụm CẦU, kích thước và mật độ tương đương, và gán CỨNG",
                  fontweight="bold", fontsize=12)
@@ -414,11 +425,16 @@ def fig_need_scaling():
         ax.set_xlabel("tuổi (năm)  —  biên độ ≈ 40")
         ax.set_ylabel("thu nhập (triệu VNĐ)  —  biên độ ≈ 25")
         ax.set_title(ttl + (f"\nARI = {a:.2f}" if a is not None else "\n(nhãn tham chiếu)"), fontsize=10)
-    axes[1].text(.02, .50, "Thu nhập tính bằng ĐỒNG\n(chênh hàng triệu), tuổi\nchỉ chênh vài chục →\n"
-                           "Euclid gần như CHỈ CÒN\nthu nhập: 2 nhóm cùng\nthu nhập bị GỘP, nhóm\n"
-                           "thu nhập cao bị XẺ ĐÔI",
+    # nới trần cả 3 panel (giữ cùng thang) để có dải trống đặt chú thích
+    for a in axes:
+        lo, hi = a.get_ylim()
+        a.set_ylim(lo, hi + (hi - lo) * .48)
+    axes[1].text(.02, .97, "Thu nhập tính bằng ĐỒNG (chênh hàng triệu),\n"
+                           "tuổi chỉ chênh vài chục → Euclid gần như\n"
+                           "CHỈ CÒN thu nhập: 2 nhóm cùng thu nhập bị\n"
+                           "GỘP, nhóm thu nhập cao bị XẺ ĐÔI",
                  transform=axes[1].transAxes, fontsize=8, color="#7f1d1d", va="top",
-                 bbox=dict(fc="#fff5f5", ec=C2, alpha=.92, boxstyle="round,pad=0.3"))
+                 bbox=dict(fc="#fff5f5", ec=C2, alpha=.95, boxstyle="round,pad=0.3"))
     fig.suptitle("K-Means dùng khoảng cách Euclid → feature có ĐƠN VỊ LỚN sẽ lấn át. LUÔN scale trước!",
                  fontweight="bold", fontsize=11)
     fig.tight_layout()
@@ -461,8 +477,9 @@ def fig_compare_algos():
                 ax.set_title(alg, fontsize=11, fontweight="bold")
             if j == 0:
                 ax.set_ylabel(name, fontsize=10.5)
-    axes[2, 3].text(.03, .07, "xám ✕ = nhiễu (nhãn −1)", transform=axes[2, 3].transAxes,
-                    fontsize=8.5, color="0.35")
+    # đặt ngoài khung để không đè lên điểm dữ liệu
+    axes[2, 3].text(.99, -.02, "xám ✕ = nhiễu (nhãn −1)", transform=axes[2, 3].transAxes,
+                    ha="right", va="top", fontsize=9.5, color="0.25")
     fig.suptitle("Cùng dữ liệu, bốn thuật toán: chọn thuật toán = chọn GIẢ ĐỊNH về hình dạng cụm\n"
                  "K-Means/Ward thích cụm cầu; GMM ôm được elip; DBSCAN bám mật độ nên xử lý được cụm cong",
                  fontweight="bold", fontsize=11.5)
