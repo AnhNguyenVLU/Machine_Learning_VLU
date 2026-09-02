@@ -1,17 +1,17 @@
-# Machine Learning — Kho tài liệu và Bài Lab
+# Machine Learning: kho tài liệu và bài lab
 
 Chào mừng đến với kho tài liệu Machine Learning được biên soạn cho sinh viên Khoa Công nghệ Thông tin, Đại học Văn Lang, chuyên ngành Trí tuệ Nhân tạo.
 
-Mỗi bài lab gồm ba phần: **lý thuyết** giải thích "vì sao" trước "công thức gì", **thực hành** chạy được ngay, và **bài tập về nhà** có hint (không có lời giải — sinh viên tự làm và báo cáo).
+Mỗi bài lab gồm ba phần: **lý thuyết** giải thích "vì sao" trước "công thức gì", **thực hành** chạy được ngay, và **bài tập về nhà** có hint. Không có lời giải sẵn, sinh viên tự làm rồi báo cáo.
 
-## Cấu trúc kho — sắp xếp từ dễ đến khó
+## Cấu trúc kho, sắp xếp từ dễ đến khó
 
 ```
 Machine Learning/
 ├── 01. Linear_Regression/            # Hồi quy tuyến tính, Normal Eq + GD
 │   ├── Linear_Regression.ipynb
 │   └── images/                       # hình minh hoạ + figures.py sinh ra chúng
-├── 02. Logistic_Regression/          # Hồi quy logistic — bắc cầu sang phân loại
+├── 02. Logistic_Regression/          # Hồi quy logistic, bắc cầu sang phân loại
 ├── 03. Naive_Bayes/                  # Phân loại xác suất, Bernoulli/Multinomial/Gaussian
 ├── 04. KNN/                          # K-Nearest Neighbors, scale & metric
 ├── 05. DecisionTree_RandomForest/    # Cây quyết định + ensemble
@@ -28,8 +28,8 @@ Mỗi lab từ 01 đến 09 đều có thư mục `images/` theo đúng cấu tr
 
 ## Hình minh hoạ
 
-Mỗi lab có thư mục `images/` chứa **9–10 hình minh hoạ** được nhúng thẳng vào phần lý thuyết
-của notebook. Hình hiện ngay trên GitHub — sinh viên đọc được lý thuyết mà **không cần chạy
+Mỗi lab có thư mục `images/` chứa **9 đến 10 hình minh hoạ** được nhúng thẳng vào phần lý thuyết
+của notebook. Hình hiện ngay trên GitHub, nên sinh viên đọc được lý thuyết mà **không cần chạy
 notebook hay cài đặt gì**.
 
 Toàn bộ hình đều do script `images/figures.py` của chính lab đó sinh ra bằng matplotlib. Không
@@ -61,15 +61,15 @@ Vài hình đáng chú ý:
 
 | Bước | Lý do |
 |---|---|
-| 1. Linear Regression | Bài đơn giản nhất — output liên tục, mô hình tuyến tính, MSE. Là nền tảng cho mọi thứ phía sau |
+| 1. Linear Regression | Bài đơn giản nhất: output liên tục, mô hình tuyến tính, MSE. Là nền tảng cho mọi thứ phía sau |
 | 2. Logistic Regression | Mở rộng tự nhiên: thêm sigmoid + BCE → bài phân loại đầu tiên |
-| 3. Naive Bayes | Cách phân loại theo xác suất — tư duy khác Logistic, vẫn đơn giản |
-| 4. KNN | Không có training thực sự, chỉ tính khoảng cách — trực quan |
+| 3. Naive Bayes | Cách phân loại theo xác suất, tư duy khác Logistic nhưng vẫn đơn giản |
+| 4. KNN | Không có training thực sự, chỉ tính khoảng cách nên rất trực quan |
 | 5. Decision Tree + RF | Mô hình cây + ensemble đầu tiên |
-| 6. SVM | Khái niệm margin + kernel trick — toán học sâu hơn |
+| 6. SVM | Khái niệm margin và kernel trick, toán học sâu hơn |
 | 7. Accuracy Metrics | Sau khi đã quen các model, học cách *đánh giá* model đúng |
 | 8. K-Means | Bước nhảy sang học không giám sát |
-| 9. MLP | Mạng neural cơ bản — cầu nối sang Deep Learning |
+| 9. MLP | Mạng neural cơ bản, cầu nối sang Deep Learning |
 
 ## Lộ trình 10 tuần đề xuất
 
@@ -89,7 +89,7 @@ Vài hình đáng chú ý:
 ## Mục tiêu môn học
 
 Sau khi hoàn thành, sinh viên có thể:
-- Hiểu cơ chế của các thuật toán ML cơ bản — không chỉ "biết dùng sklearn".
+- Hiểu cơ chế của các thuật toán ML cơ bản, không dừng ở mức "biết gọi sklearn".
 - Thực hiện đầy đủ pipeline: load → preprocess → split → train → evaluate → tune.
 - Tránh các bẫy phổ biến: data leakage, scale lẫn lộn, mất cân bằng class, sai metric.
 - So sánh model với baseline (DummyClassifier, KNN, ...) trước khi kết luận.
@@ -99,7 +99,7 @@ Sau khi hoàn thành, sinh viên có thể:
 ```bash
 pip install numpy scipy pandas matplotlib seaborn scikit-learn
 pip install torch torchvision      # cho lab MLP
-pip install xlrd openpyxl          # đọc file .xls/.xlsx của Iris — BẮT BUỘC cho lab KNN
+pip install xlrd openpyxl          # đọc file .xls/.xlsx của Iris, bắt buộc cho lab KNN
 pip install cvxopt                 # cho Đề thi thử (Câu 2 SVM) và bài tập SVM nâng cao
 pip install imbalanced-learn       # cho bài tập class imbalance (tuỳ chọn)
 ```
@@ -111,7 +111,7 @@ Khuyến nghị: Python 3.9+, dùng Jupyter Notebook hoặc Google Colab.
 
 ## Quy tắc khi nộp bài tập
 
-1. Mỗi bài tập có **hint** — không có lời giải. Sinh viên tự code, tự kiểm.
+1. Mỗi bài tập chỉ có **hint**, không có lời giải. Sinh viên tự code, tự kiểm.
 2. Đặt `random_state=42` (hoặc seed cố định khác) để kết quả reproducible.
 3. Nộp file `.ipynb` đã chạy với output, đặt tên `[HoTen]_LabX_Homework.ipynb`.
 4. Mỗi bài cần kèm **markdown cell** giải thích kết quả/quan sát ngắn gọn.
