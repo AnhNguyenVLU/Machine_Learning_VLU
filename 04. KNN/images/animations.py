@@ -38,7 +38,7 @@ def save_gif(ani, name, fps=8):
 def _thanh_tien_do(fig):
     """Thanh tiến độ mảnh ở đáy hình, cho biết ảnh động đang chạy tới đâu."""
     from matplotlib.patches import Rectangle
-    axp = fig.add_axes([0.04, 0.018, 0.92, 0.014])
+    axp = fig.add_axes([0.04, 0.030, 0.92, 0.016])
     axp.set_xlim(0, 1); axp.set_ylim(0, 1)
     axp.set_xticks([]); axp.set_yticks([]); axp.grid(False)
     axp.set_facecolor("#e2e8f0")
@@ -75,7 +75,7 @@ def anim_k_thay_doi():
     idx = [0] * 3 + list(range(len(ks))) + [len(ks) - 1] * 8
 
     fig, ax = plt.subplots(figsize=(6.2, 5.2))
-    fig.subplots_adjust(left=.04, right=.96, top=.86, bottom=.07)
+    fig.subplots_adjust(left=.04, right=.96, top=.86, bottom=.09)
     bar = _thanh_tien_do(fig)
 
     def draw(fi):
