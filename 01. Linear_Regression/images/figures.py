@@ -453,7 +453,7 @@ def fig_ridge_lasso():
     ax.set_xlabel(r"$\alpha$ (mức phạt) — tăng dần $\rightarrow$")
     ax.set_ylabel("giá trị hệ số")
     ax.set_title("Lasso path: hệ số lần lượt bị ép về ĐÚNG 0\n→ tự động chọn feature", fontsize=10.5)
-    ax.legend(fontsize=7.5, ncol=2, loc="lower left")
+    ax.legend(fontsize=7.5, ncol=2, loc="upper right")
     fig.suptitle("Vì sao Lasso chọn được feature còn Ridge thì không", fontweight="bold")
     fig.tight_layout()
     save(fig, "08_ridge_vs_lasso.png")
