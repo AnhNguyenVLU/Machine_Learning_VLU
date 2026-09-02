@@ -117,9 +117,9 @@ def fig_naive_assumption():
     ax = axes[2]; ax.axis("off")
     ax.text(0, 1.02, "Giả định naive đánh đổi cái gì?", fontsize=11.5,
             fontweight="bold", va="top")
-    ax.text(0, .90, "$P(x_1,\\dots,x_n\\mid y)=\\prod_{i=1}^{n} P(x_i\\mid y)$",
+    ax.text(0, .92, "$P(x_1,\\dots,x_n\\mid y)=\\prod_{i=1}^{n} P(x_i\\mid y)$",
             fontsize=12.5, va="top")
-    ax.text(0, .74,
+    ax.text(0, .71,
             "MẤT: toàn bộ thông tin về tương quan giữa\ncác feature (hình giữa méo hẳn so với trái).",
             fontsize=9.2, va="top", color="#374151")
     ax.text(0, .60,
@@ -524,16 +524,16 @@ def fig_text_pipeline():
     ax.text(0, .68,
             r"$P(w \mid y)=\dfrac{\text{đếm}(w,y)+\alpha}"
             r"{\sum_{w'}\text{đếm}(w',y)+\alpha V}$", fontsize=12, va="top")
-    ax.text(0, .41, "Dự đoán doc mới:", fontsize=9.4, va="top", fontweight="bold")
-    ax.text(0, .32,
+    ax.text(0, .44, "Dự đoán doc mới:", fontsize=9.4, va="top", fontweight="bold")
+    ax.text(0, .36,
             r"$\hat{y}=\arg\max_y [\log P(y) + \sum_w n_w \log P(w\mid y)]$",
             fontsize=10, va="top")
-    ax.text(0, .25,
+    ax.text(0, .21,
             "Toàn bộ \"huấn luyện\" chỉ là ĐẾM — một lượt duyệt\n"
             "dữ liệu, không lặp, không learning rate. Đó là lý do\n"
             "NB nhanh hơn mọi model khác hàng trăm lần.",
             fontsize=8.9, va="top", color="#374151")
-    ax.text(0, .04, "⚠️ fit_transform CHỈ trên train, transform trên test.",
+    ax.text(0, .01, "⚠️ fit_transform CHỈ trên train, transform trên test.",
             fontsize=8.9, va="top", color=C2, fontweight="bold")
     fig.suptitle("Đường ống phân loại văn bản với Naive Bayes", fontweight="bold")
     fig.tight_layout()

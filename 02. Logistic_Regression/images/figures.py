@@ -78,7 +78,7 @@ def fig_why_not_linear():
     ax.axvline(cut, color=C2, ls="--", lw=1.9)
     ax.annotate("", xy=(cut, -.30), xytext=(cut0, -.30),
                 arrowprops=dict(arrowstyle="->", color=C2, lw=1.8))
-    ax.text((cut0 + cut) / 2 - 1.5, -.50, f"ngưỡng trôi\n{cut0:.1f} → {cut:.1f}",
+    ax.text(cut + .8, -.50, f"ngưỡng trôi\n{cut0:.1f} → {cut:.1f}",
             color=C2, fontsize=9)
     ax.text(20, .16, "✗ = điểm bị phân loại SAI\ndù dữ liệu của nó không đổi",
             fontsize=8.8)
@@ -263,9 +263,9 @@ def fig_decision_boundary():
     x0 = np.array([xx.min() + 1.15, yy.max() - 1.25])
     ax.arrow(x0[0], x0[1], wn[0] * 1.15, wn[1] * 1.15, width=.055,
              color="#16a34a", ec="k", lw=.5, zorder=7, length_includes_head=True)
-    ax.text(x0[0] + wn[0] * 1.15 + .12, x0[1] + wn[1] * 1.15,
+    ax.text(x0[0] - .35, x0[1] + .45,
             "$w$ vuông góc với ranh giới\nvà trỏ về phía lớp 1", fontsize=8.6,
-            color="#166534", va="center", zorder=8, bbox=BOX)
+            color="#166534", va="bottom", ha="left", zorder=8, bbox=BOX)
     ax.text(.03, .04, "nét liền đậm: $\\hat{p}=0.5$ (ranh giới)\n"
                       "nét chấm: $\\hat{p}=0.25$ và $0.75$",
             transform=ax.transAxes, fontsize=8.4, va="bottom", bbox=BOX)
@@ -312,8 +312,9 @@ def fig_regularization_C():
         ax.scatter(Xa[:, 0], Xa[:, 1], c=ya, cmap="RdBu_r", s=22, edgecolor="k", linewidth=.4)
         ax.set_title(f"C = {C}   →   $\\|w\\|$ = {np.linalg.norm(clf.coef_):.2f}", fontsize=10)
         ax.set_xlabel("$x_1$"); ax.set_ylabel("$x_2$")
-    axes[0].text(-3.9, 2.1, "phạt MẠNH:\nchuyển tiếp rất mờ", fontsize=8.3, color="k")
-    axes[2].text(-3.9, 2.1, "phạt YẾU:\nchuyển tiếp gắt như bậc thang", fontsize=8.3, color="k")
+    BOXW = dict(boxstyle="round,pad=0.3", facecolor="white", alpha=.92, edgecolor="0.8")
+    axes[0].text(-3.9, 2.1, "phạt MẠNH:\nchuyển tiếp rất mờ", fontsize=8.3, color="k", bbox=BOXW)
+    axes[2].text(-3.9, 2.1, "phạt YẾU:\nchuyển tiếp gắt như bậc thang", fontsize=8.3, color="k", bbox=BOXW)
 
     Cgrid = np.geomspace(1e-4, 1e10, 36)
     # tol chặt: để mặc định (1e-4) thì solver dừng sớm và đường cong PHẲNG giả tạo

@@ -544,7 +544,7 @@ def fig_hidden_width():
     ax.text(allw[int(np.argmin(te_l))] * 1.15, max(te_l) * .92, "điểm ngọt", color=C3, fontsize=9,
             bbox=dict(fc="white", ec="none", alpha=.85, boxstyle="round,pad=0.2"))
     ax.legend(fontsize=8.5, loc="upper right", framealpha=.95)
-    ax.set_title("train loss giảm mãi,\ntest loss giảm rồi TĂNG", fontsize=9.5)
+    ax.set_title("train loss giảm dần,\ntest loss giảm rồi TĂNG", fontsize=9.5)
     fig.suptitle("Số neuron ẩn = sức chứa (capacity) của mạng: quá ít → underfit, quá nhiều → overfit\n"
                  "(dữ liệu moons nhiễu mạnh, chỉ 120 điểm train, KHÔNG regularization)",
                  fontweight="bold", fontsize=11.5)
