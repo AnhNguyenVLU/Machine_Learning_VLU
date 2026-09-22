@@ -10,7 +10,7 @@ Mỗi bài lab gồm ba phần: **lý thuyết** giải thích "vì sao" trướ
 Machine Learning/
 ├── 01. Linear_Regression/            # Hồi quy tuyến tính, Normal Eq + GD
 │   ├── Linear_Regression.ipynb
-│   └── images/                       # hình minh hoạ + figures.py sinh ra chúng
+│   └── images/                       # hình minh hoạ và ảnh động GIF
 ├── 02. Logistic_Regression/          # Hồi quy logistic, bắc cầu sang phân loại
 ├── 03. Naive_Bayes/                  # Phân loại xác suất, Bernoulli/Multinomial/Gaussian
 ├── 04. KNN/                          # K-Nearest Neighbors, scale & metric
@@ -32,15 +32,10 @@ Mỗi lab có thư mục `images/` chứa **9 đến 10 hình minh hoạ** đư�
 của notebook. Hình hiện ngay trên GitHub, nên sinh viên đọc được lý thuyết mà **không cần chạy
 notebook hay cài đặt gì**.
 
-Toàn bộ hình đều do script `images/figures.py` của chính lab đó sinh ra bằng matplotlib. Không
-có ảnh tải từ web nên không vướng bản quyền, không sợ link chết, và quan trọng nhất: **mọi con
-số trên hình đều tái lập được**. Muốn xem một hình được tạo thế nào, hoặc muốn tự thí nghiệm
-với tham số khác, chỉ cần mở file đó ra sửa rồi chạy lại:
-
-```bash
-cd "01. Linear_Regression/images"
-python figures.py          # ghi đè toàn bộ .png trong thư mục
-```
+Toàn bộ hình đều được vẽ bằng matplotlib từ dữ liệu của chính bài lab đó. Không có ảnh tải từ
+web nên không vướng bản quyền, không sợ link chết, và mọi con số trên hình đều khớp với phần lý
+thuyết trong notebook. Ngoài hình tĩnh, mỗi lab còn có một ảnh động GIF minh hoạ quá trình
+thuật toán chạy qua từng bước.
 
 Vài hình đáng chú ý:
 
@@ -104,8 +99,8 @@ pip install cvxopt                 # cho Đề thi thử (Câu 2 SVM) và bài t
 pip install imbalanced-learn       # cho bài tập class imbalance (tuỳ chọn)
 ```
 
-Chỉ cần `numpy`, `scipy`, `pandas`, `matplotlib`, `scikit-learn` là chạy được các script
-`images/figures.py` (không cần torch).
+Chỉ cần `numpy`, `scipy`, `pandas`, `matplotlib`, `scikit-learn` là chạy được các lab 01 đến 08
+(không cần torch).
 
 Khuyến nghị: Python 3.9+, dùng Jupyter Notebook hoặc Google Colab.
 
